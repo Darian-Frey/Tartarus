@@ -39,7 +39,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 ### AV-005 Game data committed to the repository
 **Severity:** Critical
 **Description.** A HOG, mission, movie, extracted texture or table file lands in git, infringing Outrage/Interplay rights and poisoning every clone.
-**Detection.** Pre-commit hook rejecting `CLAUDE.local.md`, `*.hog`, `*.mn3`, `*.d3l`, `*.gam`, `*.mve`, `*.ogv`, `*.oof`, `*.ogf`, `*.pld` and any file > 5 MB outside `third_party/`; `.gitignore` for the same; CI runs the same check.
+**Detection.** Pre-commit hook rejecting `CLAUDE.local.md`, `*.hog`, `*.mn3`, `*.d3l`, `*.gam`, `*.mve`, `*.ogv`, `*.oof`, `*.ogf`, `*.pld` and any file > 5 MB outside `third_party/`; `.gitignore` for the same; CI runs the same check. Exempt: upstream's own tracked, GPL-released files in `scripts/data/demohog/`, `scripts/data/fullhog/` (HogMaker inputs for `d3-linux.hog`) and `cfile/tests/TestDir/` (test fixture); the hook must allow these paths, and merges from `upstream` that touch only them.
 **Related decisions.** D-003, D-007.
 **History.** —
 

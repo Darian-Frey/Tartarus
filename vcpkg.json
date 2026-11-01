@@ -1,0 +1,35 @@
+{
+  "builtin-baseline": "9a5dfef5d1a0438a7d24856a85bd60f309d355e9",
+  "dependencies": [
+    {
+      "name": "cpp-httplib",
+      "version>=": "0.23.0"
+    },
+    "glm",
+    "gtest",
+    "plog",
+    {
+      "name": "sdl3",
+      "version>=": "3.2.6",
+      "features": ["x11","wayland", "alsa"],
+      "platform": "linux"
+    },
+    {
+      "name": "sdl3",
+      "version>=": "3.2.6",
+      "platform": "!linux"
+    },
+    {
+      "name": "libxcrypt",
+      "version>=": "4.4.38",
+      "platform": "linux"
+    },
+    "zlib"
+  ],
+  "overrides": [
+    {
+      "name": "sdl3",
+      "version": "3.2.6"
+    }
+ ]
+}

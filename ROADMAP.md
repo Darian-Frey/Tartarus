@@ -4,16 +4,17 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 0 — Fork and baseline
 **Goal:** A clean fork that builds and plays stock Descent 3 natively on the reference Linux machine, with upstream credit in place and a repeatable upstream-merge path.
-**Status:** Not started
+**Status:** In progress
 **Features delivered:** F-001, F-003, F-004
 **Deliverables:**
-- [ ] Fork created from **https://github.com/DescentDevelopers/Descent3** (fork on GitHub, then locally):
+- [x] Fork created from **https://github.com/DescentDevelopers/Descent3** (fork on GitHub, then locally):
   ```bash
   git clone --recurse-submodules https://github.com/Darian-Frey/tartarus
   cd tartarus
   git remote add upstream https://github.com/DescentDevelopers/Descent3
   git fetch upstream
   ```
+  Done 2026-11-01 by merging `upstream/main` (`593b880f`) into the existing docs repo with `--allow-unrelated-histories`; upstream's README/BUILD/CHANGELOG moved to `docs/UPSTREAM_*.md`.
 - [ ] `tools/upstream-sync.sh` (merges `upstream/main`)
 - [ ] Reference build on Linux Mint per BUILD.md; `BUILD.md` §Troubleshooting seeded with anything hit
 - [ ] Steam data-dir detection (`Descent3/tartarus/datadir.cpp`)
