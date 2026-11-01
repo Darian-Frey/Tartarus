@@ -27,4 +27,17 @@ namespace tartarus {
 /// registry (tartarus.cfg), then Classic Mode, then each module's cvars.
 void Tartarus_Init();
 
+/// Offer a key from ProcessKeys() before any upstream handler (AV-008): the
+/// console first, then the cheat menu (F-012). True if Tartarus used it.
+bool HandleKey(int key);
+
+/// Per-frame game logic, after DoPlayerFrame(): the cheat hold loop (F-012).
+void Frame();
+
+/// Multiplier applied to Frametime right after CalcFrameTime() (TORPOR).
+float TimeScale();
+
+/// Overlays drawn after the HUD: cheat menu and tag, then the console on top.
+void RenderOverlays();
+
 } // namespace tartarus

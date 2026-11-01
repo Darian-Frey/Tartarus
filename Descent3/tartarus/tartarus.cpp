@@ -22,6 +22,7 @@
 
 #include "args.h"
 #include "cfile.h"
+#include "cheats.h"
 #include "classic.h"
 #include "console.h"
 #include "display.h"
@@ -40,7 +41,7 @@ void Tartarus_Init() {
 #if defined(_DEBUG)
     return true; // Debug builds treat every cheat as unlocked (SPEC.md §4)
 #else
-    return false; // until the cheat menu (F-012) provides unlocks
+    return false; // no CHEAT-flagged cvars exist yet; map each to its cheat row (F-012) when one does
 #endif
   };
   policy.log = [](const std::string &msg) { LOG_WARNING << "[tartarus] " << msg; };
@@ -58,6 +59,18 @@ void Tartarus_Init() {
 
   Display_Init();
   Console_Init();
+  Cheats_Init();
+}
+
+bool HandleKey(int key) { return Console_HandleKey(key) || Cheats_HandleKey(key); }
+
+void Frame() { Cheats_Frame(); }
+
+float TimeScale() { return Cheats_TimeScale(); }
+
+void RenderOverlays() {
+  Cheats_Render();
+  Console_Render();
 }
 
 } // namespace tartarus

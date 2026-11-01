@@ -32,7 +32,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 ### AV-004 Cheats leaking into multiplayer or scores
 **Severity:** Major
 **Description.** A cheat toggle survives into a multiplayer game, or an unlock path forgets to set `IsCheater`, letting cheated progress count.
-**Detection.** Unit test over the unlock table asserting every row sets `IsCheater`; manual: start a LAN game after unlocking and confirm all toggles are off and the menu refuses. Code review of every `CHEAT`-flagged cvar's set path.
+**Detection.** Unit test over the unlock table asserting every row sets `IsCheater` (`CheatTable.EveryRowButCatharsisMarksCheater`, the relock row being the one exception); manual: start a LAN game after unlocking and confirm all toggles are off and the menu refuses. Code review of every `CHEAT`-flagged cvar's set path.
 **Related decisions.** D-006, D-008.
 **History.** —
 

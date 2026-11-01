@@ -13,6 +13,8 @@ else()
 endif()
 
 list(APPEND HEADERS
+  tartarus/cheat_table.h
+  tartarus/cheats.h
   tartarus/classic.h
   tartarus/cmdparse.h
   tartarus/console.h
@@ -26,6 +28,8 @@ list(APPEND HEADERS
   tartarus/version.h
 )
 list(APPEND CPPS
+  tartarus/cheat_table.cpp
+  tartarus/cheats.cpp
   tartarus/classic.cpp
   tartarus/cmdparse.cpp
   tartarus/console.cpp

@@ -64,13 +64,14 @@ Built-in commands (Phase 1):
 | `exec <file>` | run a script from the writable base dir |
 | `bind <key> "<line>"` / `unbind <key>` | console-script keybinds (layered over upstream controls) |
 | `classic <0|1>` | mode switch (prompts if a level is loaded) |
-| `map <mission.mn3> <level>` | CHEAT. Level warp |
-| `give <weapon-name|all|energy|shields|ammo>` | CHEAT |
+| `map <mission.mn3> <level>` | CHEAT (FERRYMAN). Level warp; for now opens upstream's level picker, arguments pending |
+| `give <weapon-name|all|energy|shields|ammo|keys>` | CHEAT (CORNUCOPIA). Weapon names as the HUD shows them, spaces optional (`give massdriver`) |
 | `spawn <object-name> [count]` | CHEAT. Spawns ahead of the player |
-| `god <0|1>`, `noclip <0|1>` | CHEAT |
-| `timescale <f>` | CHEAT. 0.05–4.0 |
+| `god <0|1>`, `noclip <0|1>` | CHEAT (AMBROSIA; WRAITH). `noclip` pending |
+| `timescale <f>` | CHEAT (TORPOR). 0.05–4.0 |
 | `screenshot` | closes the console and calls upstream `DoScreenshot()` (upstream's location and format) |
-| `cheat <password>` | same unlock table as the cheat menu (§4) |
+| `cheat <password>` | same unlock table as the cheat menu (§4); no argument lists the rows and their state |
+| `cheatmenu` | opens the cheat menu |
 | `quit` | leave the game; shows the normal exit confirmation |
 | `set <cvar> <value>`, `reset <cvar>`, `toggle <bool cvar>` | explicit forms of cvar assignment |
 | `echo <text>`, `clear`, `version` | |
@@ -81,11 +82,13 @@ Input capture: while open, the console consumes every key (the toggle key and `E
 
 ## 4. Cheat menu and passwords
 
-**Open:** pause menu → Cheats, or `F12` (`g_cheatmenu_key`). **Refused** when `classic 1` or `Game_mode & GM_MULTI`, with the message "Cheats are not available in Classic Mode / multiplayer".
+**Open:** `Shift+F12`, or `cheatmenu` in the console. (Stock F12 drops a marker; upstream has no pause menu, only a "paused" message box, so there is no menu entry.) Rebinding waits for `bind` (F-010). **Refused** when `classic 1` or `Game_mode & GM_MULTI`, or outside a level, with the message "Cheats are not available in Classic Mode" / "… in multiplayer".
 
-**Unlock semantics.** Passwords are letters only, case-insensitive. Entering a valid password unlocks that row for the current pilot session and sets `IsCheater = true`. Unlocked rows are toggles (infinite-type) or buttons (one-shot). `IsCheater` persists until the next *new game*; `CATHARSIS` relocks all rows and schedules the flag to clear at the next new game.
+**Menu keys.** Letters type the password; Enter submits it (and selects the unlocked row). With the password field empty: Up/Down select, Enter uses the row (toggle flips, button fires, slider resets to 1.0), Left/Right move the slider by 0.1. Escape or Shift+F12 closes. Ship controls are suspended while open; the game keeps running (IMP-004).
 
-**Hold-at-max loop.** For each active infinite toggle, once per frame after player think: `energy = MAX_ENERGY`, `shields = MAX_SHIELDS`, `weapon_ammo[i] = max` for the relevant class, `afterburn_time_left = AFTERBURN_TIME`.
+**Unlock semantics.** Passwords are letters only, case-insensitive. Entering a valid password unlocks that row for the current pilot session and sets `IsCheater = true` (and zeroes the score, as upstream cheats do); so does every use. Unlocked rows are toggles (infinite-type) or buttons (one-shot). `IsCheater` persists until the next *new game* (upstream clears it there); active toggles and the time scale end at that point too, unlocks stay. Selecting a different pilot relocks everything. `CATHARSIS` relocks all rows, switches every toggle off, and does not itself set the flag; the flag then clears at the next new game.
+
+**Hold-at-max loop.** For each active infinite toggle, once per frame after player think: `energy = MAX_ENERGY`, `shields = MAX_SHIELDS`, `weapon_ammo[i] = max` for the relevant class, `afterburn_time_left = AFTERBURN_TIME`; invulnerability (`PLAYER_FLAGS_INVULNERABLE`) and cloak (`MakeObjectInvisible(..., no_hud_message = true)`) re-applied if lost (death, new level). Skipped while the player is dying. When a hold ends, exactly what the loop applied is undone. Countermeasures are not held yet.
 
 | Password | Kind | Effect |
 |---|---|---|
@@ -100,16 +103,16 @@ Input capture: while open, the console consumes every key (the toggle key and `E
 | `SKELETONKEY` | button | All keys for the current level |
 | `THANATOS` | button | Kill all robots in the level (guide-bot spared, as upstream) |
 | `SHADE` | toggle | Cloak on/off (stock invisibility, no energy cost) |
-| `WRAITH` | toggle | Noclip |
+| `WRAITH` | toggle | Noclip (not implemented yet) |
 | `ARIADNE` | button | Full automap for the current level |
 | `FERRYMAN` | button | Level warp (opens mission/level picker) |
-| `ARGUS` | toggle | External/third-person camera |
+| `ARGUS` | toggle | External/third-person camera (not implemented yet) |
 | `HOURGLASS` | toggle | Frame-time and render statistics overlay |
-| `TORPOR` | slider | Time scale 0.1–1.0 (slow motion) |
+| `TORPOR` | slider | Time scale 0.1–1.0 (slow motion); `Frametime` is scaled after `CalcFrameTime()` |
 | `STYX` | button | Suicide (restart from last save) |
 | `CATHARSIS` | button | Relock all cheats; clear `IsCheater` at next new game |
 
-HUD tag: the string `CHEATS` in the top-right HUD corner, 50 % alpha, whenever `IsCheater` is true in Tartarus mode.
+HUD tag: the string `CHEATS` in the top-right HUD corner below the score, 50 % alpha, whenever `IsCheater` is true in Tartarus mode.
 
 Debug builds (`CMAKE_BUILD_TYPE=Debug`) treat every row as pre-unlocked but still set `IsCheater` on use.
 
@@ -274,7 +277,7 @@ Visited set: room index added on entry; persisted in the save sidecar `AMAP` rec
 | Action | Default |
 |---|---|
 | Console | `` ` `` |
-| Cheat menu | F12 |
+| Cheat menu | Shift+F12 (stock F12 drops a marker) |
 | Cloak | C |
 | Repulsor | V |
 | Convert → shields / → energy | [ / ] |

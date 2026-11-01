@@ -22,7 +22,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  cmdparse.cpp    console/config line tokenizer (SPEC §3 grammar)     │
 │  console_core.cpp  scrollback, editing, history, completion          │
 │  tartarus.cpp    Tartarus_Init(): cvar policy, cfg load, modules     │
-│  cheatmenu.cpp   password unlock table, per-frame hold loop          │
+│  cheats.cpp      cheat menu, hold loop (+ cheat_table.cpp)           │
 │  datadir.cpp     Steam/data-dir discovery (+ datadir_steam.cpp)      │
 │  version.cpp     build string, upstream hash (F-004)                 │
 │  display.cpp     resolution by size, session-only -windowed          │
@@ -51,7 +51,9 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **console_core.cpp / console.cpp.** `ConsoleCore` (pure C++, unit-tested) holds the scrollback (thread-safe `Print`, drained by `Pump` on the game thread), line editing, history (256), tab completion over commands and cvars, command registry with a `CMD_CHEAT` flag, dispatch (`name` describes a cvar, `name value` sets it) and `exec`. `console.cpp` is the engine glue: `Console_HandleKey()` is the first thing `ProcessKeys()` does with every key (AV-008); opening calls upstream `SuspendControls()` so the ship gets no input, closing calls `ResumeControls()`, which flushes the key and mouse queues; `Console_Render()` draws after the HUD in `GameRenderFrame()` with `rend_FillRect` + `grtext` (BRIEFING_FONT, ASCII only) and re-suspends controls if a game event resumed them while open. A plog appender mirrors engine logging. Owns no game state.
 
-**cheatmenu.cpp.** A `newui` dialog with a text field and toggle list. Maintains an `unlocked` bitmask per pilot session, the password table (SPEC.md), and a per-frame `CheatHoldLoop()` called from the player think path that pins energy/shields/ammo/afterburner at max for active infinite toggles. Sets upstream `IsCheater` on first unlock; refuses when `IsClassic()` or `Game_mode & GM_MULTI`.
+**cheat_table.cpp / cheats.cpp.** `cheat_table.cpp` (pure C++, unit-tested, AV-004) holds the SPEC §4 password table and `CheatState`: per-pilot-session unlocks, active toggles, time scale, and `Holds()`, which folds god mode into the individual holds. `cheats.cpp` is the engine glue: an overlay menu drawn like the console (`rend_FillRect` + `grtext`, controls suspended while open; not `newui`, so it can sit over the running game), the effects (one-shot ones reuse what `GameCheat.cpp` does), and `Cheats_Frame()`, which holds energy/shields/ammo/afterburner at max, re-applies invulnerability and cloak, and undoes exactly what it applied when a hold ends. Sets upstream `IsCheater` and zeroes the score on unlock and use; refuses when `IsClassic()` (and switches everything off on the way in), in multiplayer (state forgotten, player object untouched) or outside a level. Draws the CHEATS tag itself, so no HUD-item hook is needed. Upstream's typed cheats are untouched.
+
+**tartarus.cpp.** `Tartarus_Init()` plus the per-frame dispatchers the GameLoop hooks call (`HandleKey`, `Frame`, `TimeScale`, `RenderOverlays`), so a new module never needs a new hook in the loop.
 
 **datadir.cpp / datadir_steam.cpp.** `DataDir_Probe()` runs in `InitIOSystems()` after the user, config and platform base directories are added, and acts only if none of them provides `d3.hog` (so `-additionaldir` always wins). It probes the native, Flatpak and Snap Steam roots and every library in their `libraryfolders.vdf`, keeps directories holding `d3.hog`, de-duplicates by canonical path, and adds the first with `cf_AddBaseDirectory()`, the mechanism `-additionaldir` uses. `DataDir_RequireHog()` stops with an error naming the file and every directory searched when `d3.hog` fails to open. `datadir_steam.cpp` is pure standard C++ and unit-tested (`Descent3/tartarus/tests/`). Runs in Classic Mode too: it is a compatibility fix.
 
@@ -83,7 +85,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 
 | Upstream file | Hook | Purpose |
 |---|---|---|
-| `Descent3/GameLoop.cpp` | `Console_HandleKey()` first in the `ProcessKeys()` loop; `Console_Render()` after the HUD in `GameRenderFrame()`; later `CheatHoldLoop()` and the Tartarus per-frame update | console, cheats, cloak/converter ticks |
+| `Descent3/GameLoop.cpp` | `tartarus::HandleKey()` first in the `ProcessKeys()` loop (console, then cheat menu); `tartarus::RenderOverlays()` after the HUD in `GameRenderFrame()`; `tartarus::Frame()` after `DoPlayerFrame()` in `GameFrame()`; `Frametime *= tartarus::TimeScale()` after `CalcFrameTime()` | console, cheats, later cloak/converter ticks |
 | `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()`; `Display_SaveSettings()` after the `RS_fullscreen` write in `SaveGameSettings()` | startup, display settings |
 | `Descent3/config.cpp::ConfigureDisplayResolutions` | `Display_RestoreResolution()` replaces the index-based restore | display settings (BUG-004) |
 | `Descent3/mmItem.cpp::mmInterface::CopyrightText` | `DrawMenuBuildString()` early return | build string (F-004) |
@@ -91,13 +93,13 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `physics/collide.cpp` (`collide_generic_and_player` via `DO_COLLISION(OBJ_ROBOT, OBJ_PLAYER, …)`) | `Cloak_Break(CLOAK_BREAK_BUMP)` + alert | cloak |
 | `Descent3/fireball.cpp::DoExplosionFrame` | dispatch `TARTARUS_GRAVWELL_INDEX` | gravity missile |
 | `Descent3/WeaponFire.cpp` (weapon-vs-wall impact, where `WF_GRAVITY_FIELD` is handled ~line 3078) | spawn grav well for Tartarus flag | gravity missile |
-| `Descent3/hud.cpp::RenderHUDItems` + `HUD_ITEM_*` | register cloak gauge, orientation items, CHEATS tag | HUD |
+| `Descent3/hud.cpp::RenderHUDItems` + `HUD_ITEM_*` | register cloak gauge, orientation items | HUD |
 | `Descent3/gauges.cpp` | cockpit-mode variants if cockpit view is kept | HUD |
 | `Descent3/SmallViews.cpp::DrawSmallViews` (HUD/dormant-cockpit branch) | small-view size, aspect and position from `hud_sv_*` | small views (F-060) |
 | `physics/physics.cpp` (autolevel block) | strength/delay/hold/snap | orientation |
 | `Descent3/TelComAutoMap.cpp` | draw/input calls into `automap_ext` | automap |
 | `Descent3/gamesave.cpp` / `Descent3/loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |
-| `Descent3/menu.cpp` / `Descent3/newui.cpp` options | Tartarus options page, cheat menu entry | UI |
+| `Descent3/menu.cpp` / `Descent3/newui.cpp` options | Tartarus options page | UI |
 | `Descent3/CMakeLists.txt` | `include(tartarus/tartarus.cmake)` before `add_executable(Descent3)`: sources, version header, tests | build |
 
 ## Data flow for the signature sequence

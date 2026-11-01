@@ -69,7 +69,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - All engine log output (plog) is mirrored into the console scrollback
 - Commands available at launch: `classic`, `help`, `find`, `exec <file>`, `bind`, `unbind`, `quit`, `map <mission> <level>`, `give <weapon|all>`, `spawn <object>`, `noclip`, `god`, `timescale <f>`, `screenshot`, `cvarlist`, `cheat <password>` (see F-012)
 - Cheat-class commands are refused unless the matching cheat is unlocked (F-012) or the build is a Debug build
-**Status:** In progress (Phase 1): toggle, input capture (controls suspended, queues flushed on close), scrollback, history persisted to `console_history.txt`, tab completion, plog mirror, `help`/`find`/`cvarlist`/`set`/`reset`/`toggle`/`echo`/`clear`/`exec`/`classic`/`screenshot`/`version`/`quit` done and verified in level 1 (2026-11-01); `bind`/`unbind`, the cheat commands (with F-012), `con_key`, `con_pause` and line wrapping pending
+**Status:** In progress (Phase 1): toggle, input capture (controls suspended, queues flushed on close), scrollback, history persisted to `console_history.txt`, tab completion, plog mirror, `help`/`find`/`cvarlist`/`set`/`reset`/`toggle`/`echo`/`clear`/`exec`/`classic`/`screenshot`/`version`/`quit` done and verified in level 1 (2026-11-01); cheat commands `cheat`, `cheatmenu`, `give`, `god`, `timescale`, `map` (picker only) done with F-012 (2026-11-01); `bind`/`unbind`, `noclip`, `spawn`, `map <mission> <level>` arguments, `con_key`, `con_pause` and line wrapping pending
 **Notes:** D-005. SPEC.md §Console grammar.
 
 ### F-011 Cvar system
@@ -90,8 +90,8 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Cheats are refused in multiplayer games and when `classic 1`, with a message
 - Infinite-resource cheats (energy, shields, primary ammo, secondary ammo, afterburner) are *toggles* that hold the value at maximum each frame, not one-shot refills
 - `CATHARSIS` relocks everything and clears the flag for the next new game (not the current one)
-**Status:** Not started (Phase 1)
-**Notes:** D-006. Upstream's `GameCheat.cpp` typed-sequence cheats stay functional in Classic Mode.
+**Status:** In progress (Phase 1): unlock table, password entry, toggles/buttons/slider, hold-at-max loop, `IsCheater` + score reset, CHEATS tag, Classic/multiplayer refusal and `cheat`/`give`/`god`/`timescale`/`map` console commands done and verified in level 1 (2026-11-01); 17 of 19 rows work. Pending: WRAITH (noclip: upstream has none, and moving through walls without breaking room tracking needs its own design), ARGUS (upstream's chase camera is half-built), countermeasures (mines, chaff) in HYDRA's hold, and the LAN check for AV-004. Opens with **Shift+F12**, not F12: stock F12 drops a marker, and upstream has no pause menu to add an entry to (pause is a message box). Owner to confirm.
+**Notes:** D-006. Upstream's `GameCheat.cpp` typed-sequence cheats stay functional in Classic Mode. The game keeps running while the menu is open (IMP-004).
 
 ### F-013 Debug overlays
 **Priority:** Should

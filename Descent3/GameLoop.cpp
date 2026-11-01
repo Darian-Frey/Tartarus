@@ -803,7 +803,7 @@
 
 #include "chrono_timer.h"
 #include "gameloop.h"
-#include "tartarus/console.h" // TARTARUS: F-010
+#include "tartarus/tartarus.h" // TARTARUS: F-010, F-012
 #include "game.h"
 #include "render.h"
 #include "descent.h"
@@ -2392,8 +2392,8 @@ void ProcessKeys() {
 
   // Process all pending keys
   while ((key = ddio_KeyInKey()) != 0) {
-    // TARTARUS: console gets first refusal on every key, ahead of chat and DemoCheats (F-010, AV-008)
-    if (tartarus::Console_HandleKey(key))
+    // TARTARUS: console, then cheat menu, get first refusal on every key, ahead of chat and DemoCheats (F-010, F-012, AV-008)
+    if (tartarus::HandleKey(key))
       continue;
 
     // Where does this belong?
@@ -2645,8 +2645,8 @@ void GameRenderFrame(void) {
       EndFrame();
     }
 
-    // TARTARUS: drop-down console drawn over the HUD (F-010)
-    tartarus::Console_Render();
+    // TARTARUS: cheat menu, CHEATS tag and drop-down console drawn over the HUD (F-010, F-012)
+    tartarus::RenderOverlays();
   }
 
   // Do UI Frame
@@ -2997,6 +2997,7 @@ void GameFrame(void) {
     //	Do player frame
     RTP_tSTARTTIME(playerframe_time, curr_time);
     DoPlayerFrame();
+    tartarus::Frame(); // TARTARUS: cheat hold-at-max loop, after player think (F-012)
     RTP_tENDTIME(playerframe_time, curr_time);
 
     // Weather frame
@@ -3092,6 +3093,7 @@ void GameFrame(void) {
 
     // Compute how long frame took
     CalcFrameTime();
+    Frametime *= tartarus::TimeScale(); // TARTARUS: TORPOR / timescale; 1 in Classic Mode (F-012)
 
     // Update Gametime
     Gametime += Frametime;

@@ -37,3 +37,11 @@ add_executable(
 )
 target_link_libraries(tartarus_display_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_display_tests)
+
+add_executable(
+  tartarus_cheat_tests
+  cheat_table_tests.cpp
+  ../cheat_table.cpp
+)
+target_link_libraries(tartarus_cheat_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_cheat_tests)

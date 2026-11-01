@@ -32,6 +32,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Proposal.** Wrap at render time using `grtext_GetTextLineWidth`; draw the background as an alpha-blended 2D polygon so the game shows through.
 **Trade-offs.** Wrapping at render time makes scroll offsets count wrapped rows; keep offsets in source lines and accept uneven paging.
 
+### IMP-004: Pause the game while the cheat menu (or console) is open
+**Status:** suggested
+**Found:** 2026-11-01 (F-012 in-game test)
+**Location:** `Descent3/tartarus/cheats.cpp`, `console.cpp`; `GameFrame()` in `Descent3/GameLoop.cpp`
+**Effort:** small
+**Description.** Robots keep attacking while the player types a password. Upstream's `PauseGame()` cannot be used as is: while `Game_paused` is set, `GameFrame()` stops calling `ProcessKeys()`, so the menu could never be closed. Scaling `Frametime` to 0 is not safe either: some code divides by it (e.g. `AImain.cpp`, `Controls.cpp`).
+**Proposal.** Stop simulation the way `Game_paused` does but keep feeding keys to `tartarus::HandleKey()` (one extra call in the paused branch of `GameFrame()`), then use it for both the cheat menu and `con_pause` (F-010).
+**Trade-offs.** One more hook point in `GameFrame()`; sound and music pause/resume must match upstream's `PauseGame()`/`ResumeGame()` exactly.
+
 ## Applied
 
 ### IMP-002: Upstream-sync helper

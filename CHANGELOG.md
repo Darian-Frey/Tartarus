@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 1)
+- Cheat menu (F-012, D-006): Shift+F12 opens a password screen over the game; 17 of the 19 SPEC §4 cheats (give all, god mode, infinite shields/energy/ammo/afterburner, invulnerability, keys, destroy robots, cloak, automap, level warp, statistics overlay, time scale, self-destruct, relock); "infinite" rows held at maximum every frame; sets `IsCheater` and shows a CHEATS tag; refused in Classic Mode and multiplayer (AV-001, AV-004). Console commands `cheat`, `cheatmenu`, `give`, `god`, `timescale`, `map`. 14 unit tests — 2026-11-01.
 - Developer console (F-010): backtick toggles; ship controls suspended while open; scrollback, history (`console_history.txt`), tab completion, engine log mirror; commands `help`, `find`, `cvarlist`, `set`, `reset`, `toggle`, `echo`, `clear`, `exec`, `classic`, `screenshot`, `version`, `quit`; 11 unit tests — 2026-11-01.
 - Cvar system (F-011): typed registry with `ARCHIVE`/`CHEAT`/`CLASSIC_LOCKED`/`LATCH`/`READONLY`, atomic `tartarus.cfg` persistence, console-grammar tokenizer; 16 unit tests — 2026-11-01.
 - Classic Mode gate (F-002): `classic` cvar (default on), `IsClassic()`, session-only `-classic`/`-tartarus`; `Tartarus_Init()` hook in `InitD3Systems1()`; CMake option `TARTARUS_DEFAULT_CLASSIC` — 2026-11-01.

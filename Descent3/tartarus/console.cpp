@@ -27,6 +27,7 @@
 #include <plog/Appenders/IAppender.h>
 
 #include "cfile.h"
+#include "cheats.h"
 #include "classic.h"
 #include "controls.h"
 #include "ddio.h"
@@ -104,14 +105,6 @@ public:
 };
 ConsoleLogAppender g_appender;
 
-bool CheatAllowed() {
-#if defined(_DEBUG)
-  return true; // Debug builds treat every cheat as unlocked (SPEC.md §4)
-#else
-  return false; // until the cheat menu (F-012) provides unlocks
-#endif
-}
-
 void RegisterEngineCommands(ConsoleCore &con) {
   con.AddCommand({"quit", "quit", "Leave the game (asks to confirm, as Escape does)", CMD_NONE,
                   [](const CommandArgs &, ConsoleCore &) {
@@ -152,7 +145,7 @@ ConsoleCore &Console() {
 
 void Console_Init() {
   ConsoleCore &con = Console();
-  con.cheat_allowed = [](const ConsoleCommand &) { return CheatAllowed(); };
+  con.cheat_allowed = [](const ConsoleCommand &cmd) { return Cheats_AllowsCommand(cmd.name.c_str()); };
   con.SetExecDirectory(cf_GetWritableBaseDirectory());
 
   con_height = Cvars().RegisterFloat("con_height", 0.45f, 0.1f, 1.0f, "Console height as a fraction of the screen",
