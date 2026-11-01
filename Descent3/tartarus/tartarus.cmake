@@ -5,14 +5,29 @@
 set(TARTARUS_VERSION "0.1.0-dev")
 set(TARTARUS_DIR ${CMAKE_CURRENT_LIST_DIR})
 
+option(TARTARUS_DEFAULT_CLASSIC "Start in Classic Mode on first run (no tartarus.cfg yet)" ON)
+if(TARTARUS_DEFAULT_CLASSIC)
+  add_compile_definitions(TARTARUS_DEFAULT_CLASSIC=1)
+else()
+  add_compile_definitions(TARTARUS_DEFAULT_CLASSIC=0)
+endif()
+
 list(APPEND HEADERS
+  tartarus/classic.h
+  tartarus/cmdparse.h
+  tartarus/cvar.h
   tartarus/datadir.h
   tartarus/datadir_steam.h
+  tartarus/tartarus.h
   tartarus/version.h
 )
 list(APPEND CPPS
+  tartarus/classic.cpp
+  tartarus/cmdparse.cpp
+  tartarus/cvar.cpp
   tartarus/datadir.cpp
   tartarus/datadir_steam.cpp
+  tartarus/tartarus.cpp
   tartarus/version.cpp
 )
 

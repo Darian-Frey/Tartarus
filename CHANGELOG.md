@@ -3,6 +3,9 @@
 Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-, AV-, BUG- and IMP- IDs for traceability. Upstream Descent 3 changes arrive via merges and are summarised, not re-listed; see upstream's CHANGELOG for detail.
 
 ## [Unreleased]
+### Added (Phase 1)
+- Cvar system (F-011): typed registry with `ARCHIVE`/`CHEAT`/`CLASSIC_LOCKED`/`LATCH`/`READONLY`, atomic `tartarus.cfg` persistence, console-grammar tokenizer; 16 unit tests — 2026-11-01.
+- Classic Mode gate (F-002): `classic` cvar (default on), `IsClassic()`, session-only `-classic`/`-tartarus`; `Tartarus_Init()` hook in `InitD3Systems1()`; CMake option `TARTARUS_DEFAULT_CLASSIC` — 2026-11-01.
 ### Changed
 - Roadmap: new Phase 2 "Controls and display" (D-013); old Phases 2–6 renumbered 3–7 in all documents. F-060 (now including widescreen menus, priority Must), F-062 and F-063 moved into it — 2026-11-01.
 ### Added

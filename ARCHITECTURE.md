@@ -19,6 +19,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  classic.cpp     IsClassic() — the one gate every module checks      │
 │  cvar.cpp        typed registry, persistence, flags                  │
 │  console.cpp     drop-down console, commands, plog sink              │
+│  cmdparse.cpp    console/config line tokenizer (SPEC §3 grammar)     │
+│  tartarus.cpp    Tartarus_Init(): cvar policy, cfg load, modules     │
 │  cheatmenu.cpp   password unlock table, per-frame hold loop          │
 │  datadir.cpp     Steam/data-dir discovery (+ datadir_steam.cpp)      │
 │  version.cpp     build string, upstream hash (F-004)                 │
@@ -41,9 +43,9 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 ## Module responsibilities
 
-**classic.cpp.** Owns the `classic` cvar and `IsClassic()`. Every Tartarus module's per-frame entry point begins `if (IsClassic()) return;`. Also forces `CLASSIC_LOCKED` cvars to default when the mode flips, and stamps the mode into save-game headers.
+**classic.cpp.** Owns the `classic` cvar and `IsClassic()` (a cached bool, safe per frame). Every Tartarus module's per-frame entry point begins `if (IsClassic()) return;`. `-classic` / `-tartarus` set a session-only override that is never written to `tartarus.cfg` and is dropped as soon as the user changes `classic`. `CLASSIC_LOCKED` cvars are enforced by the registry on the read side (they *read* as their default while Classic is on, so the user's value survives the round trip). Stamping the mode into save games arrives with the save sidecar (AV-003).
 
-**cvar.cpp.** A flat registry of named, typed values with flags (`ARCHIVE`, `CHEAT`, `CLASSIC_LOCKED`, `LATCH`). Loaded from and saved to `tartarus.cfg` in the writable base directory (SDL's preference path; `-setdir` no longer exists upstream). Exposes `Cvar_Get/Set/Register` and change callbacks. Does not depend on the console.
+**cvar.cpp / cmdparse.cpp.** `CvarRegistry`: a flat registry of named, typed values (bool/int/float/string, min/max, description) with flags `ARCHIVE`, `CHEAT`, `CLASSIC_LOCKED`, `LATCH`, `READONLY`. API: `Cvars().RegisterBool/Int/Float/String`, `Find`, `List(prefix)`, `Set(name, value, source)`, `ApplyLatched()`, change callbacks; reads are cached numbers, so per-frame use is free. Persisted to `tartarus.cfg` in the writable base directory (SDL's preference path; `-setdir` no longer exists upstream): only non-default `ARCHIVE` values, written atomically after each user change; values for modules not yet registered are kept and applied when they register. Engine dependencies (classic flag, cheat policy, log, path) are injected through `CvarPolicy`, so both files are pure C++ and unit-tested. Does not depend on the console.
 
 **console.cpp.** Input capture (hooks the key path in `GameLoop.cpp` ahead of `DemoCheats()`), a scrollback buffer, command dispatch, tab completion over commands + cvars, history persisted to `console_history.txt`, and a plog appender that mirrors engine logging. Rendering uses `grtext` and the 2D primitives already used by `hud.cpp`. Owns no game state.
 
@@ -78,7 +80,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | Upstream file | Hook | Purpose |
 |---|---|---|
 | `Descent3/GameLoop.cpp` (key handling near `DemoCheats(key)`) | console key intercept; `CheatHoldLoop()`; Tartarus per-frame update | console, cheats, cloak/converter ticks |
-| `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; later `Tartarus_Init()` after cvar/arg parsing | startup |
+| `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()` | startup |
 | `Descent3/mmItem.cpp::mmInterface::CopyrightText` | `DrawMenuBuildString()` early return | build string (F-004) |
 | `Descent3/WeaponFire.cpp::FireWeaponFromPlayer`, `FireFlareFromPlayer` | `Cloak_Break(CLOAK_BREAK_FIRE)`; overcharge later | cloak |
 | `physics/collide.cpp` (`collide_generic_and_player` via `DO_COLLISION(OBJ_ROBOT, OBJ_PLAYER, …)`) | `Cloak_Break(CLOAK_BREAK_BUMP)` + alert | cloak |

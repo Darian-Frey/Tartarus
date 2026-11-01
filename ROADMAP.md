@@ -26,12 +26,12 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 1 — Developer foundation
 **Goal:** The tools every later phase depends on: console, cvars, Classic Mode gate, cheat menu, debug overlays.
-**Status:** Not started
+**Status:** In progress
 **Features delivered:** F-002, F-010, F-011, F-012, F-013
 **Deliverables:**
-- [ ] `cvar.cpp/.h` with flags, persistence to `tartarus.cfg`, `CLASSIC_LOCKED` enforcement
+- [x] `cvar.cpp/.h` with flags, persistence to `tartarus.cfg`, `CLASSIC_LOCKED` enforcement — 2026-11-01
 - [ ] `console.cpp/.h`: input capture, rendering via `grtext`, history, completion, plog sink
-- [ ] `classic.cpp`: the single `IsClassic()` query and the Options toggle
+- [ ] `classic.cpp`: the single `IsClassic()` query and the Options toggle (query, cvar and `-classic`/`-tartarus` done 2026-11-01; toggle comes with the console now and F-069 in Phase 2)
 - [ ] `cheatmenu.cpp`: password field, unlock table, per-frame "hold at max" loop, HUD "CHEATS" tag, `IsCheater` integration
 - [ ] Debug overlays (`r_showaxes`, `r_showobjinfo`, `r_showcollide`)
 - [ ] AV-001 Classic-regression checklist written and run once

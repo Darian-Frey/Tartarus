@@ -37,7 +37,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - With `classic 1`, a scripted playthrough of the first two levels produces no HUD element, weapon, keybind or behaviour absent from upstream
 - Save games record the mode; loading a Tartarus save in Classic Mode warns and refuses rather than silently dropping state
 - Default is `classic 1` on first run
-**Status:** Not started (Phase 1)
+**Status:** In progress (Phase 1): `classic` cvar, `IsClassic()`, `-classic`/`-tartarus` and read-side `CLASSIC_LOCKED` done (2026-11-01); Options toggle (F-069), save-game mode stamp and the AV-001 audit pending
 **Notes:** D-004, AV-001.
 
 ### F-003 Steam data directory detection
@@ -78,7 +78,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Typed cvars (bool/int/float/string) with default, min/max, description and flags `ARCHIVE` (persist), `CHEAT` (needs unlock), `CLASSIC_LOCKED` (forced to default in Classic Mode), `LATCH` (applies on level load)
 - Persisted cvars round-trip through `tartarus.cfg` in the writable base directory
 - Every tunable named in SPEC.md is a cvar
-**Status:** Not started (Phase 1)
+**Status:** In progress (Phase 1): registry, all five flags, `tartarus.cfg` persistence and 16 unit tests done (2026-11-01); "every SPEC tunable is a cvar" is met module by module as each lands
 **Notes:** D-005.
 
 ### F-012 Password-gated cheat menu

@@ -972,6 +972,7 @@
 #include "dedicated_server.h"
 #include "D3ForceFeedback.h"
 #include "tartarus/datadir.h" // TARTARUS: F-003
+#include "tartarus/tartarus.h" // TARTARUS: Tartarus_Init
 #include "newui.h"
 #include "SmallViews.h"
 #include "uisys.h"
@@ -1848,6 +1849,8 @@ void InitD3Systems1(bool editor) {
   // perform user i/o system initialization
   INIT_MESSAGE(("Initializing I/O system."));
   InitIOSystems(editor);
+  // TARTARUS: cvars/tartarus.cfg, Classic Mode and module start-up (args parsed, writable dir known)
+  tartarus::Tartarus_Init();
 
   //	load the string table
   InitStringTable();
