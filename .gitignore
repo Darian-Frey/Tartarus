@@ -1,0 +1,48 @@
+# Tartarus .gitignore
+# When upstream Descent3 is merged in, combine this with upstream's own
+# .gitignore rather than replacing either.
+
+# --- Machine-specific / private (CLAUDE.md §Local environment) ---
+CLAUDE.local.md
+.claude/settings.local.json
+
+# --- Descent 3 game data: never committed (AV-005) ---
+*.hog
+*.mn3
+*.d3l
+*.gam
+*.mve
+*.ogv
+*.oof
+*.ogf
+*.pld
+*.ctl
+
+# --- Runtime output written to the writable base dir ---
+tartarus.cfg
+console_history.txt
+screenshots/
+savegame/
+*.plt
+*.log
+
+# --- Build output ---
+builds/
+build/
+out/
+cmake-build-*/
+vcpkg_installed/
+CMakeUserPresets.json
+compile_commands.json
+Testing/
+
+# --- Editors / tooling ---
+.vscode/
+.idea/
+.cache/
+*.swp
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
