@@ -104,6 +104,7 @@
 #include "Mission.h"
 #include "Macros.h"
 #include "hlsoundlib.h"
+#include "tartarus/mouse_compat.h" // TARTARUS: BUG-006
 
 #include <algorithm>
 
@@ -533,6 +534,8 @@ void TCGoalsRenderCallback(void) {
   // Display tooltip box
   int mouse_x, mouse_y;
   ddio_MouseGetState(&mouse_x, &mouse_y, nullptr, nullptr);
+  mouse_x /= tartarus::kUiMouseScale; // TARTARUS: same scale as TelCom's pointer (BUG-006)
+  mouse_y /= tartarus::kUiMouseScale;
   int index = FindHighlightedItem(mouse_x, mouse_y);
   char desc_buffer[1024], s_desc_buffer[1024], *ptr;
   ptr = desc_buffer;

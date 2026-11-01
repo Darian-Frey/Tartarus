@@ -24,6 +24,7 @@ list(APPEND HEADERS
   tartarus/datadir_steam.h
   tartarus/display.h
   tartarus/display_prefs.h
+  tartarus/mouse_compat.h
   tartarus/tartarus.h
   tartarus/version.h
 )

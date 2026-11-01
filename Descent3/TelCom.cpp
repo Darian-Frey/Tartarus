@@ -523,6 +523,7 @@
 #include "psrand.h"
 #include "controls.h"
 #include "d3music.h"
+#include "tartarus/mouse_compat.h" // TARTARUS: BUG-006
 
 #define FRAME_RATE 30.0f
 #define TCPE_TIME 0.5f
@@ -848,7 +849,8 @@ bool TelComShow(bool ingame, bool ShipSelect) {
 
   // keep the mouse in view
   ddio_MouseReset();
-  ddio_MouseSetVCoords(Game_window_w, Game_window_h);
+  // TARTARUS: same 20x virtual mouse space as the UI library, scaled back down where read (BUG-006)
+  ddio_MouseSetVCoords(Game_window_w * tartarus::kUiMouseScale, Game_window_h * tartarus::kUiMouseScale);
 
   // hang out in here until the user presses POWER
   TelComMain(ingame, ShipSelect);
@@ -2671,6 +2673,8 @@ void TelComHandleAllEvents(tTelComInfo *tcs) {
   } else {
     buttons = ddio_MouseGetState(&x, &y, nullptr, nullptr);
   }
+  x /= tartarus::kUiMouseScale; // TARTARUS: pointer speed as in the menus (BUG-006)
+  y /= tartarus::kUiMouseScale;
 
   Telcom_mouse_x = x;
   Telcom_mouse_y = y;

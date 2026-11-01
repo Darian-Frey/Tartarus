@@ -18,6 +18,15 @@ _None._
 
 ## Fixed
 
+### BUG-006: (upstream) Mouse pointer far too fast in TelCom screens (briefing, ship select)
+**Status:** fixed
+**Severity:** medium
+**Found:** 2026-11-01 (owner report: the mouse becomes very fast on the briefing screen before a mission)
+**Location:** `Descent3/TelCom.cpp` `TelComShow()` (`ddio_MouseSetVCoords(Game_window_w, Game_window_h)`) and `TelComHandleAllEvents()` (`ddio_MouseGetState` ~line 2672); `Descent3/TelComGoals.cpp` ~line 535; `ui/UISystem.cpp` `kDefaultMouseScale`; `ddio/lnxmouse.cpp` `sdlMouseMotionFilter()`
+**Description.** Upstream commit `5b18e22e` ("Fix mouselook", 2025-04) made the Linux mouse driver sum motion deltas between reads, and moves the pointer position by that running sum on every motion event (`x += dx` where `dx` is accumulated). To keep menus usable it gave the UI library a 20x virtual mouse space (`ddio_MouseSetVCoords(w * 20, h * 20)`) and divides positions by `kDefaultMouseScale` = 20 in `ui_MousePoll()`. TelCom was not updated: it sets a 1x space and reads raw `ddio_MouseGetState` positions, so the same hand movement moves the pointer about 20 times further than in the main menu, and more the faster the mouse moves (the running sum makes the motion grow with the number of events per frame).
+**Fix.** Option (a), chosen by the owner 2026-11-01: TelCom gets the same 20x virtual mouse space as the UI library and divides its two position reads by the same factor (`tartarus::kUiMouseScale` in `Descent3/tartarus/mouse_compat.h`). Hooks in `TelCom.cpp` (include, `ddio_MouseSetVCoords`, the read in `TelComHandleAllEvents`) and `TelComGoals.cpp` (include, tooltip read). Compatibility fix, active in Classic Mode too. Verified by injecting identical mouse motion on the main menu and in TelCom (Shift+Tab in a level): the pointers travel comparable distances; owner confirmed on the pre-mission briefing, 2026-11-01. Fixed 2026-11-01.
+**Remaining.** Option (b), fixing the driver itself (the pointer should move by each event's own delta, `x += xrel`, while the summed `dx`/`dy` stay for mouselook, then the 20x scaling goes from the UI and TelCom), is the real cause and an upstream PR candidate; it belongs with F-067, which reworks that code. Not yet checked against upstream's issue tracker (`gh` is not logged in here).
+
 ### BUG-004: (upstream) Screen resolution not restored correctly between runs
 **Status:** fixed
 **Severity:** high
