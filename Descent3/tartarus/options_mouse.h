@@ -40,6 +40,7 @@ private:
   bool classic_ = false;
   int *mode_ = nullptr;
   int16_t *sensitivity_ = nullptr;
+  int16_t *centre_rate_ = nullptr;
   bool *invert_y_ = nullptr;
   bool *indicator_ = nullptr;
   bool *roll_x_ = nullptr;

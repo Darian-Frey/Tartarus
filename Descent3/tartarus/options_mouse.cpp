@@ -37,6 +37,22 @@ constexpr int16_t kOptionId = 0x2201; // clear of upstream's IDV_* option ids
 constexpr float kSensMin = 0.25f;
 constexpr float kSensMax = 4.0f;
 constexpr int16_t kSensSteps = 15; // 0.25 per step
+constexpr float kCentreMin = 0.25f; // m_vj_centre_rate, per second (used by the auto-centre mode)
+constexpr float kCentreMax = 5.0f;
+constexpr int16_t kCentreSteps = 19; // 0.25 per step
+
+int16_t SliderPos(float v, float lo, float hi, int16_t steps) {
+  v = std::clamp(v, lo, hi);
+  return static_cast<int16_t>(std::lround((v - lo) / (hi - lo) * steps));
+}
+float SliderValue(int16_t pos, float lo, float hi, int16_t steps) {
+  return lo + (hi - lo) * std::clamp<int>(pos, 0, steps) / steps;
+}
+std::string Fixed2(float v) {
+  char buf[32];
+  std::snprintf(buf, sizeof(buf), "%.2f", v);
+  return buf;
+}
 
 int CvarInt(const char *name, int fallback) {
   const Cvar *c = Cvars().Find(name);
@@ -61,7 +77,7 @@ void MouseOptionsSheet::Setup(newuiMenu *menu) {
   sheet_ = menu->AddOption(kOptionId, "Mouse", NEWUIMENU_MEDIUM);
   classic_ = IsClassic();
   mode_ = nullptr;
-  sensitivity_ = nullptr;
+  sensitivity_ = centre_rate_ = nullptr;
   invert_y_ = indicator_ = roll_x_ = nullptr;
 
   if (classic_) {
@@ -84,12 +100,16 @@ void MouseOptionsSheet::Setup(newuiMenu *menu) {
   slider.type = SLIDER_UNITS_FLOAT;
   slider.min_val.f = kSensMin;
   slider.max_val.f = kSensMax;
-  const float sens = std::clamp(CvarFloat("m_vj_sensitivity", 1.0f), kSensMin, kSensMax);
-  const auto pos = static_cast<int16_t>(std::lround((sens - kSensMin) / (kSensMax - kSensMin) * kSensSteps));
   sheet_->NewGroup("Sensitivity", 0, 80);
-  sensitivity_ = sheet_->AddSlider("Speed", kSensSteps, pos, &slider);
+  sensitivity_ = sheet_->AddSlider(
+      "Speed", kSensSteps, SliderPos(CvarFloat("m_vj_sensitivity", 1.0f), kSensMin, kSensMax, kSensSteps), &slider);
+  slider.min_val.f = kCentreMin;
+  slider.max_val.f = kCentreMax;
+  centre_rate_ = sheet_->AddSlider("Centre speed", kCentreSteps,
+                                   SliderPos(CvarFloat("m_vj_centre_rate", 1.5f), kCentreMin, kCentreMax, kCentreSteps),
+                                   &slider);
 
-  sheet_->NewGroup("Options", 0, 125);
+  sheet_->NewGroup("Options", 0, 160);
   invert_y_ = sheet_->AddLongCheckBox("Invert pitch");
   indicator_ = sheet_->AddLongCheckBox("Show indicator");
   roll_x_ = sheet_->AddLongCheckBox("Left/right rolls");
@@ -102,10 +122,8 @@ void MouseOptionsSheet::Finish() {
   if (classic_ || mode_ == nullptr)
     return;
   SetCvar("m_mode", std::to_string(std::clamp(*mode_, 0, 2)));
-  const float sens = kSensMin + (kSensMax - kSensMin) * std::clamp<int>(*sensitivity_, 0, kSensSteps) / kSensSteps;
-  char buf[32];
-  std::snprintf(buf, sizeof(buf), "%.2f", sens);
-  SetCvar("m_vj_sensitivity", buf);
+  SetCvar("m_vj_sensitivity", Fixed2(SliderValue(*sensitivity_, kSensMin, kSensMax, kSensSteps)));
+  SetCvar("m_vj_centre_rate", Fixed2(SliderValue(*centre_rate_, kCentreMin, kCentreMax, kCentreSteps)));
   SetCvar("m_vj_invert_y", *invert_y_ ? "1" : "0");
   SetCvar("m_vj_indicator", *indicator_ ? "1" : "0");
   SetCvar("m_vj_roll_x", *roll_x_ ? "1" : "0");

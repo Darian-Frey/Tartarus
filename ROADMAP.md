@@ -4,7 +4,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 0 — Fork and baseline
 **Goal:** A clean fork that builds and plays stock Descent 3 natively on the reference Linux machine, with upstream credit in place and a repeatable upstream-merge path.
-**Status:** In progress
+**Status:** Acceptance met 2026-11-01; one deliverable open (levels 2–3 and the first Mercenary level)
 **Features delivered:** F-001, F-003, F-004
 **Deliverables:**
 - [x] Fork created from **https://github.com/DescentDevelopers/Descent3** (fork on GitHub, then locally):
@@ -22,7 +22,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] Play levels 1–3 and the first Mercenary level; log any upstream-inherited issues in BUGS.md as `deferred`
 - [x] First CHANGELOG entry
 **Acceptance:** `git merge upstream/main` on a fresh day yields zero conflicts outside `Descent3/tartarus/`, and the game completes level 1 from a Steam install without manual file copying.
-**Acceptance status (2026-11-01):** game starts and loads level 1 from the Steam install with no flags; the owner could not finish level 1 because of the stock mouse model. Open until F-067 (Phase 2) or a keyboard/gamepad run (D-013).
+**Acceptance status (2026-11-01):** met. The game starts and loads level 1 from the Steam install with no flags; the owner first could not finish level 1 with the stock mouse model, then completed it with the F-067 virtual-joystick mouse (D-013).
 
 ## Phase 1 — Developer foundation
 **Goal:** The tools every later phase depends on: console, cvars, Classic Mode gate, cheat menu, debug overlays.
@@ -42,8 +42,8 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 **Status:** In progress
 **Features delivered:** F-060, F-062, F-063, F-067, F-068, F-069
 **Deliverables:**
-- [ ] Mouse flight modes (`Descent3/tartarus/mouse_flight.cpp`): virtual-joystick offset model as an analogue axis source, indicator, recentre key, AV-013 resets and unit tests (done 2026-11-01; owner's level-1 run pending)
-- [x] Options (F2, in game and from the main menu) → **Mouse** tab: mode, speed, invert pitch, indicator, roll; the first Tartarus page of the options menu (F-067, F-069; requested by the owner) — 2026-11-01
+- [x] Mouse flight modes (`Descent3/tartarus/mouse_flight.cpp`): virtual-joystick offset model as an analogue axis source, indicator, recentre key, AV-013 resets and unit tests — 2026-11-01; the owner completed level 1 with it
+- [x] Options (F2, in game and from the main menu) → **Mouse** tab: mode, speed, centre speed, invert pitch, indicator, roll; the first Tartarus page of the options menu (F-067, F-069; requested by the owner) — 2026-11-01
 - [ ] Raw mouse: no acceleration or smoothing, one sensitivity (F-062)
 - [ ] Widescreen: correct 3D aspect without `-aspect`, `r_fov` 60–120, HUD anchoring, menus centred or full-width (F-060)
 - [ ] Small-view windows (rear view, Guide-Bot, missile cam): per-window size, aspect and position cvars, defaults identical to upstream (F-060, SPEC.md §14)
