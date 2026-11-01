@@ -23,17 +23,18 @@ Effort vocabulary: trivial | small | medium | large.
 **Trade-offs.** One more script to maintain; false positives on prose mentions of IDs unless the parser is restricted to `**Related:**` lines and tables.
 **Notes.** Phase 1 deliverable per D-011.
 
+## Applied
+
 ### IMP-002: Upstream-sync helper
-**Status:** suggested
+**Status:** applied
 **Found:** 2026-11-01
 **Location:** `tools/upstream-sync.sh` (new)
 **Effort:** small
 **Description.** Monthly upstream merges are the main maintenance cost of the fork strategy (D-001, AV-002).
 **Proposal.** Fetch `upstream`, attempt merge on a scratch branch, list conflicting files, fail if any lie outside `Descent3/tartarus/` or the ARCHITECTURE.md hook-point list, print the `// TARTARUS:` marker count.
 **Trade-offs.** Encodes the hook-point list twice (script and doc) unless the script parses ARCHITECTURE.md's table — do that.
-**Notes.** Phase 0 deliverable.
+**Notes.** Phase 0 deliverable. Applied 2026-11-01 as `tools/upstream-sync.sh`: dry run in a throwaway worktree by default, `--apply` merges with `--no-commit`; the hook-point list is parsed from ARCHITECTURE.md, plus `Descent3/tartarus/` and the root files Tartarus replaces (README/BUILD/CHANGELOG/.gitignore).
 
-## Applied
 
 ## Declined
 

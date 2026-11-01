@@ -15,7 +15,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
   git fetch upstream
   ```
   Done 2026-11-01 by merging `upstream/main` (`593b880f`) into the existing docs repo with `--allow-unrelated-histories`; upstream's README/BUILD/CHANGELOG moved to `docs/UPSTREAM_*.md`.
-- [ ] `tools/upstream-sync.sh` (merges `upstream/main`)
+- [x] `tools/upstream-sync.sh` (merges `upstream/main`) — 2026-11-01, IMP-002
 - [ ] Reference build on Linux Mint per BUILD.md; `BUILD.md` §Troubleshooting seeded with anything hit
 - [ ] Steam data-dir detection (`Descent3/tartarus/datadir.cpp`)
 - [ ] Main-menu build string with upstream hash; README credits; `THIRD_PARTY.md` carried forward

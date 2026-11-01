@@ -81,8 +81,8 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/gauges.cpp` | cockpit-mode variants if cockpit view is kept | HUD |
 | `physics/physics.cpp` (autolevel block) | strength/delay/hold/snap | orientation |
 | `Descent3/TelComAutoMap.cpp` | draw/input calls into `automap_ext` | automap |
-| `Descent3/gamesave.cpp` / `loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |
-| `Descent3/menu.cpp` / `newui` options | Tartarus options page, cheat menu entry | UI |
+| `Descent3/gamesave.cpp` / `Descent3/loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |
+| `Descent3/menu.cpp` / `Descent3/newui.cpp` options | Tartarus options page, cheat menu entry | UI |
 | `Descent3/CMakeLists.txt` | add `tartarus/` sources | build |
 
 ## Data flow for the signature sequence

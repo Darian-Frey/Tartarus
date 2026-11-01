@@ -143,6 +143,7 @@ Seeded from design; append real failures as they occur (BUGS.md for code, here f
 | Symptom | Cause / fix |
 |---|---|
 | CMake: "SDL3 not found" with `USE_VCPKG=OFF` | Distro SDL3 too old or absent → use vcpkg (2b) |
+| §2b lists `libjack-dev`, but apt wants to remove `libjack-jackd2-dev` | `libjack-dev` is JACK1 and conflicts with the JACK2/PipeWire headers. If `libjack-jackd2-dev` is installed, skip `libjack-dev`; the headers are the same (seen on Mint 22.3, 2026-11-01) |
 | vcpkg SDL3 build fails on `wayland-scanner` / `libdecor` | Missing `libwayland-dev libxkbcommon-dev libdecor-0-dev` |
 | Game starts, black screen, log says missing `d3.hog` | Wrong `-additionaldir` — install dir names often contain a space, so quote the path; run the §4a self-check |
 | Movies don't play | Linux Steam depot ships `.ogv`; only `.mve` plays (see §4a) — harmless otherwise |
