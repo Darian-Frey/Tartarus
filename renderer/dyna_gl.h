@@ -192,6 +192,7 @@ DYNAEXTERN(glCheckFramebufferStatus);
 DYNAEXTERN(glDeleteFramebuffers);
 DYNAEXTERN(glDeleteRenderbuffers);
 DYNAEXTERN(glFramebufferRenderbuffer);
+DYNAEXTERN(glFramebufferTexture2D); // TARTARUS: F-060 bar fill
 DYNAEXTERN(glGenFramebuffers);
 DYNAEXTERN(glGenRenderbuffers);
 DYNAEXTERN(glRenderbufferStorage);

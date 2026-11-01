@@ -266,7 +266,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - The 3D view uses the correct aspect at 16:9, 16:10 and 21:9 without needing upstream's `-aspect` flag
 - Main menu, options and in-game menus fill the screen or are cleanly centred at any aspect ratio (upstream draws them 4:3 with bars, seen 2026-11-01)
 - Small-view windows (rear view Shift+F1/Shift+F2, Guide-Bot and missile cameras) have adjustable size, shape and position per window (SPEC.md §14); the defaults reproduce the upstream layout, and windows stay fully on screen at every aspect ratio
-**Status:** Not started (Phase 2)
+**Status:** In progress (Phase 2). Survey 2026-11-01 at 4:3, 16:9 and 16:10: the 3D view is already correct upstream (the projection keeps the vertical FOV and widens the horizontal one, "Hor+"; `-aspect` only affects TelCom), and the cockpit, HUD and in-game options menus look right at all three (21:9 not testable on the reference display). Done: FOV range 60–120° in Tartarus mode (Classic keeps 72–90) on the Video slider and as `r_fov` (2026-11-01). Menus: upstream draws every menu screen on a fixed 640x480 canvas that the renderer scales into the window with bars; the bars are now filled with a blurred, darkened copy of the screen (`r_bar_fill`, owner's choice (b), 2026-11-01). A true widescreen menu canvas (art filling the screen, menus centred; option (a)) is deferred to F-069, which rebuilds those screens anyway. Remaining: small-view windows (SPEC §14), a 21:9 check.
 **Notes:** Upstream FOV slider is limited to 72–90° (`Render_FOV_setting`, `config.cpp`). Upstream small views (`SmallViews.cpp::DrawSmallViews`) are square, `Game_window_h / 4` wide, spaced along the bottom of the 3D view; the cockpit view uses fixed cockpit monitors and is left as upstream. Small-view layout requested 2026-11-01. D-013.
 
 ### F-061 Fixed-timestep physics with uncapped render rate
@@ -338,7 +338,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Works with mouse, keyboard and gamepad; readable at 1080p and above
 - Upstream's existing option dialogs remain reachable until each is replaced
 **Status:** Not started (Phase 2) First page landed early: Options → Mouse tab (F-067), 2026-11-01, as a `newuiSheet` added to upstream's `OptionsMenu()` from `Descent3/tartarus/options_mouse.cpp`.
-**Notes:** Built on upstream `newui`. Also hosts the Phase 1 cheat menu entry. D-013.
+**Notes:** Built on upstream `newui`. Also hosts the Phase 1 cheat menu entry. D-013. Includes the widescreen menu canvas deferred from F-060 (owner, 2026-11-01): menus drawn on a canvas as wide as the window, art scaled to fill, every 640x480-assuming screen re-centred.
 
 ---
 

@@ -27,22 +27,79 @@
 
 #include "display.h"
 
+#include <algorithm>
+#include <cmath>
 #include <optional>
+#include <string>
 
 #include "appdatabase.h"
 #include "args.h"
 #include "config.h"
 #include "descent.h"
+#include "classic.h"
+#include "cvar.h"
 #include "display_prefs.h"
+#include "game.h"
 #include "log.h"
+
+extern float Render_FOV_setting; // config.cpp
+extern float Render_FOV;         // GameLoop.cpp
+extern int Tartarus_bar_fill_mode;          // renderer/HardwareOpenGL.cpp (TARTARUS hook)
+extern float Tartarus_bar_fill_brightness;  // renderer/HardwareOpenGL.cpp (TARTARUS hook)
 
 namespace tartarus {
 
 namespace {
 bool g_stored_fullscreen = true;
+Cvar *r_fov = nullptr;
+bool g_syncing_fov = false;
+
+void SyncFovCvar() {
+  if (r_fov == nullptr)
+    return;
+  g_syncing_fov = true;
+  Cvars().Set("r_fov", std::to_string(Render_FOV_setting), CvarSource::Code);
+  g_syncing_fov = false;
+}
 } // namespace
 
-void Display_Init() { g_stored_fullscreen = Game_fullscreen; }
+int Display_FovMin() { return IsClassic() ? static_cast<int>(D3_DEFAULT_FOV) : kFovAbsMin; }
+int Display_FovMax() { return IsClassic() ? 90 : kFovAbsMax; }
+
+void Display_SetFov(float degrees) {
+  const float fov = std::clamp(std::round(degrees), static_cast<float>(Display_FovMin()),
+                               static_cast<float>(Display_FovMax()));
+  if (Render_FOV == Render_FOV_setting) // not zoomed or in a liquid effect: apply now
+    Render_FOV = fov;
+  Render_FOV_setting = fov;
+  SyncFovCvar();
+}
+
+void Display_Init() {
+  g_stored_fullscreen = Game_fullscreen;
+
+  r_fov = Cvars().RegisterFloat("r_fov", D3_DEFAULT_FOV, kFovAbsMin, kFovAbsMax,
+                                "Field of view in degrees (60-120; Classic Mode 72-90). Saved with the video settings");
+  r_fov->AddChangeCallback([](const Cvar &cv) {
+    if (!g_syncing_fov)
+      Display_SetFov(cv.GetFloat());
+  });
+  // LoadGameSettings() clamped RS_fov to the widest range; apply this mode's.
+  Display_SetFov(Render_FOV_setting);
+  if (Cvar *classic = Cvars().Find("classic"))
+    classic->AddChangeCallback([](const Cvar &) { Display_SetFov(Render_FOV_setting); });
+
+  // Bars around frames narrower than the window (menus are 640x480): blurred fill (F-060).
+  Cvar *fill = Cvars().RegisterInt("r_bar_fill", 1, 0, 2,
+                                   "Bars around 4:3 screens: 0 black, 1 blurred copy in menus, 2 blurred copy always",
+                                   CVAR_ARCHIVE);
+  Cvar *bright = Cvars().RegisterFloat("r_bar_fill_brightness", 0.35f, 0.0f, 1.0f,
+                                       "Brightness of the blurred bar fill (0 black, 1 full)", CVAR_ARCHIVE);
+  fill->AddChangeCallback([](const Cvar &cv) { Tartarus_bar_fill_mode = cv.GetInt(); });
+  bright->AddChangeCallback([](const Cvar &cv) { Tartarus_bar_fill_brightness = cv.GetFloat(); });
+  Tartarus_bar_fill_mode = fill->GetInt();
+  Tartarus_bar_fill_brightness = bright->GetFloat();
+}
 
 int Display_RestoreResolution(const std::vector<std::pair<int, int>> &modes, int default_id) {
   std::optional<ScreenSize> saved;

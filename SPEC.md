@@ -268,7 +268,7 @@ Visited set: room index added on entry; persisted in the save sidecar `AMAP` rec
 
 ## 11. Modernisation constants (Phases 2 and 5)
 
-`r_fov 90` (60–120, affects 3D view only), `m_sensitivity 1.0`, `m_accel 0`, `g_quicksave_key F5`, `g_quickload_key F9`, `g_checkpoints 1`. Fixed-timestep proposal (D-012): `phys_fixedstep 0|1`, `phys_hz 120`, render interpolation between the last two physics states.
+`r_fov` (default 72 as upstream; 60–120 in Tartarus mode, 72–90 in Classic; affects the 3D view only; the horizontal FOV of a 4:3 view, wider windows see more at the sides; mirrors upstream's `RS_fov`, which saves it), `r_bar_fill 1` (0 black bars as upstream, 1 blurred copy around 4:3 menu screens, 2 around any frame narrower than the window; ARCHIVE, available in Classic Mode as a display option), `r_bar_fill_brightness 0.35` (0–1), `m_sensitivity 1.0`, `m_accel 0`, `g_quicksave_key F5`, `g_quickload_key F9`, `g_checkpoints 1`. Fixed-timestep proposal (D-012): `phys_fixedstep 0|1`, `phys_hz 120`, render interpolation between the last two physics states.
 
 ---
 

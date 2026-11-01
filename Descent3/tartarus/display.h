@@ -35,6 +35,18 @@ void Display_Init();
 /// built: returns the index of the saved width x height, or `default_id`.
 int Display_RestoreResolution(const std::vector<std::pair<int, int>> &modes, int default_id);
 
+/// Field of view (F-060). Upstream allows 72-90 degrees; Tartarus mode allows
+/// 60-120, Classic Mode keeps 72-90. The value is upstream's Render_FOV_setting
+/// (saved as RS_fov); the `r_fov` cvar mirrors it for the console. Like
+/// upstream's, it is the horizontal FOV of a 4:3 view; wider windows see more
+/// at the sides (Hor+).
+inline constexpr int kFovAbsMin = 60;
+inline constexpr int kFovAbsMax = 120;
+int Display_FovMin();
+int Display_FovMax();
+/// Clamps to the current mode's range and applies it (Options slider, r_fov).
+void Display_SetFov(float degrees);
+
 /// Called by SaveGameSettings() after upstream's writes: stores the resolution
 /// by size and rewrites RS_fullscreen so command-line flags stay session-only.
 void Display_SaveSettings(int width, int height, bool fullscreen_now);

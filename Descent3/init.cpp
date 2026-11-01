@@ -1320,7 +1320,8 @@ void LoadGameSettings() {
 
   int tempval = 0;
   Database->read_int("RS_fov", &tempval);
-  tempval = std::clamp(tempval, static_cast<int>(D3_DEFAULT_FOV), 90);
+  // TARTARUS: widest FOV range here; Display_Init() applies the mode's range once Classic Mode is known (F-060)
+  tempval = std::clamp(tempval, tartarus::kFovAbsMin, tartarus::kFovAbsMax);
   Render_FOV_setting = static_cast<float>(tempval);
   Render_FOV = Render_FOV_setting;
 

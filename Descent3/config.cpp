@@ -795,12 +795,13 @@ struct video_menu {
     fullscreen = sheet->AddLongCheckBox("Fullscreen", Game_fullscreen);
 
     // FOV setting 72deg -> 90deg
+    // TARTARUS: F-060 range from the display module (Tartarus 60-120, Classic 72-90)
     tSliderSettings settings = {};
-    settings.min_val.f = D3_DEFAULT_FOV;
-    settings.max_val.f = 90.f;
+    settings.min_val.f = static_cast<float>(tartarus::Display_FovMin());
+    settings.max_val.f = static_cast<float>(tartarus::Display_FovMax());
     settings.type = SLIDER_UNITS_FLOAT;
     fov = sheet->AddSlider("FOV", static_cast<int16_t>(settings.max_val.f - settings.min_val.f),
-                           static_cast<int16_t>(Render_FOV_setting - D3_DEFAULT_FOV), &settings);
+                           static_cast<int16_t>(Render_FOV_setting - settings.min_val.f), &settings);
 
 #if !defined(POSIX)
     int iTemp = 0;
@@ -865,10 +866,9 @@ struct video_menu {
       Current_pilot.set_hud_data(nullptr, nullptr, nullptr, &temp_w, &temp_h);
     }
 
-    Render_FOV_setting = static_cast<float>(fov[0]) + D3_DEFAULT_FOV;
-    if (Render_FOV != Render_FOV_setting) {
-      Render_FOV = Render_FOV_setting; // ISB: this may cause discontinuities if FOV is changed while zoomed.
-    }
+    // TARTARUS: F-060 slider offset from the mode's minimum; Display_SetFov also updates r_fov
+    tartarus::Display_SetFov(static_cast<float>(fov[0] + tartarus::Display_FovMin()));
+    Render_FOV = Render_FOV_setting; // ISB: this may cause discontinuities if FOV is changed while zoomed.
 
     sheet = nullptr;
   };

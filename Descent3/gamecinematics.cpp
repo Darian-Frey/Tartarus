@@ -213,6 +213,7 @@
 #include "osiris_dll.h"
 #include "multi.h"
 #include "weapon.h"
+#include "tartarus/tartarus.h" // TARTARUS: -skipcinematics
 
 #if (defined(_DEBUG) || defined(EDITOR))
 bool Cinematics_enabled = true;
@@ -1013,7 +1014,7 @@ void Cinematic_Frame(void) {
 
   // check for keyboard quick exit
   if (Gametime >= GameCinema.exit_start && Gametime <= GameCinema.exit_end) {
-    if (Cinematic_IsKeyPressed()) {
+    if (Cinematic_IsKeyPressed() || tartarus::SkipCinematics()) { // TARTARUS: -skipcinematics acts as a key press
       // a key has been pressed, quick exit!
       ddio_KeyFlush();
 

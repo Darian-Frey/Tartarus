@@ -4,6 +4,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 2)
+- Command-line `-skipbriefing` (no pre-level briefing or ship selection) and `-skipcinematics` (in-game cinematics such as level intros end as soon as a key could skip them; the ship is placed where the cinematic would leave it). For quicker testing: level 1 is flyable in about 9 s instead of 21 s — 2026-11-01.
+- Menus no longer sit between black bars on widescreen displays: the bars show a blurred, darkened copy of the screen (`r_bar_fill`, `r_bar_fill_brightness`) (F-060) — 2026-11-01.
+- Field of view 60–120° in Tartarus mode (stock 72–90, kept in Classic Mode): Options → Video slider and `r_fov` in the console (F-060) — 2026-11-01.
 - Virtual-joystick mouse (F-067, D-013): `m_mode 1` (default in Tartarus mode) treats the mouse offset from centre as a turn rate, so the ship keeps turning until the mouse comes back; `m_mode 2` auto-centres. Dead zone, radius, curve, sensitivity, invert and roll options (`m_vj_*`), an on-screen indicator, recentre on the middle mouse button or `m_recentre`, and resets on every context change (AV-013). Classic Mode keeps the stock mouse. 10 unit tests — 2026-11-01.
 - Options (F2) → Mouse tab: mouse mode, speed, centre speed (auto-centre mode), invert pitch, indicator and roll, saved to `tartarus.cfg`; the first Tartarus options page (F-067, F-069). The middle mouse button now only recentres the virtual joystick; F still fires flares — 2026-11-01.
 ### Added (Phase 1)

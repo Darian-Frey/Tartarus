@@ -64,6 +64,16 @@ void Tartarus_Init() {
   MouseFlight_Init();
 }
 
+bool SkipCinematics() {
+  static const bool skip = FindArg("-skipcinematics") != 0;
+  return skip;
+}
+
+bool SkipBriefing() {
+  static const bool skip = FindArg("-skipbriefing") != 0;
+  return skip;
+}
+
 bool HandleKey(int key) { return Console_HandleKey(key) || Cheats_HandleKey(key); }
 
 void Frame() {

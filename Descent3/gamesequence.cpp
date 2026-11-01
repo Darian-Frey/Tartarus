@@ -1085,6 +1085,7 @@
 #include "gamepath.h"
 #include "bsp.h"
 #include "args.h"
+#include "tartarus/tartarus.h" // TARTARUS: -skipbriefing
 
 //	Variables
 tGameState Game_state = GAMESTATE_IDLE;      // current game state.
@@ -1389,7 +1390,7 @@ bool DoLevelIntro() {
   }
 
   //	if this level has a briefing:
-  if (lvl->flags & LVLFLAG_BRIEFING) {
+  if ((lvl->flags & LVLFLAG_BRIEFING) && !tartarus::SkipBriefing()) { // TARTARUS: -skipbriefing (testing)
     if (!DoMissionBriefing(Current_mission.cur_level - 1)) {
       // quit exit to main menu
       return false;

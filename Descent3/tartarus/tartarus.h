@@ -27,6 +27,14 @@ namespace tartarus {
 /// registry (tartarus.cfg), then Classic Mode, then each module's cvars.
 void Tartarus_Init();
 
+/// True when started with -skipcinematics: in-game cinematics (level intros)
+/// end as soon as upstream allows a key press to skip them. For testing.
+bool SkipCinematics();
+
+/// True when started with -skipbriefing: the pre-level briefing (and ship
+/// selection, which shares its screen) is skipped. For testing.
+bool SkipBriefing();
+
 /// Offer a key from ProcessKeys() before any upstream handler (AV-008): the
 /// console first, then the cheat menu (F-012). True if Tartarus used it.
 bool HandleKey(int key);

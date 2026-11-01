@@ -53,6 +53,14 @@ _None._
 
 ## Won't Fix
 
+### BUG-008: Unrequested menu or dialog at start-up in scripted test runs (unconfirmed)
+**Status:** wontfix
+**Severity:** low
+**Found:** 2026-11-01 (scripted XTest runs while testing F-012, F-067, F-060)
+**Location:** unknown
+**Description.** In four scripted runs a screen opened before the script sent any input: an "Abort mission?" box during the level-1 intro, TelCom jumping from its main menu into the automap, the Options menu (Sound tab) at level start, and the Pilots dialog at the main menu. Other runs with the same profile were clean. Possibly an artefact of the test harness (XTest, window focus changes as the game window appears, keys from a previous run) rather than the game; the owner has not seen it in normal play.
+**Resolution.** Not a game bug: the owner was using the mouse while the scripted runs were going (2026-11-01). Scripted runs now also start with `-skipbriefing -skipcinematics`, which shortens the window in which stray input can land.
+
 ## Deferred
 
 ### BUG-003: (upstream?) Reticle images `ret_pr0a.ogf` / `ret_pr0b.ogf` not found at level start

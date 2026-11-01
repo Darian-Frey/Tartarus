@@ -131,7 +131,7 @@ ls movies/*.mve >/dev/null 2>&1 && echo "ok   movies (.mve)" || echo "note movie
 
 Steam users: upstream recommends the **Windows** depot for the `.mve` movies; on Linux you can get it by forcing a Proton compatibility tool on the game in Steam and verifying files, then still run the native Tartarus binary against that directory. On Wayland, `SDL_VIDEODRIVER=wayland` may be needed.
 
-Other flags inherited from upstream: `-windowed`/`-fullscreen`, `-width`/`-height`, `-logfile` (writes `Descent3.log` to the current directory), `-loglevel <LEVEL>`. Tartarus adds `-classic` / `-tartarus` (SPEC §1).
+Other flags inherited from upstream: `-windowed`/`-fullscreen`, `-width`/`-height`, `-logfile` (writes `Descent3.log` to the current directory), `-loglevel <LEVEL>`. Tartarus adds `-classic` / `-tartarus` (SPEC §1), and for quicker testing `-skipbriefing` (no pre-level briefing or ship selection) and `-skipcinematics` (in-game cinematics such as level intros end as soon as a key could skip them). Upstream's `-nointro` skips the start-up movies; `-pilot <name> -mission d3 -loadlevel 1` goes straight into a level.
 
 ## 5. Cross-compilation
 

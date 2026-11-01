@@ -87,6 +87,9 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 |---|---|---|
 | `Descent3/GameLoop.cpp` | `tartarus::HandleKey()` first in the `ProcessKeys()` loop (console, then cheat menu); `tartarus::RenderOverlays()` after the HUD in `GameRenderFrame()`; `tartarus::Frame()` after `DoPlayerFrame()` in `GameFrame()`; `Frametime *= tartarus::TimeScale()` after `CalcFrameTime()` | console, cheats, later cloak/converter ticks |
 | `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()`; `Display_SaveSettings()` after the `RS_fullscreen` write in `SaveGameSettings()` | startup, display settings |
+| `Descent3/init.cpp::LoadGameSettings` (RS_fov clamp), `Descent3/config.cpp` video sheet (FOV slider range and apply) | `kFovAbsMin/Max`, `Display_FovMin/Max()`, `Display_SetFov()` | FOV range (F-060) |
+| `renderer/HardwareOpenGL.cpp::rend_Flip` (+ `TartarusDrawBarFill`, `Tartarus_bar_fill_*` globals), `renderer/dyna_gl.h` (`glFramebufferTexture2D`) | blurred fill instead of the black clear when the frame is narrower than the window | menu bars (F-060) |
+| `Descent3/gamesequence.cpp` (level start), `Descent3/gamecinematics.cpp::Cinematic_Frame` | `SkipBriefing()`, `SkipCinematics()` (command-line `-skipbriefing`, `-skipcinematics`) | test runs |
 | `Descent3/config.cpp::ConfigureDisplayResolutions` | `Display_RestoreResolution()` replaces the index-based restore | display settings (BUG-004) |
 | `Descent3/TelCom.cpp` (`TelComShow`, `TelComHandleAllEvents`), `Descent3/TelComGoals.cpp` | menu-scale virtual mouse space and position reads (`kUiMouseScale`) | TelCom pointer speed (BUG-006) |
 | `Descent3/Controls.cpp::DoMovement` | `MouseFlight_Apply()` after `DoControllerMovement()` | virtual-joystick mouse (F-067) |

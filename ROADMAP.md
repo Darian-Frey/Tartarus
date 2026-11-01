@@ -45,7 +45,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [x] Mouse flight modes (`Descent3/tartarus/mouse_flight.cpp`): virtual-joystick offset model as an analogue axis source, indicator, recentre key, AV-013 resets and unit tests — 2026-11-01; the owner completed level 1 with it
 - [x] Options (F2, in game and from the main menu) → **Mouse** tab: mode, speed, centre speed, invert pitch, indicator, roll; the first Tartarus page of the options menu (F-067, F-069; requested by the owner) — 2026-11-01
 - [ ] Raw mouse: no acceleration or smoothing, one sensitivity (F-062)
-- [ ] Widescreen: correct 3D aspect without `-aspect`, `r_fov` 60–120, HUD anchoring, menus centred or full-width (F-060)
+- [ ] Widescreen: correct 3D aspect without `-aspect` (already true upstream, checked 2026-11-01), `r_fov` 60–120 (done 2026-11-01), HUD anchoring (fine at 16:9/16:10), menus centred with blurred bar fill (done 2026-11-01; full-width menu canvas moved to F-069) (F-060)
 - [ ] Small-view windows (rear view, Guide-Bot, missile cam): per-window size, aspect and position cvars, defaults identical to upstream (F-060, SPEC.md §14)
 - [ ] Graphics options investigated against `renderer/HardwareOpenGL.cpp`, then implemented as `r_` cvars (F-068)
 - [ ] Options menu with Graphics / Controls / Audio / Gameplay / Tartarus pages generated from cvar metadata (F-069)

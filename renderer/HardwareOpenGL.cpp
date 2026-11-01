@@ -1441,6 +1441,95 @@ void rend_StartFrame(int x1, int y1, int x2, int y2, int clear_flags) {
   gpu_state.clip_y2 = y2;
 }
 
+// TARTARUS: F-060 bar fill. When the frame is narrower or shorter than the window (menus draw on a
+// fixed 640x480 canvas), fill the bars with a blurred, darkened copy of the frame scaled to cover the
+// window, instead of black. Set from Descent3/tartarus/display.cpp (r_bar_fill, r_bar_fill_brightness):
+// 0 = black bars (upstream), 1 = menus only (a 640x480 frame), 2 = always.
+int Tartarus_bar_fill_mode = 1;
+float Tartarus_bar_fill_brightness = 0.35f;
+
+static void TartarusDrawBarFill(int win_w, int win_h) {
+  constexpr int kMidW = 160, kMidH = 120, kTinyW = 32, kTinyH = 24;
+  GLuint mid_fbo = 0, mid_rbo = 0, tiny_fbo = 0, tiny_tex = 0;
+
+  // Created per frame: tiny, menus only, and never stale across renderer re-inits.
+  dglGenFramebuffers(1, &mid_fbo);
+  dglBindFramebuffer(GL_FRAMEBUFFER, mid_fbo);
+  dglGenRenderbuffers(1, &mid_rbo);
+  dglBindRenderbuffer(GL_RENDERBUFFER, mid_rbo);
+  dglRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, kMidW, kMidH);
+  dglFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mid_rbo);
+  bool ok = dglCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+
+  dglGenTextures(1, &tiny_tex);
+  dglBindTexture(GL_TEXTURE_2D, tiny_tex);
+  dglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kTinyW, kTinyH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  dglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  dglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  dglGenFramebuffers(1, &tiny_fbo);
+  dglBindFramebuffer(GL_FRAMEBUFFER, tiny_fbo);
+  dglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tiny_tex, 0);
+  ok = ok && dglCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+
+  if (ok) {
+    // Downsample in two steps for a smoother blur: frame -> 160x120 -> 32x24.
+    dglBindFramebuffer(GL_READ_FRAMEBUFFER, GOpenGLFBO);
+    dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, mid_fbo);
+    dglBlitFramebuffer(0, 0, GOpenGLFBOWidth, GOpenGLFBOHeight, 0, 0, kMidW, kMidH, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    dglBindFramebuffer(GL_READ_FRAMEBUFFER, mid_fbo);
+    dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, tiny_fbo);
+    dglBlitFramebuffer(0, 0, kMidW, kMidH, 0, 0, kTinyW, kTinyH, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+    // Soften (3x3 box) and darken on the CPU: 32x24 pixels.
+    static uint8_t src[kTinyW * kTinyH * 4], dst[kTinyW * kTinyH * 4];
+    dglBindFramebuffer(GL_READ_FRAMEBUFFER, tiny_fbo);
+    dglReadPixels(0, 0, kTinyW, kTinyH, GL_RGBA, GL_UNSIGNED_BYTE, src);
+    const float k = std::clamp(Tartarus_bar_fill_brightness, 0.0f, 1.0f);
+    for (int y = 0; y < kTinyH; y++) {
+      for (int x = 0; x < kTinyW; x++) {
+        for (int c = 0; c < 3; c++) {
+          int sum = 0, n = 0;
+          for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+              const int sx = std::clamp(x + dx, 0, kTinyW - 1), sy = std::clamp(y + dy, 0, kTinyH - 1);
+              sum += src[(sy * kTinyW + sx) * 4 + c];
+              n++;
+            }
+          }
+          dst[(y * kTinyW + x) * 4 + c] = static_cast<uint8_t>(k * sum / n);
+        }
+        dst[(y * kTinyW + x) * 4 + 3] = 255;
+      }
+    }
+    dglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kTinyW, kTinyH, GL_RGBA, GL_UNSIGNED_BYTE, dst);
+
+    // Stretch over the whole window, cropping rather than distorting (scale to cover).
+    const float scale = std::max((float)win_w / GOpenGLFBOWidth, (float)win_h / GOpenGLFBOHeight);
+    const int fw = (int)(GOpenGLFBOWidth * scale), fh = (int)(GOpenGLFBOHeight * scale);
+    const int fx = (win_w - fw) / 2, fy = (win_h - fh) / 2;
+    dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    dglBlitFramebuffer(0, 0, kTinyW, kTinyH, fx, fy, fx + fw, fy + fh, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+  } else {
+    dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    dglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    dglClear(GL_COLOR_BUFFER_BIT);
+  }
+
+  dglBindTexture(GL_TEXTURE_2D, 0);
+  dglBindRenderbuffer(GL_RENDERBUFFER, 0);
+  dglBindFramebuffer(GL_FRAMEBUFFER, 0);
+  dglDeleteFramebuffers(1, &tiny_fbo);
+  dglDeleteFramebuffers(1, &mid_fbo);
+  dglDeleteRenderbuffers(1, &mid_rbo);
+  dglDeleteTextures(1, &tiny_tex);
+  // The texture cache believes something else is bound now.
+  OpenGL_last_bound[0] = 9999999;
+  OpenGL_last_bound[1] = 9999999;
+  // Back to the state rend_Flip() expects: read from the game frame, draw to the window.
+  dglBindFramebuffer(GL_READ_FRAMEBUFFER, GOpenGLFBO);
+  dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
 // Flips the screen
 void rend_Flip() {
 #ifndef RELEASE
@@ -1483,9 +1572,16 @@ void rend_Flip() {
     const int centeredX = (w - scaledWidth) / 2;
     const int centeredY = (h - scaledHeight) / 2;
 
-    dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    dglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    dglClear(GL_COLOR_BUFFER_BIT); // in case the Steam Overlay wrote to places we don't blit over.
+    // TARTARUS: F-060 fill the bars with a blurred copy instead of black (see TartarusDrawBarFill)
+    const bool has_bars = scaledWidth < w || scaledHeight < h;
+    const bool menu_frame = GOpenGLFBOWidth == 640 && GOpenGLFBOHeight == 480;
+    if (has_bars && (Tartarus_bar_fill_mode == 2 || (Tartarus_bar_fill_mode == 1 && menu_frame))) {
+      TartarusDrawBarFill(w, h);
+    } else {
+      dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+      dglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+      dglClear(GL_COLOR_BUFFER_BIT); // in case the Steam Overlay wrote to places we don't blit over.
+    }
     dglBlitFramebuffer(0, 0, GOpenGLFBOWidth, GOpenGLFBOHeight, centeredX, centeredY, centeredX + scaledWidth,
                        centeredY + scaledHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     dglBindFramebuffer(GL_FRAMEBUFFER, 0);
