@@ -75,7 +75,8 @@ git rev-parse --verify --quiet "$REF^{commit}" >/dev/null || { echo "unknown ref
 BASE=$(git merge-base HEAD "$REF" || true)
 NEW=$(git rev-list --count "HEAD..$REF")
 echo "upstream: $REF = $(git rev-parse --short "$REF"), $NEW commit(s) not yet merged"
-echo "markers:  $(git grep -I -c 'TARTARUS:' -- ':!*.md' | awk -F: '{s+=$2} END {print s+0}') '// TARTARUS:' markers outside docs (log per release, AV-002)"
+[ -f Descent3/tartarus/UPSTREAM_REF ] && echo "recorded: Descent3/tartarus/UPSTREAM_REF = $(cut -c1-8 Descent3/tartarus/UPSTREAM_REF)"
+echo "markers:  $(git grep -I -c 'TARTARUS:' -- ':!*.md' ':!tools/upstream-sync.sh' | awk -F: '{s+=$2} END {print s+0}') '// TARTARUS:' markers outside docs (log per release, AV-002)"
 if [ "$NEW" -eq 0 ]; then echo "already up to date."; exit 0; fi
 [ -n "$BASE" ] || echo "note: no merge base with $REF (unrelated histories?)" >&2
 
@@ -108,7 +109,11 @@ else
 fi
 
 if [ "$APPLY" -eq 1 ]; then
+  # Record which upstream commit this build is based on (F-004 build string).
+  git rev-parse "$REF" > Descent3/tartarus/UPSTREAM_REF
+  git add Descent3/tartarus/UPSTREAM_REF
   echo
+  echo "Descent3/tartarus/UPSTREAM_REF updated to $(git rev-parse --short "$REF")."
   echo "merge left uncommitted in your checkout. Resolve conflicts (if upstream changed"
   echo "README/BUILD/CHANGELOG, refresh docs/UPSTREAM_*.md from $REF), then 'git commit'."
   echo "'git merge --abort' backs out."

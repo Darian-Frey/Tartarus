@@ -971,6 +971,7 @@
 #include "matcen.h"
 #include "dedicated_server.h"
 #include "D3ForceFeedback.h"
+#include "tartarus/datadir.h" // TARTARUS: F-003
 #include "newui.h"
 #include "SmallViews.h"
 #include "uisys.h"
@@ -1455,6 +1456,8 @@ void InitIOSystems(bool editor) {
   std::filesystem::path platform_dir = std::filesystem::canonical(D3_DATADIR);
   cf_AddBaseDirectory(platform_dir);
   // TODO: add Steam/registry locations
+  // TARTARUS: Steam data-directory probe (F-003); only acts if d3.hog is not yet reachable
+  tartarus::DataDir_Probe();
 
   // Add path of executable
   std::filesystem::path exec_path = ddio_GetBasePath();
@@ -1524,6 +1527,8 @@ void InitIOSystems(bool editor) {
   hog_name = "d3.hog";
 #endif
   d3_hid = cf_OpenLibrary(hog_name);
+  // TARTARUS: readable error instead of a black screen when the core HOG is missing (F-003)
+  tartarus::DataDir_RequireHog(hog_name, d3_hid);
 
   // JC: Steam release uses extra1.hog instead of extra.hog, so try loading it first
   // Open this file if it's present for stuff we might add later

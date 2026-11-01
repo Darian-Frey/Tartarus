@@ -27,7 +27,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - `cmake --preset linux && cmake --build --preset linux --config Release` succeeds on the reference machine (BUILD.md) with no patches outside the repo
 - Upstream `main` can be merged with conflicts confined to `Descent3/tartarus/` and the hook-point files listed in ARCHITECTURE.md
 - `tools/upstream-sync.sh` fetches and merges upstream and reports the conflict set
-**Status:** Not started (Phase 0)
+**Status:** In progress (Phase 0): reference build passes and `tools/upstream-sync.sh` exists (2026-11-01); acceptance needs a real upstream merge with new commits
 **Notes:** D-001.
 
 ### F-002 Classic Mode
@@ -46,15 +46,15 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - On launch with no `-additionaldir`, the game probes the standard Steam library paths (`~/.steam/steam/steamapps/common/Descent 3`, `~/.local/share/Steam/...`, Flatpak Steam path) and any paths in `libraryfolders.vdf`
 - If exactly one install is found it is used and logged; if several, the user is asked once and the choice persisted
 - Missing required HOGs produce a readable error naming the file and the directory searched, not a crash
-**Status:** Not started (Phase 0)
+**Status:** In progress (Phase 0): probe, de-duplication and the missing-HOG error done and tested (2026-11-01). With several installs it uses the first and logs the rest; "ask once and persist" waits for Phase 1 (cvars/UI)
 
 ### F-004 Upstream credit and licence compliance
 **Priority:** Must
 **Acceptance:**
 - README credits Outrage, Interplay and DescentDevelopers; `LICENSE` and `THIRD_PARTY.md` are carried forward unmodified
-- Main menu build string shows "Tartarus <version> — based on Descent 3 Open Source <upstream hash>"
+- Main menu build string shows "Tartarus <version> <revision>" over "based on Descent 3 Open Source <upstream hash>" (two lines, bottom right; one line does not fit a 640 px-wide menu)
 - Every published binary release links to the exact source tag
-**Status:** Not started (Phase 0)
+**Status:** In progress (Phase 0): credits, unmodified `LICENSE`/`THIRD_PARTY.md` and the build string done (2026-11-01); release-tag linking applies from the first binary release
 **Notes:** D-003, AV-012.
 
 ---

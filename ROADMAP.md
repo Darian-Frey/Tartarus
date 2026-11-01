@@ -16,11 +16,11 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
   ```
   Done 2026-11-01 by merging `upstream/main` (`593b880f`) into the existing docs repo with `--allow-unrelated-histories`; upstream's README/BUILD/CHANGELOG moved to `docs/UPSTREAM_*.md`.
 - [x] `tools/upstream-sync.sh` (merges `upstream/main`) — 2026-11-01, IMP-002
-- [ ] Reference build on Linux Mint per BUILD.md; `BUILD.md` §Troubleshooting seeded with anything hit
-- [ ] Steam data-dir detection (`Descent3/tartarus/datadir.cpp`)
-- [ ] Main-menu build string with upstream hash; README credits; `THIRD_PARTY.md` carried forward
+- [x] Reference build on Linux Mint per BUILD.md; `BUILD.md` §Troubleshooting seeded with anything hit — 2026-11-01 (vcpkg needs `autoconf-archive`; skip `libjack-dev`)
+- [x] Steam data-dir detection (`Descent3/tartarus/datadir.cpp`) — 2026-11-01; multi-install prompt deferred to Phase 1 (F-003 notes)
+- [x] Main-menu build string with upstream hash; README credits; `THIRD_PARTY.md` carried forward — 2026-11-01
 - [ ] Play levels 1–3 and the first Mercenary level; log any upstream-inherited issues in BUGS.md as `deferred`
-- [ ] First CHANGELOG entry
+- [x] First CHANGELOG entry
 **Acceptance:** `git merge upstream/main` on a fresh day yields zero conflicts outside `Descent3/tartarus/`, and the game completes level 1 from a Steam install without manual file copying.
 
 ## Phase 1 — Developer foundation

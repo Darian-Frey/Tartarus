@@ -4,16 +4,16 @@
 Tartarus (working title, D-002) is a Linux-first fork of the GPL-3.0 Descent 3 engine (DescentDevelopers/Descent3) that keeps stock gameplay behind a Classic Mode flag and adds tactical features: developer console + cvars, password-gated cheat menu, player cloak, gravity missile, repulsor, orientation aids, automap overhaul, and modernisation (FOV, raw mouse, quicksave, fixed timestep). All additions live in `Descent3/tartarus/` with a short list of marked hook points.
 
 ## Current state
-- Upstream **https://github.com/DescentDevelopers/Descent3** is the `upstream` remote and was merged into `main` on 2026-11-01 at `593b880f` (`--allow-unrelated-histories`; repo is not a GitHub fork). Upstream's own README/BUILD/CHANGELOG live in `docs/UPSTREAM_*.md`; ours are at the root. `.gitignore` = upstream's file unchanged + a Tartarus block at the end. No Tartarus code yet. Documents: README, FEATURES, ROADMAP, ARCHITECTURE, DECISIONS (D-001–D-012), SPEC, ATTACK_VECTORS (AV-001–AV-012), BUILD, BUGS, IMPROVEMENTS, CHANGELOG.
+- Upstream **https://github.com/DescentDevelopers/Descent3** is the `upstream` remote and was merged into `main` on 2026-11-01 at `593b880f` (`--allow-unrelated-histories`; repo is not a GitHub fork). Upstream's own README/BUILD/CHANGELOG live in `docs/UPSTREAM_*.md`; ours are at the root. `.gitignore` = upstream's file unchanged + a Tartarus block at the end. First Tartarus code: `Descent3/tartarus/` has datadir (F-003) and version (F-004), wired in via `tartarus.cmake`; 6 `// TARTARUS:` markers in `Descent3/CMakeLists.txt`, `init.cpp`, `mmItem.cpp`. Reference build and the 7 unit tests pass; the game reaches the main menu from the Steam install with no flags. Documents: README, FEATURES, ROADMAP, ARCHITECTURE, DECISIONS (D-001–D-012), SPEC, ATTACK_VECTORS (AV-001–AV-012), BUILD, BUGS, IMPROVEMENTS, CHANGELOG.
 - Upstream reference for all file/symbol names in the docs: commit `fa61eec` (2026-11-01); the merged `593b880f` only adds netgames/netcon logging on top. Upstream is on SDL3 (1.6.0-dev); its own `BUILD.md`/`USAGE.md` are authoritative for build mechanics.
 - Verified upstream facts the design relies on: `GameCheat.cpp` typed-sequence cheats and `IsCheater`; `MakeObjectInvisible()` in `object_lighting.h`; `GRAVITY_FIELD_INDEX` / `DoGravityFieldEffect` in `fireball.cpp`; `phys_apply_force()` in `physics/physics.cpp`; autolevel block in `physics/physics.cpp` (`MAX_AUTOLEVEL_TILT_ANGLE`); `AllocWeapon()`/`FindWeaponName()` in `weapon.cpp`, `MAX_WEAPONS 200`; `HUD_ITEM_*` in `hud.h`; `TelComAutoMap.cpp`; `MAX_ENERGY/MAX_SHIELDS 200`.
 
 ## Active task
 **Phase 0 — Fork and baseline** (ROADMAP.md). Acceptance: upstream merges cleanly outside `Descent3/tartarus/`; game completes level 1 from a Steam install without copying files.
-1. ~~Fork; add `upstream` remote~~ (done 2026-11-01); `tools/upstream-sync.sh`.
-2. Build per BUILD.md on Linux Mint; record anything hit in BUILD.md §Troubleshooting.
-3. F-003 data-dir probe; F-004 credits + build string.
-4. Play through, log inherited issues in BUGS.md as `deferred`.
+1. ~~Fork; `upstream` remote; `tools/upstream-sync.sh`~~ (done 2026-11-01).
+2. ~~Reference build~~ (done; vcpkg in `~/vcpkg`, pass `VCPKG_ROOT=$HOME/vcpkg` if not in the shell).
+3. ~~F-003 probe, F-004 build string~~ (done; F-003 multi-install prompt deferred to Phase 1).
+4. **Remaining:** owner plays levels 1–3 and the first Mercenary level; log inherited issues in BUGS.md as `deferred`.
 Then Phase 1 (console/cvars/classic gate/cheat menu) — D-005 says tooling before any gameplay feature.
 
 ## Invariants
@@ -29,7 +29,7 @@ Then Phase 1 (console/cvars/classic gate/cheat menu) — D-005 says tooling befo
 ```bash
 cmake --preset linux && cmake --build --preset linux --config Release
 cmake --preset linux -DBUILD_TESTING=ON && cmake --build --preset linux --config Debug && ctest --test-dir builds/linux/build --output-on-failure
-./builds/linux/build/Release/Descent3 -setdir ~/.local/share/tartarus -additionaldir "$D3_DATA_DIR"   # D3_DATA_DIR from CLAUDE.local.md
+./builds/linux/build/Release/Descent3 -windowed -logfile   # Steam data found automatically (F-003); log → ./Descent3.log
 ```
 
 ## Local environment
@@ -44,6 +44,8 @@ Machine-specific facts (the owner's Descent 3 install path, Steam library layout
 - Docs change in the same commit as the code they describe. Refresh this file at the end of every significant session (state, not history).
 
 ## Pitfalls
+- `-setdir`/`-useexedir` no longer exist upstream (BUG-001); the writable dir is SDL's pref path `~/.local/share/Outrage Entertainment/Descent 3/`. The current working directory is also a read-only base dir in portable builds.
+- ctest names tests by gtest suite (`SteamTree.*`), not by executable; filter with `-R` on suite names.
 - See ATTACK_VECTORS.md for the canonical list.
 - The console key intercept must run *before* `DemoCheats(key)` in `GameLoop.cpp` or typed cheats eat console input and vice versa (AV-008).
 - The stock gravity field pins objects with `PF_DESTINATION_POS` — don't copy that line (D-009).

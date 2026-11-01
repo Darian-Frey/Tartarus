@@ -1,0 +1,38 @@
+# Tartarus build glue. Included from Descent3/CMakeLists.txt (one marked hook)
+# just before add_executable(Descent3), so it can extend the upstream source
+# lists. Everything Tartarus adds to the build is declared here.
+
+set(TARTARUS_VERSION "0.1.0-dev")
+set(TARTARUS_DIR ${CMAKE_CURRENT_LIST_DIR})
+
+list(APPEND HEADERS
+  tartarus/datadir.h
+  tartarus/datadir_steam.h
+  tartarus/version.h
+)
+list(APPEND CPPS
+  tartarus/datadir.cpp
+  tartarus/datadir_steam.cpp
+  tartarus/version.cpp
+)
+
+# Regenerate lib/tartarus_version.h on every build (as upstream does for
+# d3_version.h). configure_file only rewrites it when the content changes.
+add_custom_target(tartarus_version ALL
+  COMMAND ${CMAKE_COMMAND}
+    -D SOURCE_DIR=${PROJECT_SOURCE_DIR}
+    -D TARTARUS_DIR=${TARTARUS_DIR}
+    -D TARGET_DIR=${PROJECT_BINARY_DIR}
+    -D TARTARUS_VERSION=${TARTARUS_VERSION}
+    -P ${TARTARUS_DIR}/version.cmake
+  BYPRODUCTS ${PROJECT_BINARY_DIR}/lib/tartarus_version.h
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  COMMENT "Generating tartarus_version.h"
+)
+# The Descent3 target does not exist yet at include time; attach the
+# dependency once the directory has been processed.
+cmake_language(DEFER CALL add_dependencies Descent3 tartarus_version)
+
+if(BUILD_TESTING)
+  add_subdirectory(tartarus/tests)
+endif()

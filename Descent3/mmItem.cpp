@@ -122,6 +122,7 @@
 #include "ddio.h"
 #include "mem.h"
 #include "pserror.h"
+#include "tartarus/version.h" // TARTARUS: F-004
 
 // externed from newui.cpp
 extern int UI_frame_result;
@@ -416,6 +417,11 @@ void mmInterface::OnDestroy() {
 
 // displays the copyright text
 void mmInterface::CopyrightText() {
+  // TARTARUS: main-menu build string (F-004) replaces the upstream version line below
+  if (tartarus::DrawMenuBuildString()) {
+    return;
+  }
+
   char type[16];
   type[0] = 0;
 #ifdef DEMO

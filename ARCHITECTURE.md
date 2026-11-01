@@ -20,7 +20,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  cvar.cpp        typed registry, persistence, flags                  │
 │  console.cpp     drop-down console, commands, plog sink              │
 │  cheatmenu.cpp   password unlock table, per-frame hold loop          │
-│  datadir.cpp     Steam/data-dir discovery                            │
+│  datadir.cpp     Steam/data-dir discovery (+ datadir_steam.cpp)      │
+│  version.cpp     build string, upstream hash (F-004)                 │
 │  weapons_sidecar.cpp  loads data/tartarus/weapons.txt → Weapons[]    │
 │  cloak.cpp       player cloak state machine + HUD gauge              │
 │  gravwell.cpp    gravity-missile well, repulsor                      │
@@ -41,13 +42,15 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **classic.cpp.** Owns the `classic` cvar and `IsClassic()`. Every Tartarus module's per-frame entry point begins `if (IsClassic()) return;`. Also forces `CLASSIC_LOCKED` cvars to default when the mode flips, and stamps the mode into save-game headers.
 
-**cvar.cpp.** A flat registry of named, typed values with flags (`ARCHIVE`, `CHEAT`, `CLASSIC_LOCKED`, `LATCH`). Loaded from and saved to `tartarus.cfg` in the writable base directory (the `-setdir` path). Exposes `Cvar_Get/Set/Register` and change callbacks. Does not depend on the console.
+**cvar.cpp.** A flat registry of named, typed values with flags (`ARCHIVE`, `CHEAT`, `CLASSIC_LOCKED`, `LATCH`). Loaded from and saved to `tartarus.cfg` in the writable base directory (SDL's preference path; `-setdir` no longer exists upstream). Exposes `Cvar_Get/Set/Register` and change callbacks. Does not depend on the console.
 
 **console.cpp.** Input capture (hooks the key path in `GameLoop.cpp` ahead of `DemoCheats()`), a scrollback buffer, command dispatch, tab completion over commands + cvars, history persisted to `console_history.txt`, and a plog appender that mirrors engine logging. Rendering uses `grtext` and the 2D primitives already used by `hud.cpp`. Owns no game state.
 
 **cheatmenu.cpp.** A `newui` dialog with a text field and toggle list. Maintains an `unlocked` bitmask per pilot session, the password table (SPEC.md), and a per-frame `CheatHoldLoop()` called from the player think path that pins energy/shields/ammo/afterburner at max for active infinite toggles. Sets upstream `IsCheater` on first unlock; refuses when `IsClassic()` or `Game_mode & GM_MULTI`.
 
-**datadir.cpp.** Called early in `init.cpp` if no `-additionaldir` was given. Probes Steam library paths and `libraryfolders.vdf`, validates presence of `d3.hog`, injects the directory as a read-only base directory through the same mechanism `-additionaldir` uses.
+**datadir.cpp / datadir_steam.cpp.** `DataDir_Probe()` runs in `InitIOSystems()` after the user, config and platform base directories are added, and acts only if none of them provides `d3.hog` (so `-additionaldir` always wins). It probes the native, Flatpak and Snap Steam roots and every library in their `libraryfolders.vdf`, keeps directories holding `d3.hog`, de-duplicates by canonical path, and adds the first with `cf_AddBaseDirectory()`, the mechanism `-additionaldir` uses. `DataDir_RequireHog()` stops with an error naming the file and every directory searched when `d3.hog` fails to open. `datadir_steam.cpp` is pure standard C++ and unit-tested (`Descent3/tartarus/tests/`). Runs in Classic Mode too: it is a compatibility fix.
+
+**version.cpp.** Build identification. `tartarus.cmake` regenerates `lib/tartarus_version.h` every build from `TARTARUS_VERSION`, `git describe --match "tartarus-v*"` (so upstream's `v1.x` tags never label our build) and the committed `Descent3/tartarus/UPSTREAM_REF`, which `tools/upstream-sync.sh --apply` updates. `DrawMenuBuildString()` replaces the upstream main-menu version line.
 
 **weapons_sidecar.cpp.** Parses `data/tartarus/weapons.txt` after the table file has loaded (`manage/` page loading complete), allocates slots with `AllocWeapon()`, fills the `weapon` struct fields (model, fire delay, damage, flags, sounds — referencing existing HOG assets by name), and registers each new weapon with the player ship's weapon lists. Weapon *behaviour* that no existing flag covers is implemented in the specific module (e.g. `gravwell.cpp`) and selected by a Tartarus-only flag bit range (SPEC.md §Weapon flags).
 
@@ -72,7 +75,8 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | Upstream file | Hook | Purpose |
 |---|---|---|
 | `Descent3/GameLoop.cpp` (key handling near `DemoCheats(key)`) | console key intercept; `CheatHoldLoop()`; Tartarus per-frame update | console, cheats, cloak/converter ticks |
-| `Descent3/init.cpp` | `Tartarus_Init()` after cvar/arg parsing; `DataDir_Probe()` | startup |
+| `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; later `Tartarus_Init()` after cvar/arg parsing | startup |
+| `Descent3/mmItem.cpp::mmInterface::CopyrightText` | `DrawMenuBuildString()` early return | build string (F-004) |
 | `Descent3/WeaponFire.cpp::FireWeaponFromPlayer`, `FireFlareFromPlayer` | `Cloak_Break(CLOAK_BREAK_FIRE)`; overcharge later | cloak |
 | `physics/collide.cpp` (`collide_generic_and_player` via `DO_COLLISION(OBJ_ROBOT, OBJ_PLAYER, …)`) | `Cloak_Break(CLOAK_BREAK_BUMP)` + alert | cloak |
 | `Descent3/fireball.cpp::DoExplosionFrame` | dispatch `TARTARUS_GRAVWELL_INDEX` | gravity missile |
@@ -83,7 +87,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/TelComAutoMap.cpp` | draw/input calls into `automap_ext` | automap |
 | `Descent3/gamesave.cpp` / `Descent3/loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |
 | `Descent3/menu.cpp` / `Descent3/newui.cpp` options | Tartarus options page, cheat menu entry | UI |
-| `Descent3/CMakeLists.txt` | add `tartarus/` sources | build |
+| `Descent3/CMakeLists.txt` | `include(tartarus/tartarus.cmake)` before `add_executable(Descent3)`: sources, version header, tests | build |
 
 ## Data flow for the signature sequence
 

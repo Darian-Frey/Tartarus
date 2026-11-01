@@ -32,7 +32,7 @@ git clone https://github.com/microsoft/vcpkg ~/vcpkg
 echo 'export VCPKG_ROOT="$HOME/vcpkg"' >> ~/.bashrc && source ~/.bashrc
 
 # vcpkg builds SDL3 from source and needs the X11/Wayland/audio headers:
-sudo apt install -y --no-install-recommends curl pkg-config autoconf automake libtool libltdl-dev make \
+sudo apt install -y --no-install-recommends curl pkg-config autoconf autoconf-archive automake libtool libltdl-dev make \
   python3-jinja2 libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev \
   libibus-1.0-dev libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev libxcursor-dev \
   libxfixes-dev libxi-dev libxrandr-dev libxss-dev
@@ -87,19 +87,20 @@ Tartarus-specific options (added in Phase 1): `TARTARUS_DEFAULT_CLASSIC` (ON) �
 
 ## 4. Running against your Descent 3 data
 
-Tartarus never copies or modifies your game install and never ships game data. Two directories matter (upstream's base-directory model, see upstream `USAGE.md`):
+Tartarus never copies or modifies your game install and never ships game data. Two kinds of directory matter (upstream's base-directory model):
 
-- **Writable base dir** (`-setdir`): where Tartarus writes `tartarus.cfg`, saves, screenshots, `console_history.txt`, and where `custom/` lives. Suggest `~/.local/share/tartarus`.
+- **Writable base dir**: always SDL's preference path, `~/.local/share/Outrage Entertainment/Descent 3/` on Linux. Pilots, saves, the settings registry (`.Descent3Registry`) and `custom/` go here, and later `tartarus.cfg`, screenshots and `console_history.txt`. It is not configurable: upstream removed `-setdir` and `-useexedir` in October 2024 (commit `8800f1b4`), although upstream's `USAGE.md` still documents them (BUG-001). It is shared with any other open-source Descent 3 build on the machine.
 - **Read-only base dirs** (`-additionaldir`, repeatable): your game install. Read-only dirs take precedence over the writable one.
 
 ```sh
-mkdir -p ~/.local/share/tartarus/custom
-./builds/linux/build/Release/Descent3 \
-  -setdir ~/.local/share/tartarus \
-  -additionaldir "<path to your Descent 3 install>"
+# Steam installs (native, Flatpak or Snap, any library folder) are found automatically (F-003):
+./builds/linux/build/Release/Descent3
+
+# Anything else (GOG, CD, or to pick one of several Steam installs):
+./builds/linux/build/Release/Descent3 -additionaldir "<path to your Descent 3 install>"
 ```
 
-Install locations differ per machine and store (Steam, GOG, CD). **Do not commit a real path.** Developers keep theirs in the gitignored `CLAUDE.local.md` (see CLAUDE.md §Local environment); with F-003 (Phase 0) Steam installs are found automatically and the flag becomes optional.
+The Steam probe only runs if no other base directory already provides `d3.hog`, so `-additionaldir` always wins. If `d3.hog` still cannot be found, the game stops with an error listing every directory it searched. Install locations differ per machine and store; **do not commit a real path.** Developers keep theirs in the gitignored `CLAUDE.local.md` (see CLAUDE.md §Local environment).
 
 ### 4a. Required game files
 
@@ -130,7 +131,7 @@ ls movies/*.mve >/dev/null 2>&1 && echo "ok   movies (.mve)" || echo "note movie
 
 Steam users: upstream recommends the **Windows** depot for the `.mve` movies; on Linux you can get it by forcing a Proton compatibility tool on the game in Steam and verifying files, then still run the native Tartarus binary against that directory. On Wayland, `SDL_VIDEODRIVER=wayland` may be needed.
 
-Other flags inherited from upstream: `-windowed`/`-fullscreen`, `-width`/`-height`, `-logfile`, `-useexedir`. Tartarus adds `-classic` / `-tartarus` (SPEC §1).
+Other flags inherited from upstream: `-windowed`/`-fullscreen`, `-width`/`-height`, `-logfile` (writes `Descent3.log` to the current directory), `-loglevel <LEVEL>`. Tartarus adds `-classic` / `-tartarus` (SPEC §1).
 
 ## 5. Cross-compilation
 
@@ -144,6 +145,8 @@ Seeded from design; append real failures as they occur (BUGS.md for code, here f
 |---|---|
 | CMake: "SDL3 not found" with `USE_VCPKG=OFF` | Distro SDL3 too old or absent → use vcpkg (2b) |
 | §2b lists `libjack-dev`, but apt wants to remove `libjack-jackd2-dev` | `libjack-dev` is JACK1 and conflicts with the JACK2/PipeWire headers. If `libjack-jackd2-dev` is installed, skip `libjack-dev`; the headers are the same (seen on Mint 22.3, 2026-11-01) |
+| vcpkg: `building libxcrypt:x64-linux failed`; `buildtrees/libxcrypt/aclocal-*-err.log` says "System package autoconf-archive is missing" | `sudo apt install autoconf-archive`. Upstream's CI installs it but its BUILD.md omits it (seen 2026-11-01) |
+| vcpkg: `curl operation failed with error code 6 (Couldn't resolve host name)` | Transient DNS failure; re-run `cmake --preset linux`, which resumes where it stopped |
 | vcpkg SDL3 build fails on `wayland-scanner` / `libdecor` | Missing `libwayland-dev libxkbcommon-dev libdecor-0-dev` |
 | Game starts, black screen, log says missing `d3.hog` | Wrong `-additionaldir` — install dir names often contain a space, so quote the path; run the §4a self-check |
 | Movies don't play | Linux Steam depot ships `.ogv`; only `.mve` plays (see §4a) — harmless otherwise |

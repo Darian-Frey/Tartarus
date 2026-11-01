@@ -26,10 +26,9 @@ cd tartarus
 cmake --preset linux
 cmake --build --preset linux --config Release
 
-# 3. Point it at your Descent 3 data (see BUILD.md §4 for the file list)
-./builds/linux/build/Release/Descent3 \
-    -setdir ~/.local/share/tartarus \
-    -additionaldir "<path to your Descent 3 install>"
+# 3. Run. A Steam install of Descent 3 is found automatically; otherwise
+#    add -additionaldir "<path to your Descent 3 install>" (BUILD.md §4)
+./builds/linux/build/Release/Descent3
 ```
 
 The first launch runs in Classic Mode. Open the console with the backtick key (`` ` ``) and type `classic 0` to enable Tartarus features, or toggle it in Options → Tartarus.

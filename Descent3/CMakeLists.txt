@@ -314,6 +314,9 @@ if(APPLE)
   set_source_files_properties(${D3Icon} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
+# TARTARUS: add Tartarus sources, version header and tests (see ARCHITECTURE.md §Hook points)
+include(tartarus/tartarus.cmake)
+
 file(GLOB_RECURSE INCS "../lib/*.h")
 
 add_executable(Descent3 WIN32 MACOSX_BUNDLE ${D3Icon} ${HEADERS} ${CPPS} ${INCS} ${MANIFEST} ${RC_FILE})
