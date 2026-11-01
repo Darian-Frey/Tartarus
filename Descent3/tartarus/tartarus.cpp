@@ -24,6 +24,7 @@
 #include "cfile.h"
 #include "classic.h"
 #include "console.h"
+#include "display.h"
 #include "cvar.h"
 #include "log.h"
 #include "version.h"
@@ -55,6 +56,7 @@ void Tartarus_Init() {
   LOG_INFO << "[tartarus] " << (IsClassic() ? "Classic Mode" : "Tartarus mode")
            << (IsClassicForcedByCommandLine() ? " (from the command line)" : "");
 
+  Display_Init();
   Console_Init();
 }
 

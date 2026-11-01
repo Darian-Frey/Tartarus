@@ -20,6 +20,8 @@ list(APPEND HEADERS
   tartarus/cvar.h
   tartarus/datadir.h
   tartarus/datadir_steam.h
+  tartarus/display.h
+  tartarus/display_prefs.h
   tartarus/tartarus.h
   tartarus/version.h
 )
@@ -31,6 +33,8 @@ list(APPEND CPPS
   tartarus/cvar.cpp
   tartarus/datadir.cpp
   tartarus/datadir_steam.cpp
+  tartarus/display.cpp
+  tartarus/display_prefs.cpp
   tartarus/tartarus.cpp
   tartarus/version.cpp
 )

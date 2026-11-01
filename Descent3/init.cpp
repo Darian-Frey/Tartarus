@@ -972,6 +972,7 @@
 #include "dedicated_server.h"
 #include "D3ForceFeedback.h"
 #include "tartarus/datadir.h" // TARTARUS: F-003
+#include "tartarus/display.h" // TARTARUS: BUG-004/005
 #include "tartarus/tartarus.h" // TARTARUS: Tartarus_Init
 #include "newui.h"
 #include "SmallViews.h"
@@ -1169,6 +1170,9 @@ void SaveGameSettings() {
   Database->write("RS_resolution", Current_video_resolution_id);
   Database->write("RS_fov", static_cast<int>(Render_FOV_setting));
   Database->write("RS_fullscreen", static_cast<int>(Game_fullscreen));
+  // TARTARUS: save the resolution by size; keep -windowed/-fullscreen session-only (BUG-004, BUG-005)
+  tartarus::Display_SaveSettings(Video_res_list[Current_video_resolution_id].width,
+                                 Video_res_list[Current_video_resolution_id].height, Game_fullscreen);
 
   Database->write("RS_bitdepth", Render_preferred_bitdepth);
   Database->write("RS_bilear", Render_preferred_state.filtering);

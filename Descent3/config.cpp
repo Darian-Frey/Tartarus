@@ -282,6 +282,7 @@
 #include <cstring>
 
 #include "config.h"
+#include "tartarus/display.h" // TARTARUS: BUG-004
 #include "newui.h"
 #include "3d.h"
 #include "descent.h"
@@ -428,10 +429,12 @@ void ConfigureDisplayResolutions() {
     Default_resolution_id = Video_res_list.size() - 1; // default to the highest supported resolution
   }
 
-  int tmp;
-  if (!Database->read_int("RS_resolution", &tmp)) {
-    // Only override resolution id if the value was not found in the settings
-    Current_video_resolution_id = Default_resolution_id;
+  // TARTARUS: restore the saved resolution by width x height, not by list index (BUG-004)
+  {
+    std::vector<std::pair<int, int>> sizes;
+    for (const auto &r : Video_res_list)
+      sizes.emplace_back(r.width, r.height);
+    Current_video_resolution_id = tartarus::Display_RestoreResolution(sizes, Default_resolution_id);
   }
 
   LOG_DEBUG << "Resolution configured to w=" << Video_res_list[Current_video_resolution_id].width

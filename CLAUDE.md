@@ -47,6 +47,7 @@ Machine-specific facts (the owner's Descent 3 install path, Steam library layout
 - Docs change in the same commit as the code they describe. Refresh this file at the end of every significant session (state, not history).
 
 ## Pitfalls
+- Upstream registry values are hex (`dword:48` = 72). Resolution is restored by `RS_width`/`RS_height` (BUG-004); `-windowed`/`-fullscreen` are session-only (BUG-005). To test display settings without touching the owner's, run with `XDG_DATA_HOME=<scratch>` (SDL's pref path follows it).
 - `-setdir`/`-useexedir` no longer exist upstream (BUG-001); the writable dir is SDL's pref path `~/.local/share/Outrage Entertainment/Descent 3/`. The current working directory is also a read-only base dir in portable builds.
 - ctest names tests by gtest suite (`SteamTree.*`), not by executable; filter with `-R` on suite names.
 - See ATTACK_VECTORS.md for the canonical list.

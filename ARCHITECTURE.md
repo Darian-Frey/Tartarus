@@ -25,6 +25,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  cheatmenu.cpp   password unlock table, per-frame hold loop          │
 │  datadir.cpp     Steam/data-dir discovery (+ datadir_steam.cpp)      │
 │  version.cpp     build string, upstream hash (F-004)                 │
+│  display.cpp     resolution by size, session-only -windowed          │
 │  weapons_sidecar.cpp  loads data/tartarus/weapons.txt → Weapons[]    │
 │  cloak.cpp       player cloak state machine + HUD gauge              │
 │  gravwell.cpp    gravity-missile well, repulsor                      │
@@ -54,6 +55,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **datadir.cpp / datadir_steam.cpp.** `DataDir_Probe()` runs in `InitIOSystems()` after the user, config and platform base directories are added, and acts only if none of them provides `d3.hog` (so `-additionaldir` always wins). It probes the native, Flatpak and Snap Steam roots and every library in their `libraryfolders.vdf`, keeps directories holding `d3.hog`, de-duplicates by canonical path, and adds the first with `cf_AddBaseDirectory()`, the mechanism `-additionaldir` uses. `DataDir_RequireHog()` stops with an error naming the file and every directory searched when `d3.hog` fails to open. `datadir_steam.cpp` is pure standard C++ and unit-tested (`Descent3/tartarus/tests/`). Runs in Classic Mode too: it is a compatibility fix.
 
+**display.cpp / display_prefs.cpp.** Display settings that survive restarts (compatibility fix, active in Classic). Saves the resolution as `RS_width`/`RS_height` as well as upstream's list index, and restores it by size once `ConfigureDisplayResolutions()` has built the display's mode list (BUG-004). Records the saved fullscreen preference in `Tartarus_Init()`, before `rend_InitWindowMode()` applies `-windowed`/`-fullscreen`, and rewrites `RS_fullscreen` at save so those flags are session-only (BUG-005). Decision rules are pure and unit-tested.
+
 **version.cpp.** Build identification. `tartarus.cmake` regenerates `lib/tartarus_version.h` every build from `TARTARUS_VERSION`, `git describe --match "tartarus-v*"` (so upstream's `v1.x` tags never label our build) and the committed `Descent3/tartarus/UPSTREAM_REF`, which `tools/upstream-sync.sh --apply` updates. `DrawMenuBuildString()` replaces the upstream main-menu version line.
 
 **weapons_sidecar.cpp.** Parses `data/tartarus/weapons.txt` after the table file has loaded (`manage/` page loading complete), allocates slots with `AllocWeapon()`, fills the `weapon` struct fields (model, fire delay, damage, flags, sounds — referencing existing HOG assets by name), and registers each new weapon with the player ship's weapon lists. Weapon *behaviour* that no existing flag covers is implemented in the specific module (e.g. `gravwell.cpp`) and selected by a Tartarus-only flag bit range (SPEC.md §Weapon flags).
@@ -81,7 +84,8 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | Upstream file | Hook | Purpose |
 |---|---|---|
 | `Descent3/GameLoop.cpp` | `Console_HandleKey()` first in the `ProcessKeys()` loop; `Console_Render()` after the HUD in `GameRenderFrame()`; later `CheatHoldLoop()` and the Tartarus per-frame update | console, cheats, cloak/converter ticks |
-| `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()` | startup |
+| `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()`; `Display_SaveSettings()` after the `RS_fullscreen` write in `SaveGameSettings()` | startup, display settings |
+| `Descent3/config.cpp::ConfigureDisplayResolutions` | `Display_RestoreResolution()` replaces the index-based restore | display settings (BUG-004) |
 | `Descent3/mmItem.cpp::mmInterface::CopyrightText` | `DrawMenuBuildString()` early return | build string (F-004) |
 | `Descent3/WeaponFire.cpp::FireWeaponFromPlayer`, `FireFlareFromPlayer` | `Cloak_Break(CLOAK_BREAK_FIRE)`; overcharge later | cloak |
 | `physics/collide.cpp` (`collide_generic_and_player` via `DO_COLLISION(OBJ_ROBOT, OBJ_PLAYER, …)`) | `Cloak_Break(CLOAK_BREAK_BUMP)` + alert | cloak |

@@ -29,3 +29,11 @@ add_executable(
 )
 target_link_libraries(tartarus_console_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_console_tests)
+
+add_executable(
+  tartarus_display_tests
+  display_prefs_tests.cpp
+  ../display_prefs.cpp
+)
+target_link_libraries(tartarus_display_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_display_tests)
