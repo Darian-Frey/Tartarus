@@ -3,6 +3,9 @@
 Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-, AV-, BUG- and IMP- IDs for traceability. Upstream Descent 3 changes arrive via merges and are summarised, not re-listed; see upstream's CHANGELOG for detail.
 
 ## [Unreleased]
+### Added (Phase 2)
+- Virtual-joystick mouse (F-067, D-013): `m_mode 1` (default in Tartarus mode) treats the mouse offset from centre as a turn rate, so the ship keeps turning until the mouse comes back; `m_mode 2` auto-centres. Dead zone, radius, curve, sensitivity, invert and roll options (`m_vj_*`), an on-screen indicator, recentre on the middle mouse button or `m_recentre`, and resets on every context change (AV-013). Classic Mode keeps the stock mouse. 10 unit tests — 2026-11-01.
+- Options (F2) → Mouse tab: mouse mode, speed, invert pitch, indicator and roll, saved to `tartarus.cfg`; the first Tartarus options page (F-067, F-069). The middle mouse button now only recentres the virtual joystick; F still fires flares — 2026-11-01.
 ### Added (Phase 1)
 - Cheat menu (F-012, D-006): Shift+F12 opens a password screen over the game; 17 of the 19 SPEC §4 cheats (give all, god mode, infinite shields/energy/ammo/afterburner, invulnerability, keys, destroy robots, cloak, automap, level warp, statistics overlay, time scale, self-destruct, relock); "infinite" rows held at maximum every frame; sets `IsCheater` and shows a CHEATS tag; refused in Classic Mode and multiplayer (AV-001, AV-004). Console commands `cheat`, `cheatmenu`, `give`, `god`, `timescale`, `map`. 14 unit tests — 2026-11-01.
 - Developer console (F-010): backtick toggles; ship controls suspended while open; scrollback, history (`console_history.txt`), tab completion, engine log mirror; commands `help`, `find`, `cvarlist`, `set`, `reset`, `toggle`, `echo`, `clear`, `exec`, `classic`, `screenshot`, `version`, `quit`; 11 unit tests — 2026-11-01.
@@ -16,6 +19,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 - Steam data-directory probe (F-003): finds native, Flatpak and Snap Steam installs and extra library folders, so `-additionaldir` is optional; a missing `d3.hog` now stops with an error listing the searched directories instead of a black screen. 7 unit tests in `Descent3/tartarus/tests/` — 2026-11-01.
 - Main-menu build string (F-004): "Tartarus 0.1.0-dev <revision>" over "based on Descent 3 Open Source <upstream hash>"; the upstream hash is kept in `Descent3/tartarus/UPSTREAM_REF`, updated by `tools/upstream-sync.sh --apply` — 2026-11-01.
 ### Fixed
+- Right and middle mouse buttons were swapped on Linux: the middle button fired missiles. Right now fires secondaries and the middle button recentres the virtual joystick, as intended (BUG-007, upstream) — 2026-11-01.
 - Mouse pointer far too fast on TelCom screens (briefings, ship select, objectives); it now moves as in the menus (BUG-006, upstream) — 2026-11-01.
 - Screen resolution now restored by width x height instead of a list index that can point at a different size (BUG-004, upstream); `-windowed`/`-fullscreen` no longer overwrite the saved fullscreen choice (BUG-005, upstream) — 2026-11-01.
 - Docs: removed `-setdir` from all run instructions; upstream dropped it in 2024 and the writable directory is SDL's preference path (BUG-001) — 2026-11-01.

@@ -25,6 +25,9 @@ list(APPEND HEADERS
   tartarus/display.h
   tartarus/display_prefs.h
   tartarus/mouse_compat.h
+  tartarus/mouse_flight.h
+  tartarus/mouse_flight_core.h
+  tartarus/options_mouse.h
   tartarus/tartarus.h
   tartarus/version.h
 )
@@ -40,6 +43,9 @@ list(APPEND CPPS
   tartarus/datadir_steam.cpp
   tartarus/display.cpp
   tartarus/display_prefs.cpp
+  tartarus/mouse_flight.cpp
+  tartarus/mouse_flight_core.cpp
+  tartarus/options_mouse.cpp
   tartarus/tartarus.cpp
   tartarus/version.cpp
 )

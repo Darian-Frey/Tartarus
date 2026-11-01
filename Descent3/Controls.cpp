@@ -426,6 +426,7 @@
 #include "player.h"
 #include "hlsoundlib.h"
 #include "sounds.h"
+#include "tartarus/mouse_flight.h" // TARTARUS: F-067
 
 float Key_ramp_speed = 0.5f;
 
@@ -764,6 +765,7 @@ void DoMovement(game_controls *controls) {
 
   // controller
   DoControllerMovement(controls);
+  tartarus::MouseFlight_Apply(controls); // TARTARUS: F-067 virtual-joystick mouse, as a joystick axis
 
   //	clip controller values
   if (controls->pitch_thrust > LIMIT_PITCH)
@@ -1053,6 +1055,8 @@ void DoControllerWeapons(game_controls *controls) {
   Controller->get_packet(ctfFIRESECONDARY_BUTTON, &fire_secondary_time);
   Controller->get_packet(ctfFIRESECONDARY_BUTTON, &fire_secondary_count, ctDownCount);
   Controller->get_packet(ctfFIREFLARE_BUTTON, &fire_flare_count, ctDownCount);
+  if (tartarus::MouseFlight_ReservesButton(ctfFIREFLARE_BUTTON)) // TARTARUS: F-067 middle button recentres only
+    fire_flare_count.value = 0;
   Controller->get_packet(ctfWPNSEL_PCYCLEBTN, &cycle_prim);
   Controller->get_packet(ctfWPNSEL_SCYCLEBTN, &cycle_sec);
   Controller->get_packet(ctfAUTOMAP_BUTTON, &automap_key);

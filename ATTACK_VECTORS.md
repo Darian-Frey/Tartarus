@@ -93,7 +93,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 ### AV-013 Virtual-joystick offset stuck or drifting
 **Severity:** Major
 **Description.** In virtual-joystick mode (F-067) the ship turns whenever the stored mouse offset is outside the dead zone. If the offset survives a context change (console or menu opened, alt-tab, death, level load, pause), the ship keeps spinning with no input, or the indicator and actual rate disagree.
-**Detection.** Unit test of the offset model (clamp, curve, decay, every reset trigger); manual checklist: offset to full rate, then open console / menu / automap / alt-tab / die / load a level, and confirm the ship is still and the indicator centred on return.
+**Detection.** Unit test of the offset model (clamp, curve, decay, every reset trigger; `VirtualJoystick.*`, `VjCurve.*`); manual checklist: offset to full rate, then open console / menu / automap / alt-tab / die / load a level, and confirm the ship is still and the indicator centred on return.
 **Related decisions.** D-013.
 **Related features.** F-067.
 **History.** Identified at design time 2026-11-01.

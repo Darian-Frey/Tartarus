@@ -90,7 +90,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Cheats are refused in multiplayer games and when `classic 1`, with a message
 - Infinite-resource cheats (energy, shields, primary ammo, secondary ammo, afterburner) are *toggles* that hold the value at maximum each frame, not one-shot refills
 - `CATHARSIS` relocks everything and clears the flag for the next new game (not the current one)
-**Status:** In progress (Phase 1): unlock table, password entry, toggles/buttons/slider, hold-at-max loop, `IsCheater` + score reset, CHEATS tag, Classic/multiplayer refusal and `cheat`/`give`/`god`/`timescale`/`map` console commands done and verified in level 1 (2026-11-01); 17 of 19 rows work. Pending: WRAITH (noclip: upstream has none, and moving through walls without breaking room tracking needs its own design), ARGUS (upstream's chase camera is half-built), countermeasures (mines, chaff) in HYDRA's hold, and the LAN check for AV-004. Opens with **Shift+F12**, not F12: stock F12 drops a marker, and upstream has no pause menu to add an entry to (pause is a message box). Owner to confirm.
+**Status:** In progress (Phase 1): unlock table, password entry, toggles/buttons/slider, hold-at-max loop, `IsCheater` + score reset, CHEATS tag, Classic/multiplayer refusal and `cheat`/`give`/`god`/`timescale`/`map` console commands done and verified in level 1 (2026-11-01); 17 of 19 rows work. Pending: WRAITH (noclip: upstream has none, and moving through walls without breaking room tracking needs its own design), ARGUS (upstream's chase camera is half-built), countermeasures (mines, chaff) in HYDRA's hold, and the LAN check for AV-004. Opens with **Shift+F12**, not F12: stock F12 drops a marker, and upstream has no pause menu to add an entry to (pause is a message box); owner confirmed 2026-11-01 after testing.
 **Notes:** D-006. Upstream's `GameCheat.cpp` typed-sequence cheats stay functional in Classic Mode. The game keeps running while the menu is open (IMP-004).
 
 ### F-013 Debug overlays
@@ -316,7 +316,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - A recentre key zeroes the offset instantly; the offset is also zeroed whenever the console, a menu or the automap opens, on focus loss, and on death/level load (AV-013)
 - In Classic Mode `m_mode` is forced to Classic (`CLASSIC_LOCKED`)
 - The owner can complete level 1 with the mouse in Virtual joystick mode (closes the Phase 0 acceptance check)
-**Status:** Not started (Phase 2)
+**Status:** In progress (Phase 2): modes 0/1/2, all SPEC §13 cvars, indicator, recentre (mouse button and `m_recentre`), AV-013 resets and 10 unit tests done; verified by scripted runs in level 1 (2026-11-01): a nudge keeps the ship turning, returning to centre stops it, opening the console stops it. Options (F2) → Mouse tab with mode, speed (`m_vj_sensitivity`), invert pitch, indicator and roll (2026-11-01, owner's request). Recentre stays on the middle mouse button (owner's choice); while the virtual joystick is active a middle-button flare binding is ignored, and F still fires flares. Pending: the owner's level-1 run and a tuning pass on the defaults.
 **Notes:** Requested 2026-11-01 after the Phase 0 playthrough: sustained turns with the stock mouse needed repeated sweeps. Implemented as an analogue axis source in the control layer (the same path a joystick uses), so the flight model is untouched. D-013, AV-013.
 
 ### F-068 Advanced graphics options
@@ -337,7 +337,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Every page is generated from cvar metadata (type, range, description) so new settings appear without new UI code
 - Works with mouse, keyboard and gamepad; readable at 1080p and above
 - Upstream's existing option dialogs remain reachable until each is replaced
-**Status:** Not started (Phase 2)
+**Status:** Not started (Phase 2) First page landed early: Options → Mouse tab (F-067), 2026-11-01, as a `newuiSheet` added to upstream's `OptionsMenu()` from `Descent3/tartarus/options_mouse.cpp`.
 **Notes:** Built on upstream `newui`. Also hosts the Phase 1 cheat menu entry. D-013.
 
 ---

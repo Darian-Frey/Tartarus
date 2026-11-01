@@ -45,3 +45,11 @@ add_executable(
 )
 target_link_libraries(tartarus_cheat_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_cheat_tests)
+
+add_executable(
+  tartarus_mouse_flight_tests
+  mouse_flight_tests.cpp
+  ../mouse_flight_core.cpp
+)
+target_link_libraries(tartarus_mouse_flight_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_mouse_flight_tests)

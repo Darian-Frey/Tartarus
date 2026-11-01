@@ -18,6 +18,14 @@ _None._
 
 ## Fixed
 
+### BUG-007: (upstream) Right and middle mouse buttons swapped on Linux
+**Status:** fixed
+**Severity:** high
+**Found:** 2026-11-01 (owner report: the middle button fires missiles and the right button does not)
+**Location:** `ddio/lnxmouse.cpp` `sdlMouseButtonDownFilter()` / `sdlMouseButtonUpFilter()`
+**Description.** SDL numbers mouse buttons 1 = left, 2 = middle (`SDL_BUTTON_MIDDLE`), 3 = right (`SDL_BUTTON_RIGHT`). The Linux driver maps SDL button 2 to `MOUSE_RB` and 3 to `MOUSE_CB`, so the engine's "right" button is the physical middle one and vice versa. With the stock bindings (button 2 = secondary fire, button 3 = flare) the middle button fired missiles and the right button fired flares; after F-067 the right button recentred the virtual joystick instead of the middle one.
+**Fix.** Both handlers swap SDL's middle and right numbers before dispatching, so the engine sees left = 1, right = 2, middle = 3 as on Windows. Existing pilot bindings keep their meaning (right = secondary, middle = flare / recentre). Compatibility fix, active in Classic Mode too. Verified in level 1 by scripted run: the physical middle button now recentres the virtual joystick; owner to confirm right-button missiles. Fixed 2026-11-01. Candidate upstream PR.
+
 ### BUG-006: (upstream) Mouse pointer far too fast in TelCom screens (briefing, ship select)
 **Status:** fixed
 **Severity:** medium
@@ -41,7 +49,7 @@ _None._
 **Found:** 2026-11-01 (while investigating BUG-004)
 **Location:** `renderer/HardwareOpenGL.cpp` `rend_InitWindowMode()`, `Descent3/init.cpp` `SaveGameSettings()`
 **Description.** The flags set `Game_fullscreen` for the session, and `SaveGameSettings()` writes it back as the preference, so one `-windowed` launch turns fullscreen off for good. Tartarus's own docs told the owner to launch with `-windowed`.
-**Fix.** `Display_Init()` records the saved preference before the flags apply; `Display_SaveSettings()` rewrites `RS_fullscreen` with `FullscreenToSave()`: if the value is still what the flag forced, the stored preference is kept; a change made in Options that session is saved. Unit tested; end-to-end check (clean exit) pending with the owner. Fixed 2026-11-01. Candidate upstream PR.
+**Fix.** `Display_Init()` records the saved preference before the flags apply; `Display_SaveSettings()` rewrites `RS_fullscreen` with `FullscreenToSave()`: if the value is still what the flag forced, the stored preference is kept; a change made in Options that session is saved. Unit tested; owner confirmed end to end (fullscreen survives a `-windowed` launch), 2026-11-01. Fixed 2026-11-01. Candidate upstream PR.
 
 ## Won't Fix
 

@@ -284,7 +284,7 @@ Visited set: room index added on entry; persisted in the save sidecar `AMAP` rec
 | Auto-level hold | Left Alt |
 | Snap to up | Z |
 | Quicksave / quickload | F5 / F9 |
-| Mouse recentre (F-067) | Middle mouse button |
+| Mouse recentre (F-067) | Middle mouse button (`m_vj_recentre_button`); also `m_recentre` |
 
 All bindable in the upstream controls UI; none active in Classic Mode (the console remains available in Classic for non-cheat commands).
 
@@ -298,13 +298,18 @@ All bindable in the upstream controls UI; none active in Classic Mode (the conso
 | `m_vj_deadzone` | 0.04 | fraction of the full-rate radius with zero output |
 | `m_vj_radius` | 0.20 | full-rate radius as a fraction of screen height |
 | `m_vj_curve` | 1.8 | response exponent: `out = sign(x) · ((|x| − dz)/(1 − dz))^curve`, clamped to 1 |
-| `m_vj_centre_rate` | 0.0 (mode 2: 1.5) | per second; offset decays as `offset *= exp(−rate · Frametime)` |
+| `m_vj_centre_rate` | 1.5 | per second, used in mode 2 only; offset decays as `offset *= exp(−rate · Frametime)` |
 | `m_vj_sensitivity` | 1.0 | scales raw mouse counts into offset before clamping |
 | `m_vj_roll_x` | 0 | 1 = mouse X drives roll instead of yaw |
 | `m_vj_invert_y` | 0 | |
-| `m_vj_indicator` | 1 | draw offset dot, line to reticle and dead-zone ring |
+| `m_vj_indicator` | 1 | draw offset dot, line to reticle, full-rate ring and dead-zone ring (drawn at a fixed 12 % of the view height, whatever `m_vj_radius` is) |
+| `m_vj_recentre_button` | 3 | mouse button that centres the stick; 0 = none, 3 = middle (which also fires a flare in stock bindings) |
 
-Offset model: each frame `offset += mouse_delta · m_vj_sensitivity / (m_vj_radius · screen_h)` per axis, the offset vector is clamped to length 1, and the curve output feeds the pitch and heading axes as an analogue rate in −1…1 (the same range a joystick axis produces). Offset resets to zero on: recentre key, console/menu/automap open, window focus loss, death, level load (AV-013).
+All `ARCHIVE | CLASSIC_LOCKED`; inactive in multiplayer (D-008). Console command `m_recentre` centres the stick. While the virtual joystick is active, a flare binding on the recentre mouse button is ignored (stock binds flare to both the middle button and F; F keeps working).
+
+**Options menu.** Options (F2, also from the main menu) → **Mouse** tab: mode (Classic / Virtual joystick / auto-centre), Speed slider 0.25–4.00 in 0.25 steps (`m_vj_sensitivity`), Invert pitch, Show indicator, Left/right rolls. Values are written to the cvars, and so to `tartarus.cfg`, when the menu closes. In Classic Mode the tab only explains how to switch Classic Mode off.
+
+Offset model: for each batch of mouse counts (upstream's controller reads the mouse at most 20 times a second) `offset += mouse_delta · m_vj_sensitivity / (m_vj_radius · screen_h)` per axis, the offset vector is clamped to length 1, and the curve output feeds the pitch and heading axes as an analogue rate in −1…1 (the same range a joystick axis produces). Offset resets to zero on: recentre input, console/cheat menu/menu/TelCom/automap open, pause, window focus loss, death, level load or respawn (a new player object), and any gap of more than 0.25 s in control reading (AV-013). Axis mapping is a joystick's: push forward to dive, pull back to climb (`m_vj_invert_y 1` flips it); the slide and bank toggle keys redirect the stick as they do a joystick, and level scripts' `PCBF_*` direction locks are honoured. While the mode is active, upstream's own mouse turning (mouselook or mouse axis) receives zero movement.
 
 ---
 

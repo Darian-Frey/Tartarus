@@ -26,6 +26,7 @@
 #include "classic.h"
 #include "console.h"
 #include "display.h"
+#include "mouse_flight.h"
 #include "cvar.h"
 #include "log.h"
 #include "version.h"
@@ -60,15 +61,20 @@ void Tartarus_Init() {
   Display_Init();
   Console_Init();
   Cheats_Init();
+  MouseFlight_Init();
 }
 
 bool HandleKey(int key) { return Console_HandleKey(key) || Cheats_HandleKey(key); }
 
-void Frame() { Cheats_Frame(); }
+void Frame() {
+  Cheats_Frame();
+  MouseFlight_Frame();
+}
 
 float TimeScale() { return Cheats_TimeScale(); }
 
 void RenderOverlays() {
+  MouseFlight_Render();
   Cheats_Render();
   Console_Render();
 }

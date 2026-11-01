@@ -39,10 +39,11 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 2 — Controls and display
 **Goal:** The game flies comfortably with a mouse and looks right on a modern widescreen display, with one options menu that holds all of it.
-**Status:** Not started
+**Status:** In progress
 **Features delivered:** F-060, F-062, F-063, F-067, F-068, F-069
 **Deliverables:**
-- [ ] Mouse flight modes (`Descent3/tartarus/mouse_flight.cpp`): virtual-joystick offset model as an analogue axis source, indicator, recentre key, AV-013 resets and unit tests
+- [ ] Mouse flight modes (`Descent3/tartarus/mouse_flight.cpp`): virtual-joystick offset model as an analogue axis source, indicator, recentre key, AV-013 resets and unit tests (done 2026-11-01; owner's level-1 run pending)
+- [x] Options (F2, in game and from the main menu) → **Mouse** tab: mode, speed, invert pitch, indicator, roll; the first Tartarus page of the options menu (F-067, F-069; requested by the owner) — 2026-11-01
 - [ ] Raw mouse: no acceleration or smoothing, one sensitivity (F-062)
 - [ ] Widescreen: correct 3D aspect without `-aspect`, `r_fov` 60–120, HUD anchoring, menus centred or full-width (F-060)
 - [ ] Small-view windows (rear view, Guide-Bot, missile cam): per-window size, aspect and position cvars, defaults identical to upstream (F-060, SPEC.md §14)

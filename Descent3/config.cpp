@@ -283,6 +283,7 @@
 
 #include "config.h"
 #include "tartarus/display.h" // TARTARUS: BUG-004
+#include "tartarus/options_mouse.h" // TARTARUS: F-067
 #include "newui.h"
 #include "3d.h"
 #include "descent.h"
@@ -1520,6 +1521,7 @@ void OptionsMenu() {
   sound_menu sound;
   toggles_menu toggles;
   hud_menu hud;
+  tartarus::MouseOptionsSheet tartarus_mouse; // TARTARUS: F-067 "Mouse flight" tab (F-069)
 
   int res = -1, state = 0; // state = 0, options menu, 1 = controller config, 2 = quitting.
 
@@ -1542,6 +1544,7 @@ void OptionsMenu() {
       sound.setup(&menu);   // setup sound menu. IDV_SCONFIG
       toggles.setup(&menu); // setup general menu. IDV_GCONFIG
       hud.setup(&menu);     // setup hud menu. IDV_HCONFIG
+      tartarus_mouse.Setup(&menu); // TARTARUS: F-067
 
       menu.AddSimpleOption(IDV_CCONFIG, TXT_OPTCONFIG);
       menu.AddSimpleOption(UID_CANCEL, TXT_DONE);
@@ -1582,6 +1585,7 @@ void OptionsMenu() {
 
       // get settings
       hud.finish();
+      tartarus_mouse.Finish(); // TARTARUS: F-067
       toggles.finish();
       sound.finish();
       details.finish();

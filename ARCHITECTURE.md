@@ -69,7 +69,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **converter.cpp.** Two held keys; per-frame transfer with ratio loss; clamps.
 
-**mouse_flight.cpp.** Virtual-joystick mouse modes (F-067, SPEC.md §13). Accumulates raw mouse deltas into a clamped 2-D offset, applies dead zone, curve and optional auto-centring, and supplies the result as an analogue pitch/heading (or roll) rate in −1…1, the range a joystick axis produces, so the flight model is untouched. Resets the offset on every context change (AV-013) and draws the offset indicator as a HUD item. Exact hook point in the control layer (`Descent3/Controls.cpp` / `ddio/sdlcontroller.cpp`) to be chosen at the start of Phase 2 and added to the table below. Early-outs to upstream behaviour when `m_mode 0` or `IsClassic()`.
+**mouse_flight.cpp.** Virtual-joystick mouse modes (F-067, SPEC.md §13). Accumulates raw mouse deltas into a clamped 2-D offset, applies dead zone, curve and optional auto-centring, and supplies the result as an analogue pitch/heading (or roll) rate in −1…1, the range a joystick axis produces, so the flight model is untouched. Resets the offset on every context change (AV-013) and draws the offset indicator as a HUD item. The pure model is `mouse_flight_core.cpp` (unit-tested). Mouse counts arrive through a filter pointer called from `sdlgameController::mouse_geteval()`; while the mode is active the filter keeps the counts and hands upstream zero, so neither mouselook nor the mouse axis turns the ship. `MouseFlight_Apply()` runs in `DoMovement()` right after the controller movement and adds the output where a joystick axis would go. The indicator is drawn in `RenderOverlays()` with line segments (the GL renderer's circle functions are empty stubs). Early-outs to upstream behaviour when `m_mode 0`, `IsClassic()` or multiplayer.
 
 **orient_hud.cpp.** Computes the level up vector (`Gravity_direction`-equivalent outdoors, world +Y indoors), projects it into view space each frame, and renders the up-tick on the reticle, the attitude ball and the gizmo as HUD items.
 
@@ -89,6 +89,11 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()`; `Display_SaveSettings()` after the `RS_fullscreen` write in `SaveGameSettings()` | startup, display settings |
 | `Descent3/config.cpp::ConfigureDisplayResolutions` | `Display_RestoreResolution()` replaces the index-based restore | display settings (BUG-004) |
 | `Descent3/TelCom.cpp` (`TelComShow`, `TelComHandleAllEvents`), `Descent3/TelComGoals.cpp` | menu-scale virtual mouse space and position reads (`kUiMouseScale`) | TelCom pointer speed (BUG-006) |
+| `Descent3/Controls.cpp::DoMovement` | `MouseFlight_Apply()` after `DoControllerMovement()` | virtual-joystick mouse (F-067) |
+| `Descent3/Controls.cpp` (flare button read) | flare packet zeroed when `MouseFlight_ReservesButton()` | middle button recentres only (F-067) |
+| `Descent3/config.cpp::OptionsMenu` | `tartarus::MouseOptionsSheet` setup/finish beside upstream's sheets | Options → Mouse tab (F-067, F-069) |
+| `ddio/lnxmouse.cpp` (`sdlMouseButtonDownFilter`, `sdlMouseButtonUpFilter`) | swap SDL's middle (2) and right (3) button numbers | mouse buttons (BUG-007) |
+| `ddio/sdlcontroller.cpp::mouse_geteval` | `Tartarus_mouse_filter` pointer (defined there, null = upstream) called on each batch of mouse counts | virtual-joystick mouse (F-067) |
 | `Descent3/mmItem.cpp::mmInterface::CopyrightText` | `DrawMenuBuildString()` early return | build string (F-004) |
 | `Descent3/WeaponFire.cpp::FireWeaponFromPlayer`, `FireFlareFromPlayer` | `Cloak_Break(CLOAK_BREAK_FIRE)`; overcharge later | cloak |
 | `physics/collide.cpp` (`collide_generic_and_player` via `DO_COLLISION(OBJ_ROBOT, OBJ_PLAYER, …)`) | `Cloak_Break(CLOAK_BREAK_BUMP)` + alert | cloak |

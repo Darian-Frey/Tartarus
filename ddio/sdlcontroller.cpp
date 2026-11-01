@@ -828,6 +828,10 @@ void sdlgameController::extctl_getpos(int id) {
   m_ExtCtlStates[id].buttons = ji.buttons;
 }
 
+// TARTARUS: F-067 virtual joystick sees each batch of mouse counts first and may zero them
+// (set by Descent3/tartarus/mouse_flight.cpp; null = upstream behaviour).
+void (*Tartarus_mouse_filter)(int *dx, int *dy, unsigned btnmask) = nullptr;
+
 void sdlgameController::mouse_geteval() {
   int x, y, dx, dy; //,z;
   unsigned btnmask;
@@ -840,6 +844,8 @@ void sdlgameController::mouse_geteval() {
     return;
 
   btnmask = (unsigned)ddio_MouseGetState(&x, &y, &dx, &dy);
+  if (Tartarus_mouse_filter) // TARTARUS: F-067
+    Tartarus_mouse_filter(&dx, &dy, btnmask);
 
   m_MseState.x = dx;
   m_MseState.y = dy;

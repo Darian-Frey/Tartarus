@@ -193,7 +193,14 @@ void ddio_MouseSetVCoords(int width, int height) { ddio_MouseSetLimits(0, 0, wid
 bool sdlMouseButtonDownFilter(SDL_Event const *event) {
   ASSERT(event->type == SDL_EVENT_MOUSE_BUTTON_DOWN);
 
-  const SDL_MouseButtonEvent *ev = &event->button;
+  // TARTARUS: BUG-007 SDL numbers the middle button 2 and the right button 3; the engine expects
+  // right = 2 (MOUSE_RB) and middle = 3 (MOUSE_CB), as on Windows. Swap before dispatching.
+  SDL_MouseButtonEvent tartarus_ev = event->button;
+  if (tartarus_ev.button == SDL_BUTTON_MIDDLE)
+    tartarus_ev.button = 3;
+  else if (tartarus_ev.button == SDL_BUTTON_RIGHT)
+    tartarus_ev.button = 2;
+  const SDL_MouseButtonEvent *ev = &tartarus_ev;
   t_mse_event mevt;
 
   if (ev->button == 1) {
@@ -265,7 +272,14 @@ bool sdlMouseButtonDownFilter(SDL_Event const *event) {
 bool sdlMouseButtonUpFilter(SDL_Event const *event) {
   ASSERT(event->type == SDL_EVENT_MOUSE_BUTTON_UP);
 
-  const SDL_MouseButtonEvent *ev = &event->button;
+  // TARTARUS: BUG-007 SDL numbers the middle button 2 and the right button 3; the engine expects
+  // right = 2 (MOUSE_RB) and middle = 3 (MOUSE_CB), as on Windows. Swap before dispatching.
+  SDL_MouseButtonEvent tartarus_ev = event->button;
+  if (tartarus_ev.button == SDL_BUTTON_MIDDLE)
+    tartarus_ev.button = 3;
+  else if (tartarus_ev.button == SDL_BUTTON_RIGHT)
+    tartarus_ev.button = 2;
+  const SDL_MouseButtonEvent *ev = &tartarus_ev;
   t_mse_event mevt;
 
   if (ev->button == 1) {
