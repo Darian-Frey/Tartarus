@@ -265,8 +265,9 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - HUD elements anchor to screen edges at any aspect ratio; `r_fov` cvar 60–120 applies to the 3D view without stretching the HUD
 - The 3D view uses the correct aspect at 16:9, 16:10 and 21:9 without needing upstream's `-aspect` flag
 - Main menu, options and in-game menus fill the screen or are cleanly centred at any aspect ratio (upstream draws them 4:3 with bars, seen 2026-11-01)
+- Small-view windows (rear view Shift+F1/Shift+F2, Guide-Bot and missile cameras) have adjustable size, shape and position per window (SPEC.md §14); the defaults reproduce the upstream layout, and windows stay fully on screen at every aspect ratio
 **Status:** Not started (Phase 2)
-**Notes:** Upstream FOV slider is limited to 72–90° (`Render_FOV_setting`, `config.cpp`). D-013.
+**Notes:** Upstream FOV slider is limited to 72–90° (`Render_FOV_setting`, `config.cpp`). Upstream small views (`SmallViews.cpp::DrawSmallViews`) are square, `Game_window_h / 4` wide, spaced along the bottom of the 3D view; the cockpit view uses fixed cockpit monitors and is left as upstream. Small-view layout requested 2026-11-01. D-013.
 
 ### F-061 Fixed-timestep physics with uncapped render rate
 **Priority:** Should

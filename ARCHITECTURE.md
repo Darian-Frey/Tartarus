@@ -86,6 +86,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/WeaponFire.cpp` (weapon-vs-wall impact, where `WF_GRAVITY_FIELD` is handled ~line 3078) | spawn grav well for Tartarus flag | gravity missile |
 | `Descent3/hud.cpp::RenderHUDItems` + `HUD_ITEM_*` | register cloak gauge, orientation items, CHEATS tag | HUD |
 | `Descent3/gauges.cpp` | cockpit-mode variants if cockpit view is kept | HUD |
+| `Descent3/SmallViews.cpp::DrawSmallViews` (HUD/dormant-cockpit branch) | small-view size, aspect and position from `hud_sv_*` | small views (F-060) |
 | `physics/physics.cpp` (autolevel block) | strength/delay/hold/snap | orientation |
 | `Descent3/TelComAutoMap.cpp` | draw/input calls into `automap_ext` | automap |
 | `Descent3/gamesave.cpp` / `Descent3/loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |

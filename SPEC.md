@@ -300,3 +300,19 @@ All bindable in the upstream controls UI; none active in Classic Mode (the conso
 | `m_vj_indicator` | 1 | draw offset dot, line to reticle and dead-zone ring |
 
 Offset model: each frame `offset += mouse_delta · m_vj_sensitivity / (m_vj_radius · screen_h)` per axis, the offset vector is clamped to length 1, and the curve output feeds the pitch and heading axes as an analogue rate in −1…1 (the same range a joystick axis produces). Offset resets to zero on: recentre key, console/menu/automap open, window focus loss, death, level load (AV-013).
+
+---
+
+## 14. Small-view windows (F-060)
+
+Applies to the HUD (non-cockpit) layout only; cockpit view keeps the cockpit monitors. `<w>` is `left` or `right`. All `CLASSIC_LOCKED` (Classic keeps the upstream layout, AV-001).
+
+| Cvar | Default | Notes |
+|---|---|---|
+| `hud_sv_<w>_size` | 0.25 | window height as a fraction of the 3D view height (upstream: `Game_window_h / 4`) |
+| `hud_sv_<w>_aspect` | 1.0 | width ÷ height; 1.0 = upstream square, e.g. 1.6 for a wide mirror |
+| `hud_sv_<w>_x` | −1 | centre X as a fraction of the 3D view width (0 = left edge, 1 = right edge); −1 = upstream slot position |
+| `hud_sv_<w>_y` | −1 | centre Y as a fraction of the 3D view height (0 = top); −1 = upstream (near the bottom) |
+| `hud_sv_bigger_scale` | upstream | multiplier applied when a view has `SVF_BIGGER` (e.g. guided missile); default reproduces upstream |
+
+Placement is clamped so the whole window stays inside the 3D view. With every value at its default the layout is pixel-identical to upstream.
