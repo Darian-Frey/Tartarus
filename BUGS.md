@@ -63,6 +63,14 @@ _None._
 
 ## Deferred
 
+### BUG-009: Windows build fails in `console.cpp` (plog wide strings)
+**Status:** deferred
+**Severity:** low
+**Found:** 2026-11-01 (GitHub Actions run #9, Windows-x64 Debug and Release)
+**Location:** `Descent3/tartarus/console.cpp` ~line 91, `ConsoleLogAppender::write`
+**Description.** On Windows, plog's `util::nchar` is `wchar_t`, so `record.getMessage()` returns `const wchar_t *` and `std::string msg = record.getMessage();` does not compile (MSVC C2440). Linux and macOS use `char`.
+**Fix (when Windows matters).** Convert with plog's own helper, e.g. `plog::util::toNarrow(record.getMessage(), codepage)` under `#ifdef _WIN32`, or format through `plog::FuncMessageFormatter`. Deferred by D-014: Windows is not built or tested.
+
 ### BUG-003: (upstream?) Reticle images `ret_pr0a.ogf` / `ret_pr0b.ogf` not found at level start
 **Status:** deferred
 **Severity:** low

@@ -287,3 +287,25 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - Orientation aids and tactical weapons move back one phase.
 
 **Reversal conditions.** If Phase 1 slips badly, a minimal virtual-joystick mode with hard-coded defaults can be pulled ahead of it as a stop-gap.
+
+### D-014 Continuous integration builds Linux only
+**Decided:** 2026-11-01
+**Recorded:** 2026-11-01
+**Status:** Accepted
+**Authors:** Shane Hartley
+**Related:** D-001, BUG-009, ARCHITECTURE.md §Hook points
+
+**Context.** Upstream's GitHub Actions matrix (`.github/workflows/build.yml`) builds Windows, macOS, Linux x64 and Linux arm64 (cross), Debug and Release, on every push. Tartarus is Linux-first and is only built and played on Linux. The Windows jobs started failing on Tartarus code (BUG-009); nobody can test fixes for Windows or macOS here.
+
+**Options.**
+- **A. Keep the full matrix and fix Windows blind.** Rejected: fixes can't be tested locally, and every push would keep paying for platforms nobody runs.
+- **B. Build Linux only (x64 and the arm64 cross build).** Chosen.
+
+**Decision.** Option B. The Windows and macOS matrix entries are commented out (not deleted, so upstream merges stay readable) with a `# TARTARUS:` marker. Platform-specific failures on Windows/macOS are logged as `deferred`, not fixed.
+
+**Consequences.**
+- CI is faster and stays green for the platform that matters.
+- Tartarus code may drift from compiling on Windows/macOS; anyone reviving those builds starts with BUG-009 and a CI run.
+
+**Reversal conditions.** If a contributor commits to testing on Windows or macOS, restore the matrix entries and fix what fails.
+

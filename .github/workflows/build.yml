@@ -26,16 +26,17 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - runner: windows-2025-vs2026
-            preset: win
-            cc: cl
-            cxx: cl
-            name: Windows-x64
-          - runner: macos-15  # Apple Silicon, but we make a universal binary
-            preset: mac
-            cc: cc
-            cxx: c++
-            name: macOS
+          # TARTARUS: D-014 Linux-only CI; Windows and macOS entries disabled (upstream's, kept for merges)
+          # - runner: windows-2025-vs2026
+          #   preset: win
+          #   cc: cl
+          #   cxx: cl
+          #   name: Windows-x64
+          # - runner: macos-15  # Apple Silicon, but we make a universal binary
+          #   preset: mac
+          #   cc: cc
+          #   cxx: c++
+          #   name: macOS
           - runner: ubuntu-26.04
             preset: linux
             cc: gcc
