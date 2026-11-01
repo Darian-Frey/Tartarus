@@ -22,6 +22,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] Play levels 1–3 and the first Mercenary level; log any upstream-inherited issues in BUGS.md as `deferred`
 - [x] First CHANGELOG entry
 **Acceptance:** `git merge upstream/main` on a fresh day yields zero conflicts outside `Descent3/tartarus/`, and the game completes level 1 from a Steam install without manual file copying.
+**Acceptance status (2026-11-01):** game starts and loads level 1 from the Steam install with no flags; the owner could not finish level 1 because of the stock mouse model. Open until F-067 (Phase 2) or a keyboard/gamepad run (D-013).
 
 ## Phase 1 — Developer foundation
 **Goal:** The tools every later phase depends on: console, cvars, Classic Mode gate, cheat menu, debug overlays.
@@ -36,7 +37,21 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] AV-001 Classic-regression checklist written and run once
 **Acceptance:** Every cheat in SPEC.md §Cheat passwords works from both menu and console; `classic 1` hides all of it; `cvarlist` shows every SPEC constant.
 
-## Phase 2 — Orientation and automap
+## Phase 2 — Controls and display
+**Goal:** The game flies comfortably with a mouse and looks right on a modern widescreen display, with one options menu that holds all of it.
+**Status:** Not started
+**Features delivered:** F-060, F-062, F-063, F-067, F-068, F-069
+**Deliverables:**
+- [ ] Mouse flight modes (`Descent3/tartarus/mouse_flight.cpp`): virtual-joystick offset model as an analogue axis source, indicator, recentre key, AV-013 resets and unit tests
+- [ ] Raw mouse: no acceleration or smoothing, one sensitivity (F-062)
+- [ ] Widescreen: correct 3D aspect without `-aspect`, `r_fov` 60–120, HUD anchoring, menus centred or full-width (F-060)
+- [ ] Graphics options investigated against `renderer/HardwareOpenGL.cpp`, then implemented as `r_` cvars (F-068)
+- [ ] Options menu with Graphics / Controls / Audio / Gameplay / Tartarus pages generated from cvar metadata (F-069)
+- [ ] SDL3 gamepad with gyro if time allows (F-063)
+- [ ] Tuning session for SPEC.md §13 defaults; values written back to SPEC
+**Acceptance:** The owner completes level 1 with the mouse in virtual-joystick mode (which also closes Phase 0); no HUD element or menu is clipped or stretched at 16:9, 16:10 and 21:9; every new option is reachable from the Options menu and the console; Classic Mode still flies exactly like upstream.
+
+## Phase 3 — Orientation and automap
 **Goal:** Pilots can always tell which way is up, and the map re-anchors them.
 **Status:** Not started
 **Features delivered:** F-040, F-041, F-042, F-043, F-050, F-051
@@ -47,7 +62,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] Playtest notes on defaults (D-010) recorded in DECISIONS if defaults change
 **Acceptance:** A new player test (someone unfamiliar with Descent) can complete level 2 without asking which way is up; the orientation aids cost < 0.2 ms/frame at 1080p.
 
-## Phase 3 — Tactical weapons I
+## Phase 4 — Tactical weapons I
 **Goal:** The two signature mechanics plus the free wins: cloak, gravity missile, repulsor, converter.
 **Status:** Not started
 **Features delivered:** F-020, F-021, F-022, F-030
@@ -60,18 +75,16 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] Tuning session via console cvars; final values written to SPEC.md
 **Acceptance:** The "cloak → fire gravity missile round a corner → enemy dragged into view as cloak drops" sequence works reliably on at least three stock levels, and robot pull never clips a robot through a wall (AV-006 test).
 
-## Phase 4 — Modernisation
+## Phase 5 — Modernisation
 **Goal:** The engine feels like a 2026 native Linux game.
 **Status:** Not started
-**Features delivered:** F-060, F-061, F-062, F-064 (F-063 if time allows)
+**Features delivered:** F-061, F-064 (F-060, F-062, F-063 moved to Phase 2 by D-013)
 **Deliverables:**
-- [ ] Widescreen HUD anchoring and `r_fov`
-- [ ] Raw mouse input
 - [ ] Quicksave/quickload
 - [ ] Fixed-timestep physics prototype behind `phys_fixedstep` cvar; recorded-input equivalence test; D-012 resolved to Accepted or Deprecated
-**Acceptance:** Identical recorded-input runs at 60 and 240 Hz diverge by < 1 unit of position after 60 s; no HUD element is clipped at 21:9.
+**Acceptance:** Identical recorded-input runs at 60 and 240 Hz diverge by < 1 unit of position after 60 s.
 
-## Phase 5 — Tactical weapons II and AI
+## Phase 6 — Tactical weapons II and AI
 **Goal:** Round out the arsenal and make robots react to it.
 **Status:** Not started
 **Features delivered:** F-023 – F-028, F-031, F-032, F-044, F-045, F-070
@@ -80,7 +93,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] AI hooks: target-selection override (decoy), stunned state (EMP), gravity-escape goal, decloak-investigate
 **Acceptance:** Each weapon has at least one level where it is the obviously right tool; AI changes are invisible in Classic Mode.
 
-## Phase 6 — Platform
+## Phase 7 — Platform
 **Goal:** Turn the fork into something others can build on.
 **Status:** Not started
 **Features delivered:** F-065, F-071, F-080, F-081

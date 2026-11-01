@@ -105,7 +105,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - **A. Tune by recompiling.** Rejected: slow, and leaves no record of what values were tried.
 - **B. Build console + cvars before any gameplay feature.** Chosen.
 
-**Decision.** Option B. Phase 1 is tooling; Phase 2 onward consumes it.
+**Decision.** Option B. Phase 1 is tooling; Phase 3 onward consumes it.
 
 **Consequences.**
 - Delays the first visible gameplay change by one phase.
@@ -219,7 +219,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Decision.** Option B. Classic Mode: all off (upstream autolevel slider unchanged).
 
 **Consequences.**
-- Phase 2 playtest may move the attitude ball to default-on; that would be a new decision.
+- Phase 3 playtest may move the attitude ball to default-on; that would be a new decision.
 
 **Reversal conditions.** Playtest evidence that the tick alone does not fix disorientation for new players.
 
@@ -230,7 +230,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Authors:** Shane Hartley
 **Related:** all standard documents
 
-**Context.** Solo project with AI-assisted sessions and expected multi-week gaps; the owner's standard (project-scaffold) targets exactly this. Tier 1 plus Tier 2 all apply; no exemptions claimed. Tier 3: `CONTRIBUTING.md`/`SECURITY.md` deferred to Phase 6 when external contributors are invited; `CLAIMS.md` not applicable (no research claims); `BENCHMARKS.md` to be added when F-061 lands (performance becomes a stated requirement).
+**Context.** Solo project with AI-assisted sessions and expected multi-week gaps; the owner's standard (project-scaffold) targets exactly this. Tier 1 plus Tier 2 all apply; no exemptions claimed. Tier 3: `CONTRIBUTING.md`/`SECURITY.md` deferred to Phase 7 when external contributors are invited; `CLAIMS.md` not applicable (no research claims); `BENCHMARKS.md` to be added when F-061 lands (performance becomes a stated requirement).
 
 **Options.**
 - **A. Full adoption.** Chosen.
@@ -248,8 +248,8 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Decided:** —
 **Recorded:** 2026-11-01
 **Status:** Proposed
-**Authors:** Claude (proposal); decision deferred to Phase 4 prototype
-**Related:** F-061, ROADMAP Phase 4
+**Authors:** Claude (proposal); decision deferred to Phase 5 prototype
+**Related:** F-061, ROADMAP Phase 5
 
 **Context.** Upstream integrates with the variable `Frametime`. Modern high-refresh displays expose frame-rate-dependent behaviour. A fixed tick with interpolated rendering is the standard fix but may measurably change the feel of a 27-year-old game, which Classic Mode promises not to do.
 
@@ -258,9 +258,32 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - **B. Fixed tick everywhere.** Best determinism; risks altering Classic feel.
 - **C. Fixed tick behind a cvar, default on in Tartarus mode and off in Classic, promoted to Classic only if a recorded-input equivalence test shows no behavioural difference.** Current proposal.
 
-**Decision.** Deferred. Prototype Option C in Phase 4 and seal then.
+**Decision.** Deferred. Prototype Option C in Phase 5 and seal then.
 
 **Consequences.**
 - Nothing until the prototype exists.
 
 **Reversal conditions.** n/a until Accepted.
+
+### D-013 Add a "Controls & display" phase as Phase 2
+**Decided:** 2026-11-01
+**Recorded:** 2026-11-01
+**Status:** Accepted
+**Authors:** Shane Hartley (with Claude design discussion 2026-11-01)
+**Related:** F-060, F-062, F-063, F-067, F-068, F-069, D-005, ROADMAP.md, AV-013
+
+**Context.** In the Phase 0 playthrough the owner could not finish level 1: with the stock mouse model (mouse movement = rotation) sustained turns need repeated sweeps. The owner also wants widescreen, higher-resolution and further graphics options, and a menu able to hold them. These were Phase 4 (modernisation) or not planned at all, behind orientation aids and the new weapons.
+
+**Options.**
+- **A. Keep the order.** Rejected: the game is not comfortably playable for the owner until much later, and every playtest in between is distorted by the controls.
+- **B. Do controls and display now, before Phase 1.** Rejected: dead zone, curve and graphics settings need live tuning and persistence, which Phase 1's console and cvars provide (D-005).
+- **C. Insert a new Phase 2 "Controls & display" after Phase 1; old Phases 2–6 become 3–7.** Chosen.
+
+**Decision.** Option C. Phase 2 delivers F-060 (now including widescreen menus), F-062, F-063, and new F-067 (mouse flight modes), F-068 (advanced graphics options), F-069 (options menu overhaul). Fixed-timestep physics (F-061) and quicksave (F-064) stay in the modernisation phase, now Phase 5. Phase numbers in all documents were renumbered on this date (CHANGELOG entries are left as written).
+
+**Consequences.**
+- Phase 0's "complete level 1" check stays open until F-067 lands, or the owner completes it with keyboard or gamepad.
+- Display options are performance/compatibility and stay available in Classic Mode; mouse flight modes change feel and are `CLASSIC_LOCKED`.
+- Orientation aids and tactical weapons move back one phase.
+
+**Reversal conditions.** If Phase 1 slips badly, a minimal virtual-joystick mode with hard-coded defaults can be pulled ahead of it as a stop-gap.

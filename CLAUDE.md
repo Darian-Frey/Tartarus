@@ -4,7 +4,7 @@
 Tartarus (working title, D-002) is a Linux-first fork of the GPL-3.0 Descent 3 engine (DescentDevelopers/Descent3) that keeps stock gameplay behind a Classic Mode flag and adds tactical features: developer console + cvars, password-gated cheat menu, player cloak, gravity missile, repulsor, orientation aids, automap overhaul, and modernisation (FOV, raw mouse, quicksave, fixed timestep). All additions live in `Descent3/tartarus/` with a short list of marked hook points.
 
 ## Current state
-- Upstream **https://github.com/DescentDevelopers/Descent3** is the `upstream` remote and was merged into `main` on 2026-11-01 at `593b880f` (`--allow-unrelated-histories`; repo is not a GitHub fork). Upstream's own README/BUILD/CHANGELOG live in `docs/UPSTREAM_*.md`; ours are at the root. `.gitignore` = upstream's file unchanged + a Tartarus block at the end. First Tartarus code: `Descent3/tartarus/` has datadir (F-003) and version (F-004), wired in via `tartarus.cmake`; 6 `// TARTARUS:` markers in `Descent3/CMakeLists.txt`, `init.cpp`, `mmItem.cpp`. Reference build and the 7 unit tests pass; the game reaches the main menu from the Steam install with no flags. Documents: README, FEATURES, ROADMAP, ARCHITECTURE, DECISIONS (D-001–D-012), SPEC, ATTACK_VECTORS (AV-001–AV-012), BUILD, BUGS, IMPROVEMENTS, CHANGELOG.
+- Upstream **https://github.com/DescentDevelopers/Descent3** is the `upstream` remote and was merged into `main` on 2026-11-01 at `593b880f` (`--allow-unrelated-histories`; repo is not a GitHub fork). Upstream's own README/BUILD/CHANGELOG live in `docs/UPSTREAM_*.md`; ours are at the root. `.gitignore` = upstream's file unchanged + a Tartarus block at the end. First Tartarus code: `Descent3/tartarus/` has datadir (F-003) and version (F-004), wired in via `tartarus.cmake`; 6 `// TARTARUS:` markers in `Descent3/CMakeLists.txt`, `init.cpp`, `mmItem.cpp`. Reference build and the 7 unit tests pass; the game reaches the main menu from the Steam install with no flags. Documents: README, FEATURES, ROADMAP, ARCHITECTURE, DECISIONS (D-001–D-013), SPEC, ATTACK_VECTORS (AV-001–AV-013), BUILD, BUGS, IMPROVEMENTS, CHANGELOG.
 - Upstream reference for all file/symbol names in the docs: commit `fa61eec` (2026-11-01); the merged `593b880f` only adds netgames/netcon logging on top. Upstream is on SDL3 (1.6.0-dev); its own `BUILD.md`/`USAGE.md` are authoritative for build mechanics.
 - Verified upstream facts the design relies on: `GameCheat.cpp` typed-sequence cheats and `IsCheater`; `MakeObjectInvisible()` in `object_lighting.h`; `GRAVITY_FIELD_INDEX` / `DoGravityFieldEffect` in `fireball.cpp`; `phys_apply_force()` in `physics/physics.cpp`; autolevel block in `physics/physics.cpp` (`MAX_AUTOLEVEL_TILT_ANGLE`); `AllocWeapon()`/`FindWeaponName()` in `weapon.cpp`, `MAX_WEAPONS 200`; `HUD_ITEM_*` in `hud.h`; `TelComAutoMap.cpp`; `MAX_ENERGY/MAX_SHIELDS 200`.
 
@@ -13,8 +13,11 @@ Tartarus (working title, D-002) is a Linux-first fork of the GPL-3.0 Descent 3 e
 1. ~~Fork; `upstream` remote; `tools/upstream-sync.sh`~~ (done 2026-11-01).
 2. ~~Reference build~~ (done; vcpkg in `~/vcpkg`, pass `VCPKG_ROOT=$HOME/vcpkg` if not in the shell).
 3. ~~F-003 probe, F-004 build string~~ (done; F-003 multi-install prompt deferred to Phase 1).
-4. **Remaining:** owner plays levels 1–3 and the first Mercenary level; log inherited issues in BUGS.md as `deferred`.
-Then Phase 1 (console/cvars/classic gate/cheat menu) — D-005 says tooling before any gameplay feature.
+4. Playthrough (2026-11-01): game runs, but the owner could not finish level 1 with the stock mouse model (movement = rotation; long turns need repeated sweeps). The level-1 check stays open until F-067 virtual-joystick mode (Phase 2) or a keyboard/gamepad run (D-013).
+
+**Next: Phase 1** (console, cvars, Classic gate, cheat menu): D-005, tooling first. **Then Phase 2 "Controls and display"** (D-013): F-067 virtual-joystick mouse (the owner's top request), F-060 widescreen incl. menus, F-062 raw mouse, F-068 graphics options, F-069 options menu.
+
+**Open question for the owner:** should Tartarus use its own SDL pref dir (e.g. `~/.local/share/Tartarus/`) instead of sharing `Outrage Entertainment/Descent 3/`? Asked twice 2026-11-01, unanswered; would become a decision (D-014) and touch `D3_PREF_ORG/APP`.
 
 ## Invariants
 - `IsClassic()` early-out in every Tartarus per-frame path (AV-001).

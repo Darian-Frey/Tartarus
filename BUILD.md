@@ -15,7 +15,7 @@ Upstream CI (as of fork) builds on Ubuntu 26.04 with GCC 15 and CMake 3.30; olde
 
 ## 2. Dependencies
 
-From upstream `vcpkg.json`: **SDL3 ≥ 3.2.6** (Linux features: x11, wayland, alsa), **zlib**, **glm**, **plog**, **gtest** (tests only), **cpp-httplib ≥ 0.23**, **libxcrypt ≥ 4.4.38** (Linux). Tartarus adds nothing in Phases 0–5. Phase 6 scripting (F-080) will add a Lua (or alternative) dependency — record it in `THIRD_PARTY.md` and D-003 review when it happens.
+From upstream `vcpkg.json`: **SDL3 ≥ 3.2.6** (Linux features: x11, wayland, alsa), **zlib**, **glm**, **plog**, **gtest** (tests only), **cpp-httplib ≥ 0.23**, **libxcrypt ≥ 4.4.38** (Linux). Tartarus adds nothing in Phases 0–6. Phase 7 scripting (F-080) will add a Lua (or alternative) dependency — record it in `THIRD_PARTY.md` and D-003 review when it happens.
 
 ### 2a. Build tools (APT)
 

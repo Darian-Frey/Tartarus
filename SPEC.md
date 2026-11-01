@@ -242,7 +242,7 @@ Keys held: `conv_to_shields`, `conv_to_energy`. Per frame: `amt = conv_rate * Fr
 
 **Auto-level extensions** (`al_`): `al_strength 0.0–1.0` (default 0.3 in Tartarus, maps onto the upstream slider range), `al_delay 0.4` s after last roll input before leveling resumes, `al_hold` key: roll rate toward upright `al_hold_rate 180` °/s, `al_snap` key: roll to nearest of the four uprights over `al_snap_time 0.35` s with ease-out; any roll input cancels.
 
-Budget: all orientation HUD items together ≤ 0.2 ms/frame at 1080p (ROADMAP Phase 2 acceptance).
+Budget: all orientation HUD items together ≤ 0.2 ms/frame at 1080p (ROADMAP Phase 3 acceptance).
 
 ---
 
@@ -261,7 +261,7 @@ Visited set: room index added on entry; persisted in the save sidecar `AMAP` rec
 
 ---
 
-## 11. Modernisation constants (Phase 4)
+## 11. Modernisation constants (Phases 2 and 5)
 
 `r_fov 90` (60–120, affects 3D view only), `m_sensitivity 1.0`, `m_accel 0`, `g_quicksave_key F5`, `g_quickload_key F9`, `g_checkpoints 1`. Fixed-timestep proposal (D-012): `phys_fixedstep 0|1`, `phys_hz 120`, render interpolation between the last two physics states.
 
@@ -279,5 +279,24 @@ Visited set: room index added on entry; persisted in the save sidecar `AMAP` rec
 | Auto-level hold | Left Alt |
 | Snap to up | Z |
 | Quicksave / quickload | F5 / F9 |
+| Mouse recentre (F-067) | Middle mouse button |
 
 All bindable in the upstream controls UI; none active in Classic Mode (the console remains available in Classic for non-cheat commands).
+
+---
+
+## 13. Mouse flight modes (F-067)
+
+| Cvar | Default | Notes |
+|---|---|---|
+| `m_mode` | 1 in Tartarus, 0 in Classic | 0 Classic (upstream), 1 virtual joystick, 2 virtual joystick with auto-centring. `CLASSIC_LOCKED` |
+| `m_vj_deadzone` | 0.04 | fraction of the full-rate radius with zero output |
+| `m_vj_radius` | 0.20 | full-rate radius as a fraction of screen height |
+| `m_vj_curve` | 1.8 | response exponent: `out = sign(x) · ((|x| − dz)/(1 − dz))^curve`, clamped to 1 |
+| `m_vj_centre_rate` | 0.0 (mode 2: 1.5) | per second; offset decays as `offset *= exp(−rate · Frametime)` |
+| `m_vj_sensitivity` | 1.0 | scales raw mouse counts into offset before clamping |
+| `m_vj_roll_x` | 0 | 1 = mouse X drives roll instead of yaw |
+| `m_vj_invert_y` | 0 | |
+| `m_vj_indicator` | 1 | draw offset dot, line to reticle and dead-zone ring |
+
+Offset model: each frame `offset += mouse_delta · m_vj_sensitivity / (m_vj_radius · screen_h)` per axis, the offset vector is clamped to length 1, and the curve output feeds the pitch and heading axes as an analogue rate in −1…1 (the same range a joystick axis produces). Offset resets to zero on: recentre key, console/menu/automap open, window focus loss, death, level load (AV-013).

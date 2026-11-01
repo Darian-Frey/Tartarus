@@ -77,7 +77,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 ### AV-011 Auto-level fighting the player
 **Severity:** Minor
 **Description.** Snap/hold/strength settings override active roll input or oscillate near upright, producing a nauseating or sluggish feel.
-**Detection.** Rule "any roll input cancels" asserted in code; playtest item in Phase 2 acceptance; `al_strength 0` must be bit-identical to upstream behaviour (recorded-input comparison).
+**Detection.** Rule "any roll input cancels" asserted in code; playtest item in Phase 3 acceptance; `al_strength 0` must be bit-identical to upstream behaviour (recorded-input comparison).
 **Related decisions.** D-010.
 **History.** —
 
@@ -89,6 +89,14 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 **Detection.** Manual checklist; automated SDL event injection test in Phase 1 if cheap.
 **Related features.** F-010.
 **History.** —
+
+### AV-013 Virtual-joystick offset stuck or drifting
+**Severity:** Major
+**Description.** In virtual-joystick mode (F-067) the ship turns whenever the stored mouse offset is outside the dead zone. If the offset survives a context change (console or menu opened, alt-tab, death, level load, pause), the ship keeps spinning with no input, or the indicator and actual rate disagree.
+**Detection.** Unit test of the offset model (clamp, curve, decay, every reset trigger); manual checklist: offset to full rate, then open console / menu / automap / alt-tab / die / load a level, and confirm the ship is still and the indicator centred on return.
+**Related decisions.** D-013.
+**Related features.** F-067.
+**History.** Identified at design time 2026-11-01.
 
 ### AV-009 Per-frame cost of new HUD/overlay code
 **Severity:** Minor

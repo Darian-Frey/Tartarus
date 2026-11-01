@@ -26,6 +26,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  cloak.cpp       player cloak state machine + HUD gauge              │
 │  gravwell.cpp    gravity-missile well, repulsor                      │
 │  converter.cpp   energy↔shield                                       │
+│  mouse_flight.cpp  virtual-joystick mouse modes (F-067)              │
 │  orient_hud.cpp  up-tick, attitude ball, gizmo                       │
 │  autolevel_ext.cpp  hold/snap/strength on top of physics autolevel   │
 │  automap_ext.cpp overlay logic used by TelComAutoMap.cpp             │
@@ -59,6 +60,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 **gravwell.cpp.** Registers a new fireball index (`TARTARUS_GRAVWELL_INDEX`) and a `DoGravWellFrame(object*)` dispatched from `fireball.cpp::DoExplosionFrame`. Implements the pull: iterate room/terrain-neighbourhood objects, compute linear-falloff force, scale by mass, skip `GW_IMMUNE`, `phys_apply_force()`. Deliberately does **not** set `PF_DESTINATION_POS` the way the stock field does (that pins objects to the centre and is the main wall-clip risk). Repulsor is the same function with negative force and no spawned object.
 
 **converter.cpp.** Two held keys; per-frame transfer with ratio loss; clamps.
+
+**mouse_flight.cpp.** Virtual-joystick mouse modes (F-067, SPEC.md §13). Accumulates raw mouse deltas into a clamped 2-D offset, applies dead zone, curve and optional auto-centring, and supplies the result as an analogue pitch/heading (or roll) rate in −1…1, the range a joystick axis produces, so the flight model is untouched. Resets the offset on every context change (AV-013) and draws the offset indicator as a HUD item. Exact hook point in the control layer (`Descent3/Controls.cpp` / `ddio/sdlcontroller.cpp`) to be chosen at the start of Phase 2 and added to the table below. Early-outs to upstream behaviour when `m_mode 0` or `IsClassic()`.
 
 **orient_hud.cpp.** Computes the level up vector (`Gravity_direction`-equivalent outdoors, world +Y indoors), projects it into view space each frame, and renders the up-tick on the reticle, the attitude ball and the gizmo as HUD items.
 

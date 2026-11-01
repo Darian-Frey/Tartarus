@@ -3,7 +3,10 @@
 Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-, AV-, BUG- and IMP- IDs for traceability. Upstream Descent 3 changes arrive via merges and are summarised, not re-listed; see upstream's CHANGELOG for detail.
 
 ## [Unreleased]
+### Changed
+- Roadmap: new Phase 2 "Controls and display" (D-013); old Phases 2–6 renumbered 3–7 in all documents. F-060 (now including widescreen menus, priority Must), F-062 and F-063 moved into it — 2026-11-01.
 ### Added
+- Features F-067 mouse flight modes (virtual joystick), F-068 advanced graphics options, F-069 options menu overhaul; SPEC.md §13 mouse-flight cvars; AV-013 stuck virtual-joystick offset — 2026-11-01.
 - Steam data-directory probe (F-003): finds native, Flatpak and Snap Steam installs and extra library folders, so `-additionaldir` is optional; a missing `d3.hog` now stops with an error listing the searched directories instead of a black screen. 7 unit tests in `Descent3/tartarus/tests/` — 2026-11-01.
 - Main-menu build string (F-004): "Tartarus 0.1.0-dev <revision>" over "based on Descent 3 Open Source <upstream hash>"; the upstream hash is kept in `Descent3/tartarus/UPSTREAM_REF`, updated by `tools/upstream-sync.sh --apply` — 2026-11-01.
 ### Fixed

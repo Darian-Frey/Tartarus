@@ -112,7 +112,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - A forced drop starts a cooldown of `cloak_cooldown_forced`; a voluntary drop `cloak_cooldown`
 - Robots lose target lock while cloaked, using the existing invisibility path (`MakeObjectInvisible`); a bump decloaks *and* alerts the bumped robot
 - HUD gauge shows state (ready / active with time left / cooldown)
-**Status:** Not started (Phase 3)
+**Status:** Not started (Phase 4)
 **Notes:** SPEC.md §Cloak. AV-007.
 
 ### F-021 Gravity missile
@@ -124,7 +124,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Player is affected when within `gw_self_radius` (default on)
 - Low direct damage; scarce pickup; distinct impact and pull visuals and audio
 - `give gravmissile` works from the console
-**Status:** Not started (Phase 3)
+**Status:** Not started (Phase 4)
 **Notes:** D-007, D-009. Reuses the engine's `GRAVITY_FIELD_INDEX` fireball machinery (`fireball.cpp::DoGravityFieldEffect`). SPEC.md §Gravity missile. AV-006.
 
 ### F-022 Repulsor pulse
@@ -132,64 +132,64 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Bound key emits a radial shove of radius `rp_radius`, force `rp_force`, cost `rp_cost` energy, cooldown `rp_cooldown`
 - Pushes robots, weapons (missiles deflect) and the player (wall-launch is possible)
-**Status:** Not started (Phase 3)
+**Status:** Not started (Phase 4)
 **Notes:** Same force code as F-021 with the sign flipped.
 
 ### F-023 Flak / proximity burst missile
 **Priority:** Could
 **Acceptance:**
 - Detonates when a robot comes within `flak_trigger_radius` of the projectile, or on impact
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ### F-024 Ricochet slug
 **Priority:** Could
 **Acceptance:**
 - Bounces up to `ric_bounces` times; damage multiplied by `ric_gain` per bounce; uses existing bounce flags
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ### F-025 Decoy drone
 **Priority:** Could
 **Acceptance:**
 - Deploys a stationary hologram of the player ship for `decoy_time`; robots within range retarget it in preference to the player
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 **Notes:** Needs an AI target-selection hook (F-070).
 
 ### F-026 EMP mine
 **Priority:** Could
 **Acceptance:**
 - Proximity mine that applies a `stunned` AI state for `emp_time` instead of damage
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ### F-027 Overcharge
 **Priority:** Could
 **Acceptance:**
 - Holding primary fire on an energy weapon for > `oc_hold` seconds dumps up to `oc_max_energy` into a single shot scaled by `oc_gain`; HUD charge bar
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ### F-028 Tether / grapple
 **Priority:** Could
 **Acceptance:**
 - Fires a line; on wall hit applies a spring force toward the anchor until released or `tether_max_len` exceeded
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ### F-030 Energy ↔ shield converter
 **Priority:** Should
 **Acceptance:**
 - Two bound keys convert at `conv_rate` units/second with `conv_ratio` loss, never above max or below `conv_floor`
-**Status:** Not started (Phase 3)
+**Status:** Not started (Phase 4)
 **Notes:** Descent 2 had this; D3 dropped it.
 
 ### F-031 Dash
 **Priority:** Could
 **Acceptance:**
 - Directional impulse of `dash_impulse` on double-tap of a slide key, cooldown `dash_cooldown`, energy cost `dash_cost`
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ### F-032 Scanner ping
 **Priority:** Could
 **Acceptance:**
 - Bound key marks robots within `ping_radius` on HUD and automap for `ping_time`, through walls, cost `ping_cost`
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ---
 
@@ -200,7 +200,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - A short tick on the reticle ring always points toward world-up projected onto the view plane; fades out when the ship is within `hud_uptick_fade_deg` of upright
 - `hud_uptick` cvar; on by default in Tartarus mode
-**Status:** Not started (Phase 2)
+**Status:** Not started (Phase 3)
 **Notes:** D-010.
 
 ### F-041 Attitude indicator
@@ -208,33 +208,33 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Aircraft-style pitch/roll ball relative to the level's up vector (terrain gravity direction outdoors; world +Y indoors), positioned per HUD layout
 - `hud_attitude` cvar; off by default
-**Status:** Not started (Phase 2)
+**Status:** Not started (Phase 3)
 
 ### F-042 Orientation gizmo
 **Priority:** Should
 **Acceptance:**
 - Corner 3-axis gizmo showing world axes relative to ship; `hud_gizmo` cvar
-**Status:** Not started (Phase 2)
+**Status:** Not started (Phase 3)
 
 ### F-043 Enhanced auto-level and snap-to-up
 **Priority:** Should
 **Acceptance:**
 - `al_strength` (0–1) and `al_delay` cvars extend upstream's autolevel slider; `al_hold` key rolls to upright while held; `al_snap` key single-tap rolls to nearest upright over `al_snap_time`
 - Never fights active roll input: any roll input cancels an in-progress snap
-**Status:** Not started (Phase 2)
+**Status:** Not started (Phase 3)
 **Notes:** Builds on `physics/physics.cpp` autolevel code. AV-011.
 
 ### F-044 Environmental up cues
 **Priority:** Could
 **Acceptance:**
 - Optional drifting dust particles falling along world-down in indoor rooms; optional subtle brightness gradient toward up
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ### F-045 Heading tape
 **Priority:** Could
 **Acceptance:**
 - Yaw compass strip, outdoors only by default
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ---
 
@@ -246,61 +246,98 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Visited vs seen-but-unvisited rooms distinguished by colour; terrain can be hidden; objective, key, door and powerup markers filterable
 - 2D top-down projection mode with depth shading, toggled from within the map
 - Opening the map always starts camera-up = world-up, with a clear ship-with-up-arrow glyph (F-051)
-**Status:** Not started (Phase 2)
+**Status:** Not started (Phase 3)
 **Notes:** `Descent3/TelComAutoMap.cpp`.
 
 ### F-051 Automap orientation anchoring
 **Priority:** Should
 **Acceptance:**
 - Player glyph shows facing and up; closing the map briefly shows the up-tick enlarged for `map_reanchor_time`
-**Status:** Not started (Phase 2)
+**Status:** Not started (Phase 3)
 
 ---
 
 ### F. Quality of life and modernisation
 
-### F-060 Widescreen HUD and FOV slider
-**Priority:** Should
+### F-060 Widescreen HUD, menus and FOV
+**Priority:** Must
 **Acceptance:**
 - HUD elements anchor to screen edges at any aspect ratio; `r_fov` cvar 60–120 applies to the 3D view without stretching the HUD
-**Status:** Not started (Phase 4)
+- The 3D view uses the correct aspect at 16:9, 16:10 and 21:9 without needing upstream's `-aspect` flag
+- Main menu, options and in-game menus fill the screen or are cleanly centred at any aspect ratio (upstream draws them 4:3 with bars, seen 2026-11-01)
+**Status:** Not started (Phase 2)
+**Notes:** Upstream FOV slider is limited to 72–90° (`Render_FOV_setting`, `config.cpp`). D-013.
 
 ### F-061 Fixed-timestep physics with uncapped render rate
 **Priority:** Should
 **Acceptance:**
 - Physics/AI tick at a fixed rate (SPEC.md); rendering interpolates; game feel at 60/144/240 Hz is identical in a recorded-input test
 - Classic Mode may keep upstream timing if the change proves behaviour-altering (see D-012)
-**Status:** Not started (Phase 4)
+**Status:** Not started (Phase 5)
 **Notes:** D-012 (Proposed). Highest-risk item in the plan.
 
 ### F-062 Raw mouse input
 **Priority:** Should
 **Acceptance:**
 - SDL relative mode, no OS acceleration, `m_sensitivity` and `m_accel 0` by default
-**Status:** Not started (Phase 4)
+**Status:** Not started (Phase 2)
+**Notes:** Upstream already uses `SDL_SetWindowRelativeMouseMode`; this item is about removing acceleration/smoothing and exposing one sensitivity. Pairs with F-067.
 
 ### F-063 Gamepad with gyro aim
 **Priority:** Could
 **Acceptance:**
 - SDL3 gamepad API including gyro where present; bindable in the existing controls UI
-**Status:** Not started (Phase 4)
+**Status:** Not started (Phase 2)
 
 ### F-064 Quicksave anywhere
 **Priority:** Should
 **Acceptance:**
 - `F5`/`F9` quicksave/quickload using the existing save path; `g_checkpoints 0` disables mid-level autosaves for purists
-**Status:** Not started (Phase 4)
+**Status:** Not started (Phase 5)
 
 ### F-065 Demo free camera
 **Priority:** Could
 **Acceptance:**
 - During demo playback, a detached camera with fly controls and pause/scrub
-**Status:** Not started (Phase 6)
+**Status:** Not started (Phase 7)
 
 ### F-066 Modern renderer path
 **Priority:** Won't (v1)
 **Acceptance:** n/a — candidate only
 **Status:** Not started
+
+### F-067 Mouse flight modes (virtual joystick)
+**Priority:** Must
+**Acceptance:**
+- `m_mode` selects Classic (upstream: mouse movement = rotation), Virtual joystick (mouse offset from centre = rotation *rate*; the ship keeps turning until the mouse returns to centre), or Virtual joystick with auto-centring (the offset decays toward centre at `m_vj_centre_rate`)
+- Virtual-joystick tuning per SPEC.md §13: dead zone, full-rate radius, response curve, per-axis invert, optional mouse-X-as-roll
+- An on-screen indicator shows the current offset from centre (dot plus line from the reticle) and the dead-zone ring; `m_vj_indicator` toggles it
+- A recentre key zeroes the offset instantly; the offset is also zeroed whenever the console, a menu or the automap opens, on focus loss, and on death/level load (AV-013)
+- In Classic Mode `m_mode` is forced to Classic (`CLASSIC_LOCKED`)
+- The owner can complete level 1 with the mouse in Virtual joystick mode (closes the Phase 0 acceptance check)
+**Status:** Not started (Phase 2)
+**Notes:** Requested 2026-11-01 after the Phase 0 playthrough: sustained turns with the stock mouse needed repeated sweeps. Implemented as an analogue axis source in the control layer (the same path a joystick uses), so the flight model is untouched. D-013, AV-013.
+
+### F-068 Advanced graphics options
+**Priority:** Should
+**Acceptance:**
+- Display mode: fullscreen, borderless fullscreen, windowed; any resolution SDL reports, plus a custom width/height
+- VSync on/off/adaptive; frame-rate cap (off, 60, 120, 144, 240, custom), replacing upstream's fixed 60 fps default cap
+- Render scale (resolution of the 3D view independent of the UI), texture filtering (bilinear/trilinear/anisotropic level), MSAA where the GL context supports it, gamma
+- Every option is a cvar (`r_` prefix), shown on the Graphics page of F-069, applied without restarting the game where the renderer allows, otherwise flagged "applies on restart"
+- Performance/compatibility only: available in Classic Mode (D-004)
+**Status:** Not started (Phase 2)
+**Notes:** Exact option list confirmed against the OpenGL renderer (`renderer/HardwareOpenGL.cpp`) at the start of Phase 2. D-013.
+
+### F-069 Options menu overhaul
+**Priority:** Should
+**Acceptance:**
+- One Options screen with pages: Graphics (F-068, F-060), Controls (F-067, F-062, F-063, upstream bindings), Audio (upstream), Gameplay, Tartarus (Classic Mode toggle, F-002)
+- Every page is generated from cvar metadata (type, range, description) so new settings appear without new UI code
+- Works with mouse, keyboard and gamepad; readable at 1080p and above
+- Upstream's existing option dialogs remain reachable until each is replaced
+**Status:** Not started (Phase 2)
+**Notes:** Built on upstream `newui`. Also hosts the Phase 1 cheat menu entry. D-013.
 
 ---
 
@@ -310,13 +347,13 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Should
 **Acceptance:**
 - Robots caught in a gravity well attempt to thrust away if they can; a decloak flash within sight triggers an investigate behaviour; stunned state exists for F-026
-**Status:** Not started (Phase 5)
+**Status:** Not started (Phase 6)
 
 ### F-071 Mirror difficulty tier
 **Priority:** Could
 **Acceptance:**
 - An optional difficulty above Insane where selected robots use cloak and gravity weapons
-**Status:** Not started (Phase 6)
+**Status:** Not started (Phase 7)
 
 ---
 
@@ -326,13 +363,13 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Could
 **Acceptance:**
 - Lua (or equivalent) bindings for weapon definitions, console commands and simple object behaviours; new weapons definable without recompiling
-**Status:** Not started (Phase 6)
+**Status:** Not started (Phase 7)
 
 ### F-081 Mission browser
 **Priority:** Could
 **Acceptance:**
 - In-game list of installed `.mn3` missions with level counts and descriptions, replacing the stock file dialog
-**Status:** Not started (Phase 6)
+**Status:** Not started (Phase 7)
 
 ## Candidate features (uncommitted)
 
