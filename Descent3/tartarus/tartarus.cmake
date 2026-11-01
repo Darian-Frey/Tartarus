@@ -15,6 +15,8 @@ endif()
 list(APPEND HEADERS
   tartarus/classic.h
   tartarus/cmdparse.h
+  tartarus/console.h
+  tartarus/console_core.h
   tartarus/cvar.h
   tartarus/datadir.h
   tartarus/datadir_steam.h
@@ -24,6 +26,8 @@ list(APPEND HEADERS
 list(APPEND CPPS
   tartarus/classic.cpp
   tartarus/cmdparse.cpp
+  tartarus/console.cpp
+  tartarus/console_core.cpp
   tartarus/cvar.cpp
   tartarus/datadir.cpp
   tartarus/datadir_steam.cpp

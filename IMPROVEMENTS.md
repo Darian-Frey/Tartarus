@@ -23,6 +23,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Trade-offs.** One more script to maintain; false positives on prose mentions of IDs unless the parser is restricted to `**Related:**` lines and tables.
 **Notes.** Phase 1 deliverable per D-011.
 
+### IMP-003: Console line wrapping and translucent background
+**Status:** suggested
+**Found:** 2026-11-01 (first in-game console test)
+**Location:** `Descent3/tartarus/console.cpp` `Console_Render()`
+**Effort:** small
+**Description.** Long lines (e.g. `version` output at 512 px width) are cut off at the right edge, and the background is a solid fill because `rend_FillRect` clears rather than blends.
+**Proposal.** Wrap at render time using `grtext_GetTextLineWidth`; draw the background as an alpha-blended 2D polygon so the game shows through.
+**Trade-offs.** Wrapping at render time makes scroll offsets count wrapped rows; keep offsets in source lines and accept uneven paging.
+
 ## Applied
 
 ### IMP-002: Upstream-sync helper

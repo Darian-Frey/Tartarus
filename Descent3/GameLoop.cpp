@@ -803,6 +803,7 @@
 
 #include "chrono_timer.h"
 #include "gameloop.h"
+#include "tartarus/console.h" // TARTARUS: F-010
 #include "game.h"
 #include "render.h"
 #include "descent.h"
@@ -2391,6 +2392,9 @@ void ProcessKeys() {
 
   // Process all pending keys
   while ((key = ddio_KeyInKey()) != 0) {
+    // TARTARUS: console gets first refusal on every key, ahead of chat and DemoCheats (F-010, AV-008)
+    if (tartarus::Console_HandleKey(key))
+      continue;
 
     // Where does this belong?
     //	do d3x debugging console
@@ -2640,6 +2644,9 @@ void GameRenderFrame(void) {
       grtext_Flush();
       EndFrame();
     }
+
+    // TARTARUS: drop-down console drawn over the HUD (F-010)
+    tartarus::Console_Render();
   }
 
   // Do UI Frame

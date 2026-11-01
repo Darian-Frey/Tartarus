@@ -19,3 +19,13 @@ add_executable(
 )
 target_link_libraries(tartarus_cvar_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_cvar_tests)
+
+add_executable(
+  tartarus_console_tests
+  console_core_tests.cpp
+  ../console_core.cpp
+  ../cmdparse.cpp
+  ../cvar.cpp
+)
+target_link_libraries(tartarus_console_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_console_tests)

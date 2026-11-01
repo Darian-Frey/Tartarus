@@ -30,7 +30,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 **Features delivered:** F-002, F-010, F-011, F-012, F-013
 **Deliverables:**
 - [x] `cvar.cpp/.h` with flags, persistence to `tartarus.cfg`, `CLASSIC_LOCKED` enforcement — 2026-11-01
-- [ ] `console.cpp/.h`: input capture, rendering via `grtext`, history, completion, plog sink
+- [ ] `console.cpp/.h`: input capture, rendering via `grtext`, history, completion, plog sink (all done and verified in level 1, 2026-11-01; `bind`/`unbind` and cheat commands pending)
 - [ ] `classic.cpp`: the single `IsClassic()` query and the Options toggle (query, cvar and `-classic`/`-tartarus` done 2026-11-01; toggle comes with the console now and F-069 in Phase 2)
 - [ ] `cheatmenu.cpp`: password field, unlock table, per-frame "hold at max" loop, HUD "CHEATS" tag, `IsCheater` integration
 - [ ] Debug overlays (`r_showaxes`, `r_showobjinfo`, `r_showcollide`)

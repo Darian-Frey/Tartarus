@@ -23,6 +23,7 @@
 #include "args.h"
 #include "cfile.h"
 #include "classic.h"
+#include "console.h"
 #include "cvar.h"
 #include "log.h"
 #include "version.h"
@@ -53,6 +54,8 @@ void Tartarus_Init() {
   Classic_Init(FindArg("-classic") != 0, FindArg("-tartarus") != 0);
   LOG_INFO << "[tartarus] " << (IsClassic() ? "Classic Mode" : "Tartarus mode")
            << (IsClassicForcedByCommandLine() ? " (from the command line)" : "");
+
+  Console_Init();
 }
 
 } // namespace tartarus

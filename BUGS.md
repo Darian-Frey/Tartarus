@@ -22,6 +22,14 @@ _None._
 
 ## Deferred
 
+### BUG-003: (upstream?) Reticle images `ret_pr0a.ogf` / `ret_pr0b.ogf` not found at level start
+**Status:** deferred
+**Severity:** low
+**Found:** 2026-11-01 (console log mirror, level 1, Steam Linux data)
+**Location:** `Descent3/hud.cpp` `InitReticle()` (around line 1830); names listed near line 1703
+**Description.** Each level start logs `Unable to find bitmap ret_pr0a.ogf` and `ret_pr0b.ogf` (16 lines in one session). The reticle still draws; the effect of the missing segments is not yet known. May be data the Steam Linux depot lacks, or a name mismatch upstream.
+**Notes.** Investigate when the HUD is touched in Phase 2 (F-060). Check whether the files exist in any HOG (`d3.hog`, `extra*.hog`) before calling it upstream.
+
 ### BUG-001: (upstream) USAGE.md documents the removed `-setdir` and `-useexedir`
 **Status:** deferred
 **Severity:** low

@@ -69,7 +69,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - All engine log output (plog) is mirrored into the console scrollback
 - Commands available at launch: `classic`, `help`, `find`, `exec <file>`, `bind`, `unbind`, `quit`, `map <mission> <level>`, `give <weapon|all>`, `spawn <object>`, `noclip`, `god`, `timescale <f>`, `screenshot`, `cvarlist`, `cheat <password>` (see F-012)
 - Cheat-class commands are refused unless the matching cheat is unlocked (F-012) or the build is a Debug build
-**Status:** Not started (Phase 1)
+**Status:** In progress (Phase 1): toggle, input capture (controls suspended, queues flushed on close), scrollback, history persisted to `console_history.txt`, tab completion, plog mirror, `help`/`find`/`cvarlist`/`set`/`reset`/`toggle`/`echo`/`clear`/`exec`/`classic`/`screenshot`/`version`/`quit` done and verified in level 1 (2026-11-01); `bind`/`unbind`, the cheat commands (with F-012), `con_key`, `con_pause` and line wrapping pending
 **Notes:** D-005. SPEC.md §Console grammar.
 
 ### F-011 Cvar system

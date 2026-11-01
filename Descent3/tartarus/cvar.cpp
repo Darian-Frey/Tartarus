@@ -100,12 +100,12 @@ const std::string &Cvar::GetString() const { return IsEffectivelyLocked() ? defa
 std::string Cvar::Describe() const {
   std::string s = name_ + " = " + QuoteArg(value_) + " (default " + QuoteArg(default_) + ", " + TypeName(type_);
   if (has_range_) {
-    s += " " + (type_ == CvarType::Float ? FormatFloat(min_) : std::to_string(static_cast<long long>(min_))) + "…" +
+    s += " " + (type_ == CvarType::Float ? FormatFloat(min_) : std::to_string(static_cast<long long>(min_))) + ".." +
          (type_ == CvarType::Float ? FormatFloat(max_) : std::to_string(static_cast<long long>(max_)));
   }
   s += ")";
   if (!description_.empty()) {
-    s += " — " + description_;
+    s += " - " + description_;
   }
   std::string tags;
   if (HasFlag(CVAR_ARCHIVE))

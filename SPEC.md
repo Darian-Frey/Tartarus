@@ -69,11 +69,13 @@ Built-in commands (Phase 1):
 | `spawn <object-name> [count]` | CHEAT. Spawns ahead of the player |
 | `god <0|1>`, `noclip <0|1>` | CHEAT |
 | `timescale <f>` | CHEAT. 0.05–4.0 |
-| `screenshot` | PNG to `screenshots/` in the writable base dir |
+| `screenshot` | closes the console and calls upstream `DoScreenshot()` (upstream's location and format) |
 | `cheat <password>` | same unlock table as the cheat menu (§4) |
-| `quit` | |
+| `quit` | leave the game; shows the normal exit confirmation |
+| `set <cvar> <value>`, `reset <cvar>`, `toggle <bool cvar>` | explicit forms of cvar assignment |
+| `echo <text>`, `clear`, `version` | |
 
-Input capture: while open, the console consumes all keyboard events except the toggle key and `Escape`; mouse look is frozen; the game continues to run unless `con_pause 1`.
+Input capture: while open, the console consumes every key (the toggle key and `Escape` close it); all ship controls are suspended and the key/mouse queues are flushed on close; the game keeps running (`con_pause` is not implemented yet). Editing keys: Left/Right, Home/End, Backspace/Delete, Up/Down history, Page Up/Down scroll, Tab complete, Ctrl+U clear line, Ctrl+L clear scrollback. Implemented cvars so far: `con_height`, `con_anim_time`, `con_lines`; `con_key` (rebinding) and `con_pause` pending.
 
 ---
 

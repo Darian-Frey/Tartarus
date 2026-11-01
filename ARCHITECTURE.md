@@ -20,6 +20,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  cvar.cpp        typed registry, persistence, flags                  │
 │  console.cpp     drop-down console, commands, plog sink              │
 │  cmdparse.cpp    console/config line tokenizer (SPEC §3 grammar)     │
+│  console_core.cpp  scrollback, editing, history, completion          │
 │  tartarus.cpp    Tartarus_Init(): cvar policy, cfg load, modules     │
 │  cheatmenu.cpp   password unlock table, per-frame hold loop          │
 │  datadir.cpp     Steam/data-dir discovery (+ datadir_steam.cpp)      │
@@ -47,7 +48,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **cvar.cpp / cmdparse.cpp.** `CvarRegistry`: a flat registry of named, typed values (bool/int/float/string, min/max, description) with flags `ARCHIVE`, `CHEAT`, `CLASSIC_LOCKED`, `LATCH`, `READONLY`. API: `Cvars().RegisterBool/Int/Float/String`, `Find`, `List(prefix)`, `Set(name, value, source)`, `ApplyLatched()`, change callbacks; reads are cached numbers, so per-frame use is free. Persisted to `tartarus.cfg` in the writable base directory (SDL's preference path; `-setdir` no longer exists upstream): only non-default `ARCHIVE` values, written atomically after each user change; values for modules not yet registered are kept and applied when they register. Engine dependencies (classic flag, cheat policy, log, path) are injected through `CvarPolicy`, so both files are pure C++ and unit-tested. Does not depend on the console.
 
-**console.cpp.** Input capture (hooks the key path in `GameLoop.cpp` ahead of `DemoCheats()`), a scrollback buffer, command dispatch, tab completion over commands + cvars, history persisted to `console_history.txt`, and a plog appender that mirrors engine logging. Rendering uses `grtext` and the 2D primitives already used by `hud.cpp`. Owns no game state.
+**console_core.cpp / console.cpp.** `ConsoleCore` (pure C++, unit-tested) holds the scrollback (thread-safe `Print`, drained by `Pump` on the game thread), line editing, history (256), tab completion over commands and cvars, command registry with a `CMD_CHEAT` flag, dispatch (`name` describes a cvar, `name value` sets it) and `exec`. `console.cpp` is the engine glue: `Console_HandleKey()` is the first thing `ProcessKeys()` does with every key (AV-008); opening calls upstream `SuspendControls()` so the ship gets no input, closing calls `ResumeControls()`, which flushes the key and mouse queues; `Console_Render()` draws after the HUD in `GameRenderFrame()` with `rend_FillRect` + `grtext` (BRIEFING_FONT, ASCII only) and re-suspends controls if a game event resumed them while open. A plog appender mirrors engine logging. Owns no game state.
 
 **cheatmenu.cpp.** A `newui` dialog with a text field and toggle list. Maintains an `unlocked` bitmask per pilot session, the password table (SPEC.md), and a per-frame `CheatHoldLoop()` called from the player think path that pins energy/shields/ammo/afterburner at max for active infinite toggles. Sets upstream `IsCheater` on first unlock; refuses when `IsClassic()` or `Game_mode & GM_MULTI`.
 
@@ -79,7 +80,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 
 | Upstream file | Hook | Purpose |
 |---|---|---|
-| `Descent3/GameLoop.cpp` (key handling near `DemoCheats(key)`) | console key intercept; `CheatHoldLoop()`; Tartarus per-frame update | console, cheats, cloak/converter ticks |
+| `Descent3/GameLoop.cpp` | `Console_HandleKey()` first in the `ProcessKeys()` loop; `Console_Render()` after the HUD in `GameRenderFrame()`; later `CheatHoldLoop()` and the Tartarus per-frame update | console, cheats, cloak/converter ticks |
 | `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()` | startup |
 | `Descent3/mmItem.cpp::mmInterface::CopyrightText` | `DrawMenuBuildString()` early return | build string (F-004) |
 | `Descent3/WeaponFire.cpp::FireWeaponFromPlayer`, `FireFlareFromPlayer` | `Cloak_Break(CLOAK_BREAK_FIRE)`; overcharge later | cloak |
