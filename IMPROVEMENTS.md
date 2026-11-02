@@ -41,6 +41,24 @@ Effort vocabulary: trivial | small | medium | large.
 **Proposal.** Stop simulation the way `Game_paused` does but keep feeding keys to `tartarus::HandleKey()` (one extra call in the paused branch of `GameFrame()`), then use it for both the cheat menu and `con_pause` (F-010).
 **Trade-offs.** One more hook point in `GameFrame()`; sound and music pause/resume must match upstream's `PauseGame()`/`ResumeGame()` exactly.
 
+### IMP-005: Increase the size of the in-game menus
+**Status:** suggested
+**Found:** 2026-11-02 (owner request)
+**Location:** `Descent3/newui_core.cpp` `newuiMenu::Create()` and the other `newui` windows; `ui/UISystem.cpp` (`UI_aspect_x/y`); related to F-069
+**Effort:** medium
+**Description.** In a level the game renders at the display resolution, and `newui` windows (Options on F2, save/load, Guide-Bot and other in-game dialogs) are drawn at the native pixel size of their 640x480-era artwork, centred (`newuiMenu::Create()` sizes the window from its background bitmap). At 1280x720 the Options window is about a third of the screen width and its text is small; at 1920x1080 and above it gets smaller still. At the main menu the same dialogs look larger because menus draw on a 640x480 canvas that is scaled to the window.
+**Proposal.** Draw in-game `newui` windows on the same 640x480 canvas the main menu uses (an offscreen target scaled to fit the window with the blurred bar fill, F-060), or apply a uniform UI scale (e.g. `Max_window_h / 480`) to window placement, artwork, fonts and mouse hit-testing. Expose it as a cvar (e.g. `ui_scale`, with an "auto" default) and fold it into F-069.
+**Trade-offs.** The canvas approach is simpler and consistent with the main menu, but the in-game view behind the menu must still render around it. A true scale factor touches every `newui` drawing and hit-test path; the bitmap artwork will look soft when magnified.
+
+### IMP-006: Recreate the menus with a cassette-futurism look and feel
+**Status:** suggested
+**Found:** 2026-11-02 (owner request)
+**Location:** new `Descent3/tartarus/` UI module; upstream `newui` screens (`config.cpp` options, `menu.cpp`/`mmItem.cpp` main menu, pilot, save/load); related to F-069, IMP-005
+**Effort:** large
+**Description.** The owner would like the menus redesigned in a cassette-futurism style: the retro-future of late-1970s/1980s hardware (chunky bevelled panels, monochrome amber or green phosphor text on dark CRT screens, scanlines and slight glow, segmented and seven-segment readouts, toggle switches, VU-style meters, tape-deck style buttons, utilitarian labels and stencilled numbering). Upstream's menus are fixed-size `newui` bitmap artwork designed for 640x480 (see IMP-005), so restyling them means replacing the UI layer, not reskinning it.
+**Proposal.** Build a Tartarus menu layer drawn procedurally (rectangles, lines, text and simple shaders through the existing renderer), laid out in resolution-independent units so it scales to any display (which also resolves IMP-005 and the F-060 menu-canvas item). Start with the options menu as part of F-069 (pages generated from cvar metadata), then the in-game pause/options, then the main menu, pilot and save/load screens. A theme table (colours, phosphor glow, scanline strength, font) keeps the look adjustable, and a plain theme stays available for accessibility. Any new art (fonts, panel textures, sounds) must be original or GPL-compatible (AV-005, D-003 licence review for fonts).
+**Trade-offs.** Large: every screen that moves over needs its input, focus and keyboard navigation rebuilt and tested. Upstream's `newui` screens keep working until each is replaced, so the change can land screen by screen. Open question for the owner: should Classic Mode keep the stock menus (stricter "Classic is classic", AV-001) or use the new look too (menus are not gameplay)?
+
 ## Applied
 
 ### IMP-002: Upstream-sync helper
