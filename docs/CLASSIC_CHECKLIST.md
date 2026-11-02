@@ -33,7 +33,8 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `ddio/sdlcontroller.cpp` | `Tartarus_mouse_filter`, `Tartarus_mouse_every_frame` | gated: the filter passes counts through untouched and every-frame sampling is off, so upstream's 20 Hz mouse is unchanged |
 | `ddio/lnxmouse.cpp` | (inline: SDL middle/right swap) | active (compat): BUG-007, right button = secondary fire as on Windows |
 | `renderer/HardwareOpenGL.cpp`, `renderer/dyna_gl.h` | `Tartarus_bar_fill_mode`, `Tartarus_bar_fill_brightness` | active (display): blurred bars around 4:3 menus (F-060); `r_bar_fill 0` restores black bars |
-| `.github/workflows/build.yml` | (matrix entries commented out) | tooling: D-014 |
+| `.github/workflows/build.yml` | (matrix entries commented out) | tooling: D-014, D-015 |
+| `.github/workflows/cd.yml` | (push trigger replaced by manual and weekly runs) | tooling: D-015 |
 
 Console key bindings (`bind`) work in Classic Mode like the console itself; they only run what the user bound, and cheat lines are refused there.
 

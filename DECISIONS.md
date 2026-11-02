@@ -293,7 +293,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-01
 **Status:** Accepted
 **Authors:** Shane Hartley
-**Related:** D-001, BUG-009, ARCHITECTURE.md §Hook points
+**Related:** D-001, BUG-009, ARCHITECTURE.md §Hook points, D-015
 
 **Context.** Upstream's GitHub Actions matrix (`.github/workflows/build.yml`) builds Windows, macOS, Linux x64 and Linux arm64 (cross), Debug and Release, on every push. Tartarus is Linux-first and is only built and played on Linux. The Windows jobs started failing on Tartarus code (BUG-009); nobody can test fixes for Windows or macOS here.
 
@@ -308,4 +308,26 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - Tartarus code may drift from compiling on Windows/macOS; anyone reviving those builds starts with BUG-009 and a CI run.
 
 **Reversal conditions.** If a contributor commits to testing on Windows or macOS, restore the matrix entries and fix what fails.
+
+### D-015 Build the game in CI on demand, one Linux job
+**Decided:** 2026-11-02
+**Recorded:** 2026-11-02
+**Status:** Accepted
+**Authors:** Shane Hartley
+**Related:** D-014, AV-001, IMP-001
+
+**Context.** After D-014, every push to `main` still ran upstream's Continuous Delivery workflow as four jobs (Linux x64 and the arm64 cross build, Debug and Release), each building every vcpkg dependency and the game: about 20 minutes and roughly 80 runner-minutes per push. Every Tartarus commit is already built in both configurations and unit-tested on the owner's machine first, so the CI build mostly repeats that; its value is a clean-machine check (uncommitted files, undeclared dependencies).
+
+**Options.**
+- **A. Keep building on every push.** Rejected: slow, and expensive if the repository is private.
+- **B. Turn CI builds off.** Rejected: loses the occasional clean-machine check.
+- **C. Build on demand (and on pull requests), as one Linux x64 Release job with tests; keep the fast "Tartarus audits" workflow on every push.** Chosen.
+
+**Decision.** Option C, plus a weekly automatic build as a safety net (owner, 2026-11-02). `cd.yml` runs from the Actions tab ("Run workflow") and every Monday at 04:17 UTC instead of on push; `build.yml`'s matrix is Linux x64 Release only (arm64 cross and Debug commented out with `# TARTARUS:` markers). `ci.yml` (pull requests) is unchanged and uses the same single job.
+
+**Consequences.**
+- A normal push runs only the audits (under a minute).
+- Clean-machine breakage is found by the weekly run at the latest; run it by hand before tagging a release and after changing dependencies or the build files.
+
+**Reversal conditions.** If breakage that only CI would catch slips through the weekly run, restore the push trigger.
 

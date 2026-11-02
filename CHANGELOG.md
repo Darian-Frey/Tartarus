@@ -19,6 +19,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 - Cvar system (F-011): typed registry with `ARCHIVE`/`CHEAT`/`CLASSIC_LOCKED`/`LATCH`/`READONLY`, atomic `tartarus.cfg` persistence, console-grammar tokenizer; 16 unit tests — 2026-11-01.
 - Classic Mode gate (F-002): `classic` cvar (default on), `IsClassic()`, session-only `-classic`/`-tartarus`; `Tartarus_Init()` hook in `InitD3Systems1()`; CMake option `TARTARUS_DEFAULT_CLASSIC` — 2026-11-01.
 ### Changed
+- CI: the game build runs on demand (Actions tab, "Run workflow"), weekly (Mondays 04:17 UTC) and on pull requests, as one Linux x64 Release job with tests, instead of four jobs on every push (~20 min). The fast "Tartarus audits" workflow still runs on every push (D-015) — 2026-11-02.
 - GitHub Actions builds Linux only (x64 and arm64 cross); Windows and macOS jobs disabled (D-014). The Windows compile error in the console is logged as BUG-009, deferred — 2026-11-01.
 - Roadmap: new Phase 2 "Controls and display" (D-013); old Phases 2–6 renumbered 3–7 in all documents. F-060 (now including widescreen menus, priority Must), F-062 and F-063 moved into it — 2026-11-01.
 ### Added

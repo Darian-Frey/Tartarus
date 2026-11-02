@@ -61,7 +61,7 @@ Effort vocabulary: trivial | small | medium | large.
 **Proposal.** Script walks all `*.md`, builds the ID graph, reports IDs referenced but undefined and references that are unidirectional. Run as a pre-commit hook and in CI.
 **Trade-offs.** One more script to maintain; false positives on prose mentions of IDs unless the parser is restricted to `**Related:**` lines and tables.
 **Notes.** Phase 1 deliverable per D-011.
-**Applied.** 2026-11-02: `tools/check_xrefs.py` (errors: undefined or duplicate IDs; warnings: one-way `**Related**` links; `--strict` fails on warnings) and the `Docs cross-references` GitHub workflow running it on every push touching Markdown. First run found 1 error and 21 one-way links, all fixed.
+**Applied.** 2026-11-02: `tools/check_xrefs.py` (errors: undefined or duplicate IDs; warnings: one-way `**Related**` links; `--strict` fails on warnings) and the `Docs cross-references` GitHub workflow running it on every push (D-015 keeps that workflow on push while the game build runs on demand). First run found 1 error and 21 one-way links, all fixed.
 
 ### IMP-002: Upstream-sync helper
 **Status:** applied

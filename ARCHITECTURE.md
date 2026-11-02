@@ -117,7 +117,8 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/TelComAutoMap.cpp` | draw/input calls into `automap_ext` | automap |
 | `Descent3/gamesave.cpp` / `Descent3/loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |
 | `Descent3/menu.cpp` / `Descent3/newui.cpp` options | Tartarus options page | UI |
-| `.github/workflows/build.yml` | Windows and macOS matrix entries commented out | Linux-only CI (D-014) |
+| `.github/workflows/build.yml` | Windows, macOS, arm64-cross and Debug matrix entries commented out | Linux x64 Release only (D-014, D-015) |
+| `.github/workflows/cd.yml` | push trigger replaced by `workflow_dispatch` and a weekly `schedule` | builds on demand (D-015) |
 | `Descent3/CMakeLists.txt` | `include(tartarus/tartarus.cmake)` before `add_executable(Descent3)`: sources, version header, tests | build |
 
 ## Data flow for the signature sequence
