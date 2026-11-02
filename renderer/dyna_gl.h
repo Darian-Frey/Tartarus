@@ -196,6 +196,7 @@ DYNAEXTERN(glFramebufferTexture2D); // TARTARUS: F-060 bar fill
 DYNAEXTERN(glGenFramebuffers);
 DYNAEXTERN(glGenRenderbuffers);
 DYNAEXTERN(glRenderbufferStorage);
+DYNAEXTERN(glRenderbufferStorageMultisample); // TARTARUS: F-068 MSAA
 
 DYNAEXTERN(glActiveTexture);
 DYNAEXTERN(glMultiTexCoord4f);

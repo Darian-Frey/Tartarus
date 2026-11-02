@@ -18,6 +18,14 @@ _None._
 
 ## Fixed
 
+### BUG-010: (upstream) The VSync option is never applied
+**Status:** fixed
+**Severity:** medium
+**Found:** 2026-11-02 (F-068 survey)
+**Location:** `Descent3/config.cpp` video sheet (`Render_preferred_state.vsync_on`), `Descent3/init.cpp` (`RS_vsync`), `renderer/HardwareOpenGL.cpp`
+**Description.** The Video tab's "Vertical sync" checkbox is saved to and loaded from `RS_vsync`, but nothing in the SDL3 OpenGL renderer calls `SDL_GL_SetSwapInterval`, so the driver default applies whatever the checkbox says (tearing or not depends on the system).
+**Fix.** F-068 (2026-11-02): `rend_Flip()` applies the swap interval whenever it changes (0 off, 1 on, -1 adaptive with `r_vsync_adaptive`, falling back to 1), re-applied for each new GL context; `r_vsync` mirrors the checkbox. Verified: the log shows the interval following the setting, and the frame rate went from ~62 to the 1000 fps limiter ceiling with VSync and the cap off. Candidate upstream PR.
+
 ### BUG-007: (upstream) Right and middle mouse buttons swapped on Linux
 **Status:** fixed
 **Severity:** high

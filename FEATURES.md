@@ -331,7 +331,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Render scale (resolution of the 3D view independent of the UI), texture filtering (bilinear/trilinear/anisotropic level), MSAA where the GL context supports it, gamma
 - Every option is a cvar (`r_` prefix), shown on the Graphics page of F-069, applied without restarting the game where the renderer allows, otherwise flagged "applies on restart"
 - Performance/compatibility only: available in Classic Mode (D-004)
-**Status:** Not started (Phase 2)
+**Status:** In progress (Phase 2), 2026-11-02. Survey: fullscreen is already borderless (SDL3 desktop fullscreen; the Video tab's resolution is the render resolution, scaled to the screen), the monitor is chosen with upstream's `-display N`, and the VSync checkbox was never applied (BUG-010). Done, as `r_` cvars (console; Video tab for VSync): VSync on/off/adaptive (`r_vsync`, `r_vsync_adaptive`), frame cap `r_maxfps` (60 as upstream, 0 = up to 1000; whole-millisecond steps, IMP-007), `r_trilinear` (default on), `r_anisotropy` 1–16 (default 4), `r_depthbits` 16/24 (default 24), MSAA `r_msaa` 0/2/4/8 (default off; resolved before scaling, screenshots and `rend_GetPixel` read the resolved frame). Verified in level 1. Remaining: render scale, gamma cvars, a Graphics page (F-069); retro CRT filter noted in IMP-006.
 **Notes:** Exact option list confirmed against the OpenGL renderer (`renderer/HardwareOpenGL.cpp`) at the start of Phase 2. D-013.
 
 ### F-069 Options menu overhaul

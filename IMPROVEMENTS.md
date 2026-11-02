@@ -37,8 +37,17 @@ Effort vocabulary: trivial | small | medium | large.
 **Location:** new `Descent3/tartarus/` UI module; upstream `newui` screens (`config.cpp` options, `menu.cpp`/`mmItem.cpp` main menu, pilot, save/load); related to F-069, IMP-005
 **Effort:** large
 **Description.** The owner would like the menus redesigned in a cassette-futurism style: the retro-future of late-1970s/1980s hardware (chunky bevelled panels, monochrome amber or green phosphor text on dark CRT screens, scanlines and slight glow, segmented and seven-segment readouts, toggle switches, VU-style meters, tape-deck style buttons, utilitarian labels and stencilled numbering). Upstream's menus are fixed-size `newui` bitmap artwork designed for 640x480 (see IMP-005), so restyling them means replacing the UI layer, not reskinning it.
-**Proposal.** Build a Tartarus menu layer drawn procedurally (rectangles, lines, text and simple shaders through the existing renderer), laid out in resolution-independent units so it scales to any display (which also resolves IMP-005 and the F-060 menu-canvas item). Start with the options menu as part of F-069 (pages generated from cvar metadata), then the in-game pause/options, then the main menu, pilot and save/load screens. A theme table (colours, phosphor glow, scanline strength, font) keeps the look adjustable, and a plain theme stays available for accessibility. Any new art (fonts, panel textures, sounds) must be original or GPL-compatible (AV-005, D-003 licence review for fonts).
+**Proposal.** Build a Tartarus menu layer drawn procedurally (rectangles, lines, text and simple shaders through the existing renderer), laid out in resolution-independent units so it scales to any display (which also resolves IMP-005 and the F-060 menu-canvas item). Start with the options menu as part of F-069 (pages generated from cvar metadata), then the in-game pause/options, then the main menu, pilot and save/load screens. A theme table (colours, phosphor glow, scanline strength, font) keeps the look adjustable, and a plain theme stays available for accessibility. Optional companion (owner, 2026-11-02): a retro CRT filter for the game view itself (scanlines, phosphor mask, slight curvature and bloom) as a post-process pass on the offscreen frame before it is scaled to the window (`rend_Flip()`), with `r_crt_*` cvars; it shares the scanline/glow code with the menus. Any new art (fonts, panel textures, sounds) must be original or GPL-compatible (AV-005, D-003 licence review for fonts).
 **Trade-offs.** Large: every screen that moves over needs its input, focus and keyboard navigation rebuilt and tested. Upstream's `newui` screens keep working until each is replaced, so the change can land screen by screen. Open question for the owner: should Classic Mode keep the stock menus (stricter "Classic is classic", AV-001) or use the new look too (menus are not gameplay)?
+
+### IMP-007: Precise frame limiter
+**Status:** suggested
+**Found:** 2026-11-02 (F-068 frame-cap test)
+**Location:** `Descent3/GameLoop.cpp` `GameFrame()` (`Min_allowed_frametime`, `timer_GetMSTime()`), `CalcFrameTime()`
+**Effort:** small
+**Description.** Upstream's frame limiter and frame timer count whole milliseconds. Caps therefore land on 1000/n fps (`r_maxfps 144` gives a 6 ms frame, about 166 fps), and a frame faster than 1 ms would measure as zero time, which is why `r_maxfps 0` still stops at 1000 fps.
+**Proposal.** Time frames with the microsecond clock (`D3::ChronoTimer` has sub-millisecond resolution) and sleep/spin to a fractional target; keep `Frametime` from ever being zero. Pairs with F-061 (fixed-timestep physics).
+**Trade-offs.** Touches the core loop timing; verify that game speed, physics and demo playback are unchanged at 60 fps.
 
 ## Applied
 

@@ -238,6 +238,86 @@ bool opengl_CheckExtension(std::string_view extName) {
   return false;
 }
 
+// TARTARUS: F-068 graphics options. Descent3/tartarus/graphics.cpp sets these from cvars (and the stock
+// VSync checkbox) in Tartarus_before_flip, which rend_Flip() calls every frame, menus included.
+void (*Tartarus_before_flip)() = nullptr;
+int Tartarus_swap_interval = 1;     // 0 off, 1 on, -1 adaptive (falls back to 1); BUG-010
+bool Tartarus_trilinear = false;    // GL_LINEAR_MIPMAP_LINEAR for mipmapped bilinear textures
+int Tartarus_anisotropy = 1;        // GL_TEXTURE_MAX_ANISOTROPY, clamped to what the driver supports
+bool Tartarus_filter_dirty = false; // re-filter every cached texture on its next bind
+int Tartarus_depth_bits = 16;       // FBO depth buffer: 16 (upstream) or 24; applies when the FBO is created
+int Tartarus_msaa = 0;              // MSAA samples for the offscreen frame (0 off); applies when the FBO is created
+static int Tartarus_applied_swap = 99;
+static int Tartarus_fbo_samples = 0;   // samples the current FBO really has
+static GLuint Tartarus_resolve_fbo = 0; // single-sample copy of a multisampled frame
+static GLuint Tartarus_resolve_rbo = 0;
+static GLuint Tartarus_frame_src = 0;   // what rend_Flip() and the bar fill read this frame
+static int Tartarus_max_aniso = -1; // queried once per context; 0 = unsupported
+
+static void TartarusApplyAnisotropy(bool filtered) {
+  if (Tartarus_max_aniso < 0) {
+    Tartarus_max_aniso = 0;
+    if (opengl_CheckExtension("GL_EXT_texture_filter_anisotropic") ||
+        opengl_CheckExtension("GL_ARB_texture_filter_anisotropic")) {
+      GLint max_aniso = 1;
+      dglGetIntegerv(0x84FF /* GL_MAX_TEXTURE_MAX_ANISOTROPY */, &max_aniso);
+      Tartarus_max_aniso = max_aniso;
+      LOG_INFO.printf("OpenGL: anisotropic filtering up to %dx", max_aniso);
+    }
+  }
+  if (Tartarus_max_aniso <= 1)
+    return;
+  const int a = filtered ? std::clamp(Tartarus_anisotropy, 1, Tartarus_max_aniso) : 1;
+  dglTexParameteri(GL_TEXTURE_2D, 0x84FE /* GL_TEXTURE_MAX_ANISOTROPY */, a);
+}
+
+static void TartarusDeleteResolve() {
+  if (Tartarus_resolve_fbo)
+    dglDeleteFramebuffers(1, &Tartarus_resolve_fbo);
+  if (Tartarus_resolve_rbo)
+    dglDeleteRenderbuffers(1, &Tartarus_resolve_rbo);
+  Tartarus_resolve_fbo = Tartarus_resolve_rbo = 0;
+  Tartarus_fbo_samples = 0;
+}
+
+// The frame as a single-sample framebuffer: GOpenGLFBO itself, or (with MSAA) its resolved copy.
+// Leaves the resolved frame bound for reading.
+static GLuint TartarusFrameSource() {
+  if (Tartarus_fbo_samples == 0 || Tartarus_resolve_fbo == 0) {
+    dglBindFramebuffer(GL_READ_FRAMEBUFFER, GOpenGLFBO);
+    return GOpenGLFBO;
+  }
+  dglBindFramebuffer(GL_READ_FRAMEBUFFER, GOpenGLFBO);
+  dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, Tartarus_resolve_fbo);
+  dglBlitFramebuffer(0, 0, GOpenGLFBOWidth, GOpenGLFBOHeight, 0, 0, GOpenGLFBOWidth, GOpenGLFBOHeight,
+                     GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  dglBindFramebuffer(GL_READ_FRAMEBUFFER, Tartarus_resolve_fbo);
+  dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, GOpenGLFBO);
+  return Tartarus_resolve_fbo;
+}
+
+static void TartarusBeforeFlip() {
+  if (Tartarus_before_flip)
+    Tartarus_before_flip();
+  if (Tartarus_swap_interval != Tartarus_applied_swap) {
+    int want = Tartarus_swap_interval;
+    if (!SDL_GL_SetSwapInterval(want) && want == -1) {
+      LOG_INFO << "OpenGL: adaptive VSync not supported, using VSync on";
+      want = 1;
+      SDL_GL_SetSwapInterval(want);
+    }
+    LOG_INFO.printf("OpenGL: swap interval %d", want);
+    Tartarus_applied_swap = Tartarus_swap_interval;
+  }
+  if (Tartarus_filter_dirty && OpenGL_bitmap_states != nullptr && OpenGL_lightmap_states != nullptr) {
+    for (int i = 0; i < MAX_BITMAPS; i++)
+      SET_FILTER_STATE(OpenGL_bitmap_states[i], 0x0F); // 0x0F never matches, so the next bind re-filters
+    for (int i = 0; i < MAX_LIGHTMAPS; i++)
+      SET_FILTER_STATE(OpenGL_lightmap_states[i], 0x0F);
+    Tartarus_filter_dirty = false;
+  }
+}
+
 // Gets some specific information about this particular flavor of opengl
 void opengl_GetInformation() {
   LOG_INFO.printf("OpenGL Vendor: %s", dglGetString(GL_VENDOR));
@@ -448,6 +528,8 @@ int opengl_Setup(oeApplication *app, const int *width, const int *height) {
   }
 
   if (!GSDLGLContext) {
+    Tartarus_applied_swap = 99; // TARTARUS: F-068 a new context needs its swap interval and anisotropy limit
+    Tartarus_max_aniso = -1;
     GSDLGLContext = SDL_GL_CreateContext(GSDLWindow);
     if (!GSDLGLContext) {
       LOG_ERROR.printf("OpenGL: OpenGL context creation failed: %s", SDL_GetError());
@@ -477,6 +559,7 @@ int opengl_Setup(oeApplication *app, const int *width, const int *height) {
   SDL_GL_SwapWindow(GSDLWindow);
 
   /* Tear down the backbuffer and rebuild at new dimensions... */
+  TartarusDeleteResolve(); // TARTARUS: F-068 MSAA resolve target
   if (GOpenGLFBO) {
     dglBindFramebuffer(GL_FRAMEBUFFER, GOpenGLFBO);
     dglFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, 0);
@@ -500,13 +583,52 @@ int opengl_Setup(oeApplication *app, const int *width, const int *height) {
 
   dglGenRenderbuffers(1, &GOpenGLRBOColor);
   dglBindRenderbuffer(GL_RENDERBUFFER, GOpenGLRBOColor);
-  dglRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, w, h);
+  // TARTARUS: F-068 MSAA: multisampled colour and depth when r_msaa > 0 (clamped to GL_MAX_SAMPLES)
+  GLint tartarus_max_samples = 0;
+  dglGetIntegerv(GL_MAX_SAMPLES, &tartarus_max_samples);
+  int tartarus_samples = std::clamp(Tartarus_msaa, 0, static_cast<int>(tartarus_max_samples));
+  if (tartarus_samples == 1)
+    tartarus_samples = 0;
+  if (tartarus_samples > 0)
+    dglRenderbufferStorageMultisample(GL_RENDERBUFFER, tartarus_samples, GL_RGBA8, w, h);
+  else
+    dglRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, w, h);
   dglFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, GOpenGLRBOColor);
 
   dglGenRenderbuffers(1, &GOpenGLRBODepth);
   dglBindRenderbuffer(GL_RENDERBUFFER, GOpenGLRBODepth);
-  dglRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, w, h);
+  // TARTARUS: F-068 24-bit depth buffer option (r_depthbits)
+  const GLenum tartarus_depth_format = Tartarus_depth_bits >= 24 ? GL_DEPTH_COMPONENT24 : GL_DEPTH_COMPONENT16;
+  if (tartarus_samples > 0)
+    dglRenderbufferStorageMultisample(GL_RENDERBUFFER, tartarus_samples, tartarus_depth_format, w, h);
+  else
+    dglRenderbufferStorage(GL_RENDERBUFFER, tartarus_depth_format, w, h);
   dglFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, GOpenGLRBODepth);
+
+  // TARTARUS: F-068 if the driver refuses the multisampled frame, fall back to a plain one.
+  if (tartarus_samples > 0 && dglCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    LOG_WARNING.printf("OpenGL: %dx MSAA framebuffer incomplete, using no MSAA", tartarus_samples);
+    tartarus_samples = 0;
+    dglBindRenderbuffer(GL_RENDERBUFFER, GOpenGLRBOColor);
+    dglRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, w, h);
+    dglBindRenderbuffer(GL_RENDERBUFFER, GOpenGLRBODepth);
+    dglRenderbufferStorage(GL_RENDERBUFFER, tartarus_depth_format, w, h);
+  }
+  if (tartarus_samples > 0) {
+    dglGenRenderbuffers(1, &Tartarus_resolve_rbo);
+    dglBindRenderbuffer(GL_RENDERBUFFER, Tartarus_resolve_rbo);
+    dglRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, w, h);
+    dglGenFramebuffers(1, &Tartarus_resolve_fbo);
+    dglBindFramebuffer(GL_FRAMEBUFFER, Tartarus_resolve_fbo);
+    dglFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, Tartarus_resolve_rbo);
+    if (dglCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+      Tartarus_fbo_samples = tartarus_samples;
+      LOG_INFO.printf("OpenGL: %dx MSAA", tartarus_samples);
+    } else {
+      LOG_WARNING << "OpenGL: MSAA resolve target incomplete";
+    }
+    dglBindFramebuffer(GL_FRAMEBUFFER, GOpenGLFBO);
+  }
 
   if (dglCheckFramebufferStatus(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT) {
     LOG_WARNING << "OpenGL: our framebuffer object is incomplete, giving up";
@@ -718,6 +840,8 @@ void opengl_Close(const bool just_resizing) {
     SDL_GL_DestroyContext(GSDLGLContext);
     GSDLGLContext = nullptr;
     GOpenGLFBOWidth = GOpenGLFBOHeight = GOpenGLFBO = GOpenGLRBOColor = GOpenGLRBODepth = 0;
+    Tartarus_resolve_fbo = Tartarus_resolve_rbo = 0; // TARTARUS: F-068 gone with the context
+    Tartarus_fbo_samples = 0;
   }
 
   if (!just_resizing && GSDLWindow) {
@@ -1079,7 +1203,9 @@ void opengl_MakeFilterTypeCurrent(int handle, int map_type, int tn) {
   if (dest_state) {
     if (map_type == MAP_TYPE_BITMAP && bm_mipped(handle)) {
       dglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      dglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+      // TARTARUS: F-068 trilinear option (r_trilinear)
+      dglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                       Tartarus_trilinear ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
     } else {
       dglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       dglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1094,6 +1220,8 @@ void opengl_MakeFilterTypeCurrent(int handle, int map_type, int tn) {
       dglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     }
   }
+
+  TartarusApplyAnisotropy(dest_state != 0); // TARTARUS: F-068 anisotropic filtering (r_anisotropy)
 
   if (map_type == MAP_TYPE_LIGHTMAP) {
     SET_FILTER_STATE(OpenGL_lightmap_states[handle], dest_state);
@@ -1448,6 +1576,7 @@ void rend_StartFrame(int x1, int y1, int x2, int y2, int clear_flags) {
 int Tartarus_bar_fill_mode = 1;
 float Tartarus_bar_fill_brightness = 0.35f;
 
+
 static void TartarusDrawBarFill(int win_w, int win_h) {
   constexpr int kMidW = 160, kMidH = 120, kTinyW = 32, kTinyH = 24;
   GLuint mid_fbo = 0, mid_rbo = 0, tiny_fbo = 0, tiny_tex = 0;
@@ -1473,7 +1602,7 @@ static void TartarusDrawBarFill(int win_w, int win_h) {
 
   if (ok) {
     // Downsample in two steps for a smoother blur: frame -> 160x120 -> 32x24.
-    dglBindFramebuffer(GL_READ_FRAMEBUFFER, GOpenGLFBO);
+    dglBindFramebuffer(GL_READ_FRAMEBUFFER, Tartarus_frame_src);
     dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, mid_fbo);
     dglBlitFramebuffer(0, 0, GOpenGLFBOWidth, GOpenGLFBOHeight, 0, 0, kMidW, kMidH, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     dglBindFramebuffer(GL_READ_FRAMEBUFFER, mid_fbo);
@@ -1526,7 +1655,7 @@ static void TartarusDrawBarFill(int win_w, int win_h) {
   OpenGL_last_bound[0] = 9999999;
   OpenGL_last_bound[1] = 9999999;
   // Back to the state rend_Flip() expects: read from the game frame, draw to the window.
-  dglBindFramebuffer(GL_READ_FRAMEBUFFER, GOpenGLFBO);
+  dglBindFramebuffer(GL_READ_FRAMEBUFFER, Tartarus_frame_src);
   dglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
@@ -1555,6 +1684,8 @@ void rend_Flip() {
   OpenGL_polys_drawn = 0;
   OpenGL_verts_processed = 0;
 
+  TartarusBeforeFlip(); // TARTARUS: F-068 VSync, texture filtering
+
   // if we're rendering to an FBO, scale to the window framebuffer!
   if (GOpenGLFBO != 0) {
     int w, h;
@@ -1572,6 +1703,8 @@ void rend_Flip() {
     const int centeredX = (w - scaledWidth) / 2;
     const int centeredY = (h - scaledHeight) / 2;
 
+    Tartarus_frame_src = TartarusFrameSource(); // TARTARUS: F-068 resolve MSAA before scaling to the window
+
     // TARTARUS: F-060 fill the bars with a blurred copy instead of black (see TartarusDrawBarFill)
     const bool has_bars = scaledWidth < w || scaledHeight < h;
     const bool menu_frame = GOpenGLFBOWidth == 640 && GOpenGLFBOHeight == 480;
@@ -1582,6 +1715,7 @@ void rend_Flip() {
       dglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       dglClear(GL_COLOR_BUFFER_BIT); // in case the Steam Overlay wrote to places we don't blit over.
     }
+    dglBindFramebuffer(GL_READ_FRAMEBUFFER, Tartarus_frame_src); // TARTARUS: F-068
     dglBlitFramebuffer(0, 0, GOpenGLFBOWidth, GOpenGLFBOHeight, centeredX, centeredY, centeredX + scaledWidth,
                        centeredY + scaledHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     dglBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1678,7 +1812,11 @@ void rend_SetPixel(ddgr_color color, int x, int y) {
 // Sets a pixel on the display
 ddgr_color rend_GetPixel(int x, int y) {
   ddgr_color color[4];
+  // TARTARUS: F-068 a multisampled frame cannot be read directly: read its resolved copy
+  const bool tartarus_resolved = Tartarus_fbo_samples > 0 && TartarusFrameSource() != GOpenGLFBO;
   dglReadPixels(x, (gpu_state.screen_height - 1) - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)color);
+  if (tartarus_resolved)
+    dglBindFramebuffer(GL_FRAMEBUFFER, GOpenGLFBO);
   return color[0];
 }
 
@@ -1799,8 +1937,12 @@ std::unique_ptr<NewBitmap> rend_Screenshot() {
     return nullptr;
   }
 
+  // TARTARUS: F-068 read the resolved copy of a multisampled frame
+  const bool tartarus_resolved = Tartarus_fbo_samples > 0 && TartarusFrameSource() != GOpenGLFBO;
   dglReadPixels(0, 0, gpu_state.screen_width, gpu_state.screen_height, GL_RGBA, GL_UNSIGNED_BYTE,
                 (GLvoid *)result->getData());
+  if (tartarus_resolved)
+    dglBindFramebuffer(GL_FRAMEBUFFER, GOpenGLFBO);
 
   return result;
 }

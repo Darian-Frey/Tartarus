@@ -32,6 +32,7 @@
 #include "classic.h"
 #include "console.h"
 #include "display.h"
+#include "graphics.h"
 #include "mouse_flight.h"
 #include "raw_mouse.h"
 #include "small_views.h"
@@ -72,6 +73,7 @@ void Tartarus_Init() {
            << (IsClassicForcedByCommandLine() ? " (from the command line)" : "");
 
   Display_Init();
+  Graphics_Init();
   Console_Init();
   Cheats_Init();
   Binds_Init();
