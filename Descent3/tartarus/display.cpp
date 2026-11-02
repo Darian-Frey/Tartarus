@@ -52,6 +52,7 @@ namespace tartarus {
 namespace {
 bool g_stored_fullscreen = true;
 Cvar *r_fov = nullptr;
+Cvar *r_renderscale = nullptr;
 bool g_syncing_fov = false;
 
 void SyncFovCvar() {
@@ -89,6 +90,11 @@ void Display_Init() {
   if (Cvar *classic = Cvars().Find("classic"))
     classic->AddChangeCallback([](const Cvar &) { Display_SetFov(Render_FOV_setting); });
 
+  r_renderscale = Cvars().RegisterFloat("r_renderscale", 1.0f, 0.5f, 2.0f,
+                                        "Render the game at this multiple of the resolution (above 1 sharper, below 1 "
+                                        "faster); applies on r_restart, a resolution change or the next level",
+                                        CVAR_ARCHIVE);
+
   // Bars around frames narrower than the window (menus are 640x480): blurred fill (F-060).
   Cvar *fill = Cvars().RegisterInt("r_bar_fill", 1, 0, 2,
                                    "Bars around 4:3 screens: 0 black, 1 blurred copy in menus, 2 blurred copy always",
@@ -116,6 +122,26 @@ int Display_RestoreResolution(const std::vector<std::pair<int, int>> &modes, int
     LOG_INFO << "[tartarus] restored resolution " << w << "x" << h;
   }
   return id;
+}
+
+void Display_ScaleRenderSize(int *width, int *height) {
+  const float s = r_renderscale != nullptr ? r_renderscale->GetFloat() : 1.0f;
+  if (s == 1.0f)
+    return;
+  // Even sizes, at least 320x240.
+  *width = std::max(320, static_cast<int>(std::lround(*width * s / 2.0f)) * 2);
+  *height = std::max(240, static_cast<int>(std::lround(*height * s / 2.0f)) * 2);
+}
+
+void Display_AdjustGameWindow(int *width, int *height) {
+  if (Current_video_resolution_id < 0 || Current_video_resolution_id >= static_cast<int>(Video_res_list.size()))
+    return;
+  const int unscaled_w = Video_res_list[Current_video_resolution_id].width;
+  const int unscaled_h = Video_res_list[Current_video_resolution_id].height;
+  if ((*width >= unscaled_w && *height >= unscaled_h) || (*width >= Max_window_w && *height >= Max_window_h)) {
+    *width = Max_window_w;
+    *height = Max_window_h;
+  }
 }
 
 void Display_SaveSettings(int width, int height, bool fullscreen_now) {

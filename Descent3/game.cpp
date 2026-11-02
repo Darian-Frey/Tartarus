@@ -689,6 +689,7 @@
 #include "slew.h"
 #include "SmallViews.h"
 #include "stringtable.h"
+#include "tartarus/display.h" // TARTARUS: F-068 render scale
 
 ///////////////////////////////////////////////////////////////////////////////
 //	Variables
@@ -939,6 +940,7 @@ void SetScreenMode(int sm, bool force_res_change) {
     if (sm == SM_GAME) {
       scr_width = Video_res_list[Current_video_resolution_id].width;
       scr_height = Video_res_list[Current_video_resolution_id].height;
+      tartarus::Display_ScaleRenderSize(&scr_width, &scr_height); // TARTARUS: F-068 render scale
       scr_bitdepth = Render_preferred_bitdepth;
     } else {
       scr_width = FIXED_SCREEN_WIDTH;
@@ -1050,6 +1052,7 @@ void SetScreenMode(int sm, bool force_res_change) {
       gw = Max_window_w;
       gh = Max_window_h;
     }
+    tartarus::Display_AdjustGameWindow(&gw, &gh); // TARTARUS: F-068 full window at any render scale
     InitGameScreen(gw, gh);
     // need to do this since the pilot w,h could change.
     Current_pilot.set_hud_data(nullptr, nullptr, nullptr, &Game_window_w, &Game_window_h);

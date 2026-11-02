@@ -29,4 +29,7 @@ namespace tartarus {
 /// Called from Tartarus_Init().
 void Graphics_Init();
 
+/// Per-frame (from tartarus::Frame()): carries out a pending r_restart.
+void Graphics_Frame();
+
 } // namespace tartarus

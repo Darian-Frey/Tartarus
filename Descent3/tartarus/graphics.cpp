@@ -21,9 +21,12 @@
 #include "graphics.h"
 
 #include <algorithm>
+#include <cmath>
 #include <string>
 
 #include "args.h"
+#include "console.h"
+#include "game.h"
 #include "cvar.h"
 #include "log.h"
 #include "renderer.h"
@@ -51,6 +54,8 @@ Cvar *r_trilinear = nullptr;
 Cvar *r_anisotropy = nullptr;
 Cvar *r_depthbits = nullptr;
 Cvar *r_msaa = nullptr;
+Cvar *r_gamma = nullptr;
+bool g_restart_pending = false;
 bool g_syncing = false;
 bool g_framecap_arg = false;
 
@@ -74,8 +79,18 @@ void SyncVsyncCvar() {
   g_syncing = false;
 }
 
+// The stock brightness dialog owns RS_gamma; r_gamma mirrors it both ways.
+void SyncGammaCvar() {
+  if (std::abs(r_gamma->GetFloat() - Render_preferred_state.gamma) < 0.001f)
+    return;
+  g_syncing = true;
+  Cvars().Set("r_gamma", std::to_string(Render_preferred_state.gamma), CvarSource::Code);
+  g_syncing = false;
+}
+
 void BeforeFlip() {
   SyncVsyncCvar();
+  SyncGammaCvar();
   Tartarus_swap_interval = Render_preferred_state.vsync_on ? (r_vsync_adaptive->GetBool() ? -1 : 1) : 0;
   Tartarus_trilinear = r_trilinear->GetBool();
   Tartarus_anisotropy = r_anisotropy->GetInt();
@@ -112,6 +127,26 @@ void Graphics_Init() {
                           "after a resolution change or restart",
                           CVAR_ARCHIVE);
 
+  r_gamma = cv.RegisterFloat("r_gamma", Render_preferred_state.gamma, 1.0f, 3.0f,
+                             "Brightness (gamma), as the Video tab's Adjust Brightness; saved with the video settings");
+  r_gamma->AddChangeCallback([](const Cvar &c) {
+    if (g_syncing)
+      return;
+    Render_preferred_state.gamma = c.GetFloat();
+    rend_SetGammaValue(c.GetFloat());
+  });
+
+  Console().AddCommand({"r_restart", "r_restart",
+                        "Rebuild the game frame so r_renderscale, r_msaa and r_depthbits take effect now", CMD_NONE,
+                        [](const CommandArgs &, ConsoleCore &c) {
+                          if (GetScreenMode() != SM_GAME) {
+                            c.Print("r_restart: only in a level (menus use a fixed 640x480 frame)");
+                            return;
+                          }
+                          g_restart_pending = true; // done at the start of the next frame, outside key handling
+                          c.Print("r_restart: rebuilding the frame");
+                        }});
+
   r_vsync->AddChangeCallback([](const Cvar &c) {
     if (!g_syncing)
       Render_preferred_state.vsync_on = c.GetBool() ? 1 : 0;
@@ -126,6 +161,19 @@ void Graphics_Init() {
   ApplyFrameCap();
   BeforeFlip();
   Tartarus_before_flip = &BeforeFlip;
+}
+
+void Graphics_Frame() {
+  if (!g_restart_pending)
+    return;
+  g_restart_pending = false;
+  if (GetScreenMode() == SM_GAME) {
+    // As the Video tab does after a change: new screen mode, then a forced renderer re-init, so the
+    // offscreen frame is rebuilt (MSAA, depth bits) even when its size stays the same.
+    SetScreenMode(SM_GAME, true);
+    rend_SetPreferredState(&Render_preferred_state, true);
+    LOG_INFO << "[tartarus] r_restart: frame rebuilt";
+  }
 }
 
 } // namespace tartarus

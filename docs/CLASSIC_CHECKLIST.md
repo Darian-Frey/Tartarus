@@ -17,6 +17,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/init.cpp` | `tartarus::Display_SaveSettings` | active (compat): BUG-004/005 |
 | `Descent3/init.cpp` | `tartarus::kFovAbsMin`, `tartarus::kFovAbsMax` | gated: the load-time clamp is widened, then `Display_Init()` narrows FOV to upstream's 72–90 in Classic Mode |
 | `Descent3/mmItem.cpp` | `tartarus::DrawMenuBuildString` | active (cosmetic): main-menu build string and upstream credit (F-004) |
+| `Descent3/game.cpp` | `tartarus::Display_ScaleRenderSize`, `tartarus::Display_AdjustGameWindow` | active (display, F-068): no-ops at `r_renderscale 1` (default); otherwise the game frame renders at that multiple and full-window views stay full |
 | `Descent3/config.cpp` | `tartarus::Display_RestoreResolution` | active (compat): BUG-004 |
 | `Descent3/config.cpp` | `tartarus::Display_FovMin`, `tartarus::Display_FovMax`, `tartarus::Display_SetFov` | gated: Video FOV slider is 72–90 as upstream |
 | `Descent3/config.cpp` | `tartarus::TartarusOptionsSheet` | gated: the Tartarus tab only shows text explaining Classic Mode |

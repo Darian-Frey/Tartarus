@@ -29,6 +29,7 @@ Effort vocabulary: trivial | small | medium | large.
 **Effort:** medium
 **Description.** In a level the game renders at the display resolution, and `newui` windows (Options on F2, save/load, Guide-Bot and other in-game dialogs) are drawn at the native pixel size of their 640x480-era artwork, centred (`newuiMenu::Create()` sizes the window from its background bitmap). At 1280x720 the Options window is about a third of the screen width and its text is small; at 1920x1080 and above it gets smaller still. At the main menu the same dialogs look larger because menus draw on a 640x480 canvas that is scaled to the window.
 **Proposal.** Draw in-game `newui` windows on the same 640x480 canvas the main menu uses (an offscreen target scaled to fit the window with the blurred bar fill, F-060), or apply a uniform UI scale (e.g. `Max_window_h / 480`) to window placement, artwork, fonts and mouse hit-testing. Expose it as a cvar (e.g. `ui_scale`, with an "auto" default) and fold it into F-069.
+**Also.** HUD text has the same root cause: the game picks HUD fonts from a few fixed sizes by frame width, so with `r_renderscale` above 1 (F-068) the HUD text shrinks on screen and below 1 it grows and softens. A UI scale would fix both.
 **Trade-offs.** The canvas approach is simpler and consistent with the main menu, but the in-game view behind the menu must still render around it. A true scale factor touches every `newui` drawing and hit-test path; the bitmap artwork will look soft when magnified.
 
 ### IMP-006: Recreate the menus with a cassette-futurism look and feel

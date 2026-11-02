@@ -133,6 +133,7 @@ void PausedFrame() {
 void Frame() {
   UpdatePause();
   Cheats_Frame();
+  Graphics_Frame();
   MouseFlight_Frame();
   RawMouse_Frame();
 }

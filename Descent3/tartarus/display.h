@@ -47,6 +47,17 @@ int Display_FovMax();
 /// Clamps to the current mode's range and applies it (Options slider, r_fov).
 void Display_SetFov(float degrees);
 
+/// Render scale (F-068, r_renderscale 0.5-2.0): the game frame renders at
+/// this multiple of the chosen resolution and is scaled to the window, so
+/// above 1 is supersampling and below 1 is faster. Called from
+/// SetScreenMode(SM_GAME) on the size it is about to use. Menus keep 640x480.
+void Display_ScaleRenderSize(int *width, int *height);
+
+/// Called from SetScreenMode(SM_GAME) before InitGameScreen(): the pilot's
+/// saved 3D-window size is in frame pixels, so a size at or above the
+/// unscaled resolution (or the frame) means "full window" at any scale.
+void Display_AdjustGameWindow(int *width, int *height);
+
 /// Called by SaveGameSettings() after upstream's writes: stores the resolution
 /// by size and rewrites RS_fullscreen so command-line flags stay session-only.
 void Display_SaveSettings(int width, int height, bool fullscreen_now);

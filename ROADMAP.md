@@ -53,7 +53,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] Raw mouse: no acceleration or smoothing, one sensitivity (F-062) (`m_raw`, `m_sensitivity`, `m_accel` done 2026-11-02; SDL3 was already unaccelerated; `m_raw` off by default until `m_sensitivity` is tuned)
 - [ ] Widescreen: correct 3D aspect without `-aspect` (already true upstream, checked 2026-11-01), `r_fov` 60–120 (done 2026-11-01), HUD anchoring (fine at 16:9/16:10), menus centred with blurred bar fill (done 2026-11-01; full-width menu canvas moved to F-069) (F-060)
 - [x] Small-view windows (rear view, Guide-Bot, missile cam): per-window size, aspect and position cvars, defaults identical to upstream (F-060, SPEC.md §14) — 2026-11-01
-- [ ] Graphics options investigated against `renderer/HardwareOpenGL.cpp`, then implemented as `r_` cvars (F-068) (VSync, frame cap, trilinear/anisotropic, 24-bit depth, MSAA done 2026-11-02; render scale and gamma cvars pending)
+- [ ] Graphics options investigated against `renderer/HardwareOpenGL.cpp`, then implemented as `r_` cvars (F-068) (VSync, frame cap, trilinear/anisotropic, 24-bit depth, MSAA, render scale, gamma and `r_restart` done 2026-11-02; the Graphics page comes with F-069)
 - [ ] Options menu with Graphics / Controls / Audio / Gameplay / Tartarus pages generated from cvar metadata (F-069)
 - [ ] SDL3 gamepad with gyro if time allows (F-063)
 - [ ] Tuning session for SPEC.md §13 defaults; values written back to SPEC
