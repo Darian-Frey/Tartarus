@@ -45,6 +45,11 @@ void Frame();
 /// Multiplier applied to Frametime right after CalcFrameTime() (TORPOR).
 float TimeScale();
 
+/// Called from GameFrame() while the game is paused: if the console or cheat
+/// menu holds the pause (con_pause, IMP-004), feeds them the keys that
+/// ProcessKeys() does not read while paused.
+void PausedFrame();
+
 /// Overlays drawn after the HUD: cheat menu and tag, then the console on top.
 void RenderOverlays();
 

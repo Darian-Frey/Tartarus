@@ -9,9 +9,9 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 ### AV-001 Tartarus behaviour leaking into Classic Mode
 **Severity:** Critical
 **Description.** A new HUD element, keybind, weapon, AI change or physics tweak is active while `classic 1`. Breaks the core promise and, for multiplayer, wire compatibility with stock clients.
-**Detection.** Not implemented yet (Phase 1 deliverable): `tools/classic_audit.sh` greps every file under `Descent3/tartarus/` for a per-frame entry point lacking an `IsClassic()` early-out, plus a manual checklist run before each release — play levels 1–2 in Classic and tick off "no new HUD item, no new key responds, `cvarlist` shows all CLASSIC_LOCKED at default".
+**Detection.** `tools/classic_audit.py` (CI, "Tartarus audits" workflow) fails unless every upstream file with a `TARTARUS:` marker and every `tartarus::` function or `Tartarus_*` global used there is listed, with its Classic behaviour, in the hook table of `docs/CLASSIC_CHECKLIST.md`; so a new hook cannot land without a Classic review. The same file holds the manual checklist (run before each release and after hook changes) and a log of runs. (A grep for missing `IsClassic()` early-outs was the original idea; rejected as too easy to fool.)
 **Related decisions.** D-004.
-**History.** Identified at design time 2026-11-01.
+**History.** Identified at design time 2026-11-01. Audit and checklist added and first run passed 2026-11-02 (two small fixes on the way, see the checklist's run log).
 
 ### AV-002 Upstream merge drift
 **Severity:** Major

@@ -9,7 +9,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-01
 **Status:** Accepted
 **Authors:** Shane Hartley (with Claude design discussion 2026-11-01)
-**Related:** F-001, F-004, AV-002
+**Related:** F-001, F-004, AV-002, D-014
 
 **Context.** Descent 3 has never run well for the owner on Linux (Steam Windows build under Proton). The engine source is GPL-3.0 and already builds natively on Linux via CMake/SDL3 with CI. The question was whether to start from the 2024 source drop, from upstream's current `main`, or from scratch.
 
@@ -53,7 +53,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-01
 **Status:** Accepted
 **Authors:** Shane Hartley
-**Related:** F-004, AV-012
+**Related:** F-004, AV-012, AV-005
 
 **Context.** Upstream is GPL-3.0; a derivative must be too. The owner also wants explicit credit to the original creators and maintainers.
 
@@ -74,7 +74,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-01
 **Status:** Accepted
 **Authors:** Shane Hartley (with Claude design discussion 2026-11-01)
-**Related:** F-002, AV-001
+**Related:** F-002, AV-001, AV-003
 
 **Context.** The owner wants "just classic Descent 3, optimised" available alongside the new features.
 
@@ -97,7 +97,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-01
 **Status:** Accepted
 **Authors:** Shane Hartley (with Claude design discussion 2026-11-01)
-**Related:** F-010, F-011, ROADMAP Phase 1
+**Related:** F-010, F-011, ROADMAP Phase 1, D-013
 
 **Context.** Every gameplay feature needs live tuning (cloak costs, gravity radius, autolevel strength). Upstream has plog logging and a typed-sequence cheat system but no console or cvar registry.
 
@@ -141,7 +141,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-01
 **Status:** Accepted
 **Authors:** Shane Hartley (with Claude design discussion 2026-11-01)
-**Related:** F-021 – F-028, ARCHITECTURE.md §weapons_sidecar, AV-010
+**Related:** F-021 – F-028, ARCHITECTURE.md §weapons_sidecar, AV-010, AV-005
 
 **Context.** Weapon stats live in the binary table file loaded by `manage/`. The authoring tool is the MFC level editor, which upstream describes as Windows-only, 32-bit and unusable. Shipping a modified `table.gam` would also mean redistributing Outrage data.
 

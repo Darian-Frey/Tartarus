@@ -3025,6 +3025,7 @@ void GameFrame(void) {
     Cinematic_Frame();
 
   } else {
+    tartarus::PausedFrame(); // TARTARUS: keys reach the console/cheat menu while they hold the pause (IMP-004)
     D3::ChronoTimer::SleepMS(3);
   }
 

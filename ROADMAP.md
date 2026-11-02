@@ -26,16 +26,22 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 1 — Developer foundation
 **Goal:** The tools every later phase depends on: console, cvars, Classic Mode gate, cheat menu, debug overlays.
-**Status:** In progress
-**Features delivered:** F-002, F-010, F-011, F-012, F-013
+**Status:** Done 2026-11-02, with the deferred items listed below
+**Features delivered:** F-002, F-010, F-011, F-012 (F-013 deferred)
 **Deliverables:**
 - [x] `cvar.cpp/.h` with flags, persistence to `tartarus.cfg`, `CLASSIC_LOCKED` enforcement — 2026-11-01
-- [ ] `console.cpp/.h`: input capture, rendering via `grtext`, history, completion, plog sink (all done and verified in level 1, 2026-11-01; cheat commands done 2026-11-01; `bind`/`unbind`, `noclip`, `spawn` pending)
-- [ ] `classic.cpp`: the single `IsClassic()` query and the Options toggle (query, cvar and `-classic`/`-tartarus` done 2026-11-01; toggle comes with the console now and F-069 in Phase 2)
-- [ ] `cheats.cpp` + `cheat_table.cpp`: password field, unlock table, per-frame "hold at max" loop, HUD "CHEATS" tag, `IsCheater` integration (done and verified in level 1, 2026-11-01; WRAITH, ARGUS, countermeasure hold and the AV-004 LAN check pending)
-- [ ] Debug overlays (`r_showaxes`, `r_showobjinfo`, `r_showcollide`)
-- [ ] AV-001 Classic-regression checklist written and run once
-**Acceptance:** Every cheat in SPEC.md §Cheat passwords works from both menu and console; `classic 1` hides all of it; `cvarlist` shows every SPEC constant.
+- [x] `console.cpp/.h`: input capture, rendering via `grtext`, history, completion, plog sink, cheat commands, `bind`/`unbind` (`binds.cfg`), `con_pause`, `where` — 2026-11-01/02
+- [x] `classic.cpp`: the single `IsClassic()` query, `classic` cvar and `-classic`/`-tartarus` — 2026-11-01 (the Options toggle moves to F-069)
+- [x] `cheats.cpp` + `cheat_table.cpp`: password field, unlock table, per-frame "hold at max" loop, HUD "CHEATS" tag, `IsCheater` integration; every implemented row usable from the console (`cheat use`) — 2026-11-01/02
+- [x] AV-001 Classic-regression checklist (`docs/CLASSIC_CHECKLIST.md`, `tools/classic_audit.py`) written and run once — 2026-11-02
+- [x] `tools/check_xrefs.py` (IMP-001) and the "Tartarus audits" CI workflow — 2026-11-02
+**Acceptance:** Every cheat in SPEC.md §Cheat passwords works from both menu and console; `classic 1` hides all of it; `cvarlist` shows every SPEC constant. Met 2026-11-02 for every implemented row and every implemented module's constants.
+**Deferred (owner agreed 2026-11-02):**
+- F-013 debug overlays (`r_showaxes`, `r_showobjinfo`, `r_showcollide`): before the weapons work in Phase 4, where they are needed.
+- F-012 WRAITH (noclip: needs a design that keeps room tracking intact) and ARGUS (upstream's chase camera is half-built); HYDRA does not hold countermeasures yet.
+- AV-004 LAN check (no cheat survives into a netgame): needs a real network game; with the first multiplayer work (D-008).
+- Console: `con_key`, line wrapping (IMP-003), `noclip`, `spawn`, `map <mission> <level>` arguments.
+- The Classic Mode toggle in Options: F-069.
 
 ## Phase 2 — Controls and display
 **Goal:** The game flies comfortably with a mouse and looks right on a modern widescreen display, with one options menu that holds all of it.

@@ -38,7 +38,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Save games record the mode; loading a Tartarus save in Classic Mode warns and refuses rather than silently dropping state
 - Default is `classic 1` on first run
 **Status:** In progress (Phase 1): `classic` cvar, `IsClassic()`, `-classic`/`-tartarus` and read-side `CLASSIC_LOCKED` done (2026-11-01); Options toggle (F-069), save-game mode stamp and the AV-001 audit pending
-**Notes:** D-004, AV-001.
+**Notes:** D-004, AV-001. See also D-008.
 
 ### F-003 Steam data directory detection
 **Priority:** Should
@@ -55,7 +55,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Main menu build string shows "Tartarus <version> <revision>" over "based on Descent 3 Open Source <upstream hash>" (two lines, bottom right; one line does not fit a 640 px-wide menu)
 - Every published binary release links to the exact source tag
 **Status:** In progress (Phase 0): credits, unmodified `LICENSE`/`THIRD_PARTY.md` and the build string done (2026-11-01); release-tag linking applies from the first binary release
-**Notes:** D-003, AV-012.
+**Notes:** D-003, AV-012. See also D-001.
 
 ---
 
@@ -69,8 +69,8 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - All engine log output (plog) is mirrored into the console scrollback
 - Commands available at launch: `classic`, `help`, `find`, `exec <file>`, `bind`, `unbind`, `quit`, `map <mission> <level>`, `give <weapon|all>`, `spawn <object>`, `noclip`, `god`, `timescale <f>`, `screenshot`, `cvarlist`, `cheat <password>` (see F-012)
 - Cheat-class commands are refused unless the matching cheat is unlocked (F-012) or the build is a Debug build
-**Status:** In progress (Phase 1): toggle, input capture (controls suspended, queues flushed on close), scrollback, history persisted to `console_history.txt`, tab completion, plog mirror, `help`/`find`/`cvarlist`/`set`/`reset`/`toggle`/`echo`/`clear`/`exec`/`classic`/`screenshot`/`version`/`quit` done and verified in level 1 (2026-11-01); cheat commands `cheat`, `cheatmenu`, `give`, `god`, `timescale`, `map` (picker only) done with F-012 (2026-11-01); `bind`/`unbind`, `noclip`, `spawn`, `map <mission> <level>` arguments, `con_key`, `con_pause` and line wrapping pending
-**Notes:** D-005. SPEC.md §Console grammar.
+**Status:** In progress (Phase 1): toggle, input capture (controls suspended, queues flushed on close), scrollback, history persisted to `console_history.txt`, tab completion, plog mirror, `help`/`find`/`cvarlist`/`set`/`reset`/`toggle`/`echo`/`clear`/`exec`/`classic`/`screenshot`/`version`/`quit` done and verified in level 1 (2026-11-01); cheat commands `cheat`, `cheatmenu`, `give`, `god`, `timescale`, `map` (picker only) done with F-012 (2026-11-01); `con_pause` (IMP-004), `bind`/`unbind` (saved to `binds.cfg`), `cheat use` and `where` done (2026-11-02); deferred: `noclip`, `spawn`, `map <mission> <level>` arguments, `con_key`, line wrapping (IMP-003)
+**Notes:** D-005. SPEC.md §Console grammar. See also AV-008.
 
 ### F-011 Cvar system
 **Priority:** Must
@@ -90,15 +90,16 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Cheats are refused in multiplayer games and when `classic 1`, with a message
 - Infinite-resource cheats (energy, shields, primary ammo, secondary ammo, afterburner) are *toggles* that hold the value at maximum each frame, not one-shot refills
 - `CATHARSIS` relocks everything and clears the flag for the next new game (not the current one)
-**Status:** In progress (Phase 1): unlock table, password entry, toggles/buttons/slider, hold-at-max loop, `IsCheater` + score reset, CHEATS tag, Classic/multiplayer refusal and `cheat`/`give`/`god`/`timescale`/`map` console commands done and verified in level 1 (2026-11-01); 17 of 19 rows work. Pending: WRAITH (noclip: upstream has none, and moving through walls without breaking room tracking needs its own design), ARGUS (upstream's chase camera is half-built), countermeasures (mines, chaff) in HYDRA's hold, and the LAN check for AV-004. Opens with **Shift+F12**, not F12: stock F12 drops a marker, and upstream has no pause menu to add an entry to (pause is a message box); owner confirmed 2026-11-01 after testing.
-**Notes:** D-006. Upstream's `GameCheat.cpp` typed-sequence cheats stay functional in Classic Mode. The game keeps running while the menu is open (IMP-004).
+**Status:** In progress (Phase 1): unlock table, password entry, toggles/buttons/slider, hold-at-max loop, `IsCheater` + score reset, CHEATS tag, Classic/multiplayer refusal and `cheat`/`give`/`god`/`timescale`/`map` console commands done and verified in level 1 (2026-11-01); 17 of 19 rows work, from the menu and from the console (`cheat use <password> [value]`, 2026-11-02). Deferred (ROADMAP Phase 1): WRAITH (noclip: upstream has none, and moving through walls without breaking room tracking needs its own design), ARGUS (upstream's chase camera is half-built), countermeasures (mines, chaff) in HYDRA's hold, and the LAN check for AV-004. Opens with **Shift+F12**, not F12: stock F12 drops a marker, and upstream has no pause menu to add an entry to (pause is a message box); owner confirmed 2026-11-01 after testing.
+**Notes:** D-006. Upstream's `GameCheat.cpp` typed-sequence cheats stay functional in Classic Mode. The game pauses while the menu is open (`con_pause`, IMP-004). See also D-008.
 
 ### F-013 Debug overlays
 **Priority:** Should
 **Acceptance:**
 - `r_showaxes 1` draws world X/Y/Z at the player; `r_showobjinfo 1` labels nearby objects with type/id/handle; `r_showcollide 1` draws collision spheres
 - Zero cost when off (no per-frame work)
-**Status:** Not started (Phase 1)
+**Status:** Deferred (2026-11-02, owner): to just before the Phase 4 weapons work, where it is needed
+**Notes:** See also AV-009.
 
 ---
 
@@ -113,7 +114,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Robots lose target lock while cloaked, using the existing invisibility path (`MakeObjectInvisible`); a bump decloaks *and* alerts the bumped robot
 - HUD gauge shows state (ready / active with time left / cooldown)
 **Status:** Not started (Phase 4)
-**Notes:** SPEC.md §Cloak. AV-007.
+**Notes:** SPEC.md §Cloak. AV-007. See also D-008.
 
 ### F-021 Gravity missile
 **Priority:** Must
@@ -125,7 +126,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Low direct damage; scarce pickup; distinct impact and pull visuals and audio
 - `give gravmissile` works from the console
 **Status:** Not started (Phase 4)
-**Notes:** D-007, D-009. Reuses the engine's `GRAVITY_FIELD_INDEX` fireball machinery (`fireball.cpp::DoGravityFieldEffect`). SPEC.md §Gravity missile. AV-006.
+**Notes:** D-007, D-009. Reuses the engine's `GRAVITY_FIELD_INDEX` fireball machinery (`fireball.cpp::DoGravityFieldEffect`). SPEC.md §Gravity missile. AV-006. See also D-008.
 
 ### F-022 Repulsor pulse
 **Priority:** Should
@@ -133,7 +134,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Bound key emits a radial shove of radius `rp_radius`, force `rp_force`, cost `rp_cost` energy, cooldown `rp_cooldown`
 - Pushes robots, weapons (missiles deflect) and the player (wall-launch is possible)
 **Status:** Not started (Phase 4)
-**Notes:** Same force code as F-021 with the sign flipped.
+**Notes:** Same force code as F-021 with the sign flipped. See also AV-006, D-009.
 
 ### F-023 Flak / proximity burst missile
 **Priority:** Could
@@ -171,6 +172,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Fires a line; on wall hit applies a spring force toward the anchor until released or `tether_max_len` exceeded
 **Status:** Not started (Phase 6)
+**Notes:** See also D-007.
 
 ### F-030 Energy ↔ shield converter
 **Priority:** Should
@@ -201,7 +203,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - A short tick on the reticle ring always points toward world-up projected onto the view plane; fades out when the ship is within `hud_uptick_fade_deg` of upright
 - `hud_uptick` cvar; on by default in Tartarus mode
 **Status:** Not started (Phase 3)
-**Notes:** D-010.
+**Notes:** D-010. See also AV-009.
 
 ### F-041 Attitude indicator
 **Priority:** Must
@@ -215,6 +217,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Corner 3-axis gizmo showing world axes relative to ship; `hud_gizmo` cvar
 **Status:** Not started (Phase 3)
+**Notes:** See also AV-009.
 
 ### F-043 Enhanced auto-level and snap-to-up
 **Priority:** Should
@@ -222,7 +225,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - `al_strength` (0–1) and `al_delay` cvars extend upstream's autolevel slider; `al_hold` key rolls to upright while held; `al_snap` key single-tap rolls to nearest upright over `al_snap_time`
 - Never fights active roll input: any roll input cancels an in-progress snap
 **Status:** Not started (Phase 3)
-**Notes:** Builds on `physics/physics.cpp` autolevel code. AV-011.
+**Notes:** Builds on `physics/physics.cpp` autolevel code. AV-011. See also D-010.
 
 ### F-044 Environmental up cues
 **Priority:** Could
@@ -282,13 +285,14 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - SDL relative mode, no OS acceleration, `m_sensitivity` and `m_accel 0` by default
 **Status:** In progress (Phase 2), 2026-11-02. Findings: SDL3's relative mode is already unaccelerated (`SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE` defaults to 0), so there is no OS acceleration to remove; upstream's "smoothing" is 20 Hz sampling (`MOUSE_POLLING_TIME`): the controller reads the mouse at most every 50 ms and reuses the reading on the frames between, so movement arrives late and in steps. Done: `m_raw` (read every frame), `m_sensitivity`, `m_accel`; the virtual joystick (F-067) is now always read every frame. Measured with the `where` command (120 injected counts, `m_mode 0`): upstream 5.6–7.2° at 60 and 120 fps; `m_raw 1` 1.9° at both (frame-rate independent, but ~3.6x less per count); `m_raw 1` with `m_sensitivity 3.5` gave 18.1° at 60 fps but 6.9° at 120, which is not yet explained (input-chain nonlinearity, or XTest delivery). So `m_raw` defaults to off (owner's choice, 2026-11-02) and the stock mouse is unchanged; pending: tune `m_sensitivity` for `m_raw 1` by feel or a better measurement, then decide the default.
-**Notes:** Upstream already uses `SDL_SetWindowRelativeMouseMode`; this item is about removing acceleration/smoothing and exposing one sensitivity. Pairs with F-067.
+**Notes:** Upstream already uses `SDL_SetWindowRelativeMouseMode`; this item is about removing acceleration/smoothing and exposing one sensitivity. Pairs with F-067. See also D-013.
 
 ### F-063 Gamepad with gyro aim
 **Priority:** Could
 **Acceptance:**
 - SDL3 gamepad API including gyro where present; bindable in the existing controls UI
 **Status:** Not started (Phase 2)
+**Notes:** See also D-013.
 
 ### F-064 Quicksave anywhere
 **Priority:** Should
@@ -349,6 +353,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Robots caught in a gravity well attempt to thrust away if they can; a decloak flash within sight triggers an investigate behaviour; stunned state exists for F-026
 **Status:** Not started (Phase 6)
+**Notes:** See also AV-007.
 
 ### F-071 Mirror difficulty tier
 **Priority:** Could

@@ -57,6 +57,10 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **small_view_layout.cpp / small_views.cpp.** Small-view windows in the HUD layout (F-060, SPEC §14). `small_view_layout.cpp` (pure, unit-tested against a verbatim copy of upstream's arithmetic) computes a window's rectangle from size, aspect, position and the "bigger" scale, clamped inside the 3D view, and returns upstream's exact rectangle at the defaults. `small_views.cpp` registers the `hud_sv_*` cvars and replaces the rectangle in `DrawSmallViews()`; cockpit monitors are untouched.
 
+**binds_core.cpp / binds.cpp.** Console key bindings (F-010). `binds_core.cpp` (pure, unit-tested) parses key names with `ctrl+`/`alt+`/`shift+`, keeps the table and writes `binds.cfg`; the engine key codes are passed in by `binds.cpp`, which registers `bind`/`unbind`, runs `binds.cfg` at start-up and, third in `HandleKey()` after the console and cheat menu, runs a bound line in a level.
+
+**Tools.** `tools/check_xrefs.py` (IMP-001) checks the documents' stable-ID cross-references; `tools/classic_audit.py` (AV-001) checks that every hook is listed in `docs/CLASSIC_CHECKLIST.md`. Both run in the "Tartarus audits" GitHub workflow.
+
 **tartarus.cpp.** `Tartarus_Init()` plus the per-frame dispatchers the GameLoop hooks call (`HandleKey`, `Frame`, `TimeScale`, `RenderOverlays`), so a new module never needs a new hook in the loop.
 
 **datadir.cpp / datadir_steam.cpp.** `DataDir_Probe()` runs in `InitIOSystems()` after the user, config and platform base directories are added, and acts only if none of them provides `d3.hog` (so `-additionaldir` always wins). It probes the native, Flatpak and Snap Steam roots and every library in their `libraryfolders.vdf`, keeps directories holding `d3.hog`, de-duplicates by canonical path, and adds the first with `cf_AddBaseDirectory()`, the mechanism `-additionaldir` uses. `DataDir_RequireHog()` stops with an error naming the file and every directory searched when `d3.hog` fails to open. `datadir_steam.cpp` is pure standard C++ and unit-tested (`Descent3/tartarus/tests/`). Runs in Classic Mode too: it is a compatibility fix.
@@ -89,7 +93,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 
 | Upstream file | Hook | Purpose |
 |---|---|---|
-| `Descent3/GameLoop.cpp` | `tartarus::HandleKey()` first in the `ProcessKeys()` loop (console, then cheat menu); `tartarus::RenderOverlays()` after the HUD in `GameRenderFrame()`; `tartarus::Frame()` after `DoPlayerFrame()` in `GameFrame()`; `Frametime *= tartarus::TimeScale()` after `CalcFrameTime()` | console, cheats, later cloak/converter ticks |
+| `Descent3/GameLoop.cpp` | `tartarus::HandleKey()` first in the `ProcessKeys()` loop (console, then cheat menu, then key bindings); `tartarus::RenderOverlays()` after the HUD in `GameRenderFrame()`; `tartarus::Frame()` after `DoPlayerFrame()` in `GameFrame()`; `Frametime *= tartarus::TimeScale()` after `CalcFrameTime()`; `tartarus::PausedFrame()` in the paused branch of `GameFrame()` (keys while the console/cheat menu holds the pause, IMP-004) | console, cheats, later cloak/converter ticks |
 | `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()`; `Display_SaveSettings()` after the `RS_fullscreen` write in `SaveGameSettings()` | startup, display settings |
 | `Descent3/init.cpp::LoadGameSettings` (RS_fov clamp), `Descent3/config.cpp` video sheet (FOV slider range and apply) | `kFovAbsMin/Max`, `Display_FovMin/Max()`, `Display_SetFov()` | FOV range (F-060) |
 | `renderer/HardwareOpenGL.cpp::rend_Flip` (+ `TartarusDrawBarFill`, `Tartarus_bar_fill_*` globals), `renderer/dyna_gl.h` (`glFramebufferTexture2D`) | blurred fill instead of the black clear when the frame is narrower than the window | menu bars (F-060) |

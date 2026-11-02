@@ -69,3 +69,12 @@ add_executable(
 )
 target_link_libraries(tartarus_raw_mouse_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_raw_mouse_tests)
+
+add_executable(
+  tartarus_binds_tests
+  binds_core_tests.cpp
+  ../binds_core.cpp
+  ../cmdparse.cpp
+)
+target_link_libraries(tartarus_binds_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_binds_tests)

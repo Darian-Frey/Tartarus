@@ -62,7 +62,7 @@ Built-in commands (Phase 1):
 | `find <substr>` | list commands/cvars containing substring |
 | `cvarlist [prefix]` | dump cvars with values and flags |
 | `exec <file>` | run a script from the writable base dir |
-| `bind <key> "<line>"` / `unbind <key>` | console-script keybinds (layered over upstream controls) |
+| `bind <key> "<line>"` / `unbind <key\|all>` | console-script keybinds, saved to `binds.cfg` in the writable base dir and run at start-up. Key names: `a`–`z`, `0`–`9`, `f1`–`f12`, `kp0`–`kp9`, `kpplus`, `kpenter`, `space`, `up`, `pageup`, … with `ctrl+`, `alt+`, `shift+`. A bound key runs its line in a level when the console and cheat menu are closed, and its stock key action is skipped (held flight controls keep working). Backtick and Escape cannot be bound. `bind` alone lists, `bind <key>` shows one |
 | `classic <0|1>` | mode switch (prompts if a level is loaded) |
 | `map <mission.mn3> <level>` | CHEAT (FERRYMAN). Level warp; for now opens upstream's level picker, arguments pending |
 | `give <weapon-name|all|energy|shields|ammo|keys>` | CHEAT (CORNUCOPIA). Weapon names as the HUD shows them, spaces optional (`give massdriver`) |
@@ -71,13 +71,14 @@ Built-in commands (Phase 1):
 | `timescale <f>` | CHEAT (TORPOR). 0.05–4.0 |
 | `screenshot` | closes the console and calls upstream `DoScreenshot()` (upstream's location and format) |
 | `cheat <password>` | same unlock table as the cheat menu (§4); no argument lists the rows and their state |
+| `cheat use <password> [value]` | uses an unlocked row as the menu would: fires a button, flips a toggle, sets the TORPOR time scale (0.1–1.0) |
 | `cheatmenu` | opens the cheat menu |
 | `quit` | leave the game; shows the normal exit confirmation |
 | `set <cvar> <value>`, `reset <cvar>`, `toggle <bool cvar>` | explicit forms of cvar assignment |
 | `echo <text>`, `clear`, `version` | |
 | `where` | ship room, position and heading/pitch/bank in degrees; also written to the log (for measuring) |
 
-Input capture: while open, the console consumes every key (the toggle key and `Escape` close it); all ship controls are suspended and the key/mouse queues are flushed on close; the game keeps running (`con_pause` is not implemented yet). Editing keys: Left/Right, Home/End, Backspace/Delete, Up/Down history, Page Up/Down scroll, Tab complete, Ctrl+U clear line, Ctrl+L clear scrollback. Implemented cvars so far: `con_height`, `con_anim_time`, `con_lines`; `con_key` (rebinding) and `con_pause` pending.
+Input capture: while open, the console consumes every key (the toggle key and `Escape` close it); all ship controls are suspended and the key/mouse queues are flushed on close; with `con_pause 1` (default) the game pauses while the console is open in single-player (simulation, time, sound and music, via upstream `PauseGame()`), and keeps running with `con_pause 0` or in multiplayer. Editing keys: Left/Right, Home/End, Backspace/Delete, Up/Down history, Page Up/Down scroll, Tab complete, Ctrl+U clear line, Ctrl+L clear scrollback. Implemented cvars so far: `con_height`, `con_anim_time`, `con_lines`, `con_pause`; `con_key` (rebinding) pending.
 
 ---
 
@@ -85,7 +86,7 @@ Input capture: while open, the console consumes every key (the toggle key and `E
 
 **Open:** `Shift+F12`, or `cheatmenu` in the console. (Stock F12 drops a marker; upstream has no pause menu, only a "paused" message box, so there is no menu entry.) Rebinding waits for `bind` (F-010). **Refused** when `classic 1` or `Game_mode & GM_MULTI`, or outside a level, with the message "Cheats are not available in Classic Mode" / "… in multiplayer".
 
-**Menu keys.** Letters type the password; Enter submits it (and selects the unlocked row). With the password field empty: Up/Down select, Enter uses the row (toggle flips, button fires, slider resets to 1.0), Left/Right move the slider by 0.1. Escape or Shift+F12 closes. Ship controls are suspended while open; the game keeps running (IMP-004).
+**Menu keys.** Letters type the password; Enter submits it (and selects the unlocked row). With the password field empty: Up/Down select, Enter uses the row (toggle flips, button fires, slider resets to 1.0), Left/Right move the slider by 0.1. Escape or Shift+F12 closes. Ship controls are suspended while open, and the game pauses as for the console (`con_pause`).
 
 **Unlock semantics.** Passwords are letters only, case-insensitive. Entering a valid password unlocks that row for the current pilot session and sets `IsCheater = true` (and zeroes the score, as upstream cheats do); so does every use. Unlocked rows are toggles (infinite-type) or buttons (one-shot). `IsCheater` persists until the next *new game* (upstream clears it there); active toggles and the time scale end at that point too, unlocks stay. Selecting a different pilot relocks everything. `CATHARSIS` relocks all rows, switches every toggle off, and does not itself set the flag; the flag then clears at the next new game.
 

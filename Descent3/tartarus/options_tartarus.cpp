@@ -110,12 +110,12 @@ void TartarusOptionsSheet::Setup(newuiMenu *menu) {
 
   if (classic_) {
     sheet_->NewGroup(nullptr, 0, 0);
-    sheet_->AddText("Classic Mode uses the stock Descent 3 mouse");
-    sheet_->AddText("and small-view layout.");
+    sheet_->AddText("Classic Mode: stock mouse and");
+    sheet_->AddText("small-view layout.");
     sheet_->AddText("");
-    sheet_->AddText("For Tartarus settings, switch Classic Mode off:");
-    sheet_->AddText("type 'classic 0' in the console (` key),");
-    sheet_->AddText("or start the game with -tartarus.");
+    sheet_->AddText("For Tartarus settings, type");
+    sheet_->AddText("'classic 0' in the console (`)");
+    sheet_->AddText("or start with -tartarus.");
     return;
   }
 

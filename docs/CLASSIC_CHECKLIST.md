@@ -1,0 +1,59 @@
+# Classic Mode checklist (AV-001)
+
+Classic Mode (`classic 1`, the default on first run, or `-classic`) must play exactly like stock Descent 3 (D-004). Two tools keep that promise:
+
+1. **The hook table below**, checked by `tools/classic_audit.py` (also in CI). Every upstream file carrying a `TARTARUS:` marker, and every `tartarus::` function or `Tartarus_*` global used from upstream code, must appear here with its Classic behaviour. A new hook therefore fails the audit until someone records what it does in Classic Mode.
+2. **The manual run** at the end, before each release and after any change to a hook.
+
+Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; **active (compat)** = a compatibility or bug fix that changes no gameplay and stays on by design (D-004, D-013); **tooling** = build, test or command-line-only.
+
+## Hook table
+
+| Upstream file | Tartarus entry points used there | Classic behaviour |
+|---|---|---|
+| `Descent3/CMakeLists.txt` | `include(tartarus/tartarus.cmake)` | tooling |
+| `Descent3/init.cpp` | `tartarus::DataDir_Probe`, `tartarus::DataDir_RequireHog` | active (compat): finds the Steam install (F-003) |
+| `Descent3/init.cpp` | `tartarus::Tartarus_Init` | active: loads `tartarus.cfg`, sets up cvars, console and modules; no gameplay change by itself |
+| `Descent3/init.cpp` | `tartarus::Display_SaveSettings` | active (compat): BUG-004/005 |
+| `Descent3/init.cpp` | `tartarus::kFovAbsMin`, `tartarus::kFovAbsMax` | gated: the load-time clamp is widened, then `Display_Init()` narrows FOV to upstream's 72–90 in Classic Mode |
+| `Descent3/mmItem.cpp` | `tartarus::DrawMenuBuildString` | active (cosmetic): main-menu build string and upstream credit (F-004) |
+| `Descent3/config.cpp` | `tartarus::Display_RestoreResolution` | active (compat): BUG-004 |
+| `Descent3/config.cpp` | `tartarus::Display_FovMin`, `tartarus::Display_FovMax`, `tartarus::Display_SetFov` | gated: Video FOV slider is 72–90 as upstream |
+| `Descent3/config.cpp` | `tartarus::TartarusOptionsSheet` | gated: the Tartarus tab only shows text explaining Classic Mode |
+| `Descent3/GameLoop.cpp` | `tartarus::HandleKey` | console: active (non-cheat commands only); cheat menu (Shift+F12, a key stock leaves unused): refuses with a message |
+| `Descent3/GameLoop.cpp` | `tartarus::Frame` | gated: cheat hold loop switches everything off and returns; mouse-flight and raw-mouse frames reset and leave the stock mouse alone |
+| `Descent3/GameLoop.cpp` | `tartarus::TimeScale` | gated: returns 1 |
+| `Descent3/GameLoop.cpp` | `tartarus::PausedFrame` | active: only does anything while the console holds the pause (`con_pause`, a dev-tool convenience that changes no gameplay); the cheat menu cannot open in Classic Mode |
+| `Descent3/GameLoop.cpp` | `tartarus::RenderOverlays` | gated: no stick indicator, no CHEATS tag; the console draws when opened |
+| `Descent3/Controls.cpp` | `tartarus::MouseFlight_Apply`, `tartarus::MouseFlight_ReservesButton` | gated: return at once; flare on the middle button works as stock |
+| `Descent3/TelCom.cpp`, `Descent3/TelComGoals.cpp` | `tartarus::kUiMouseScale` | active (compat): BUG-006 TelCom pointer speed |
+| `Descent3/SmallViews.cpp` | `tartarus::SmallViews_Adjust` | gated: upstream rectangle untouched |
+| `Descent3/gamesequence.cpp` | `tartarus::SkipBriefing` | tooling: only with `-skipbriefing` |
+| `Descent3/gamecinematics.cpp` | `tartarus::SkipCinematics` | tooling: only with `-skipcinematics` |
+| `ddio/sdlcontroller.cpp` | `Tartarus_mouse_filter`, `Tartarus_mouse_every_frame` | gated: the filter passes counts through untouched and every-frame sampling is off, so upstream's 20 Hz mouse is unchanged |
+| `ddio/lnxmouse.cpp` | (inline: SDL middle/right swap) | active (compat): BUG-007, right button = secondary fire as on Windows |
+| `renderer/HardwareOpenGL.cpp`, `renderer/dyna_gl.h` | `Tartarus_bar_fill_mode`, `Tartarus_bar_fill_brightness` | active (display): blurred bars around 4:3 menus (F-060); `r_bar_fill 0` restores black bars |
+| `.github/workflows/build.yml` | (matrix entries commented out) | tooling: D-014 |
+
+Console key bindings (`bind`) work in Classic Mode like the console itself; they only run what the user bound, and cheat lines are refused there.
+
+Cvars: every gameplay- or feel-changing cvar is `CLASSIC_LOCKED` and reads as its default in Classic Mode; the modules also check `IsClassic()` directly, so a locked cvar whose default is a Tartarus behaviour (for example `m_mode 1`) still has no effect.
+
+## Manual run
+
+Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinematics`), then:
+
+- [ ] Main menu: build string bottom right; menus otherwise stock (blurred side bars are expected, `r_bar_fill`).
+- [ ] Level 1: no virtual-joystick ring; the mouse turns the ship as stock (movement = rotation).
+- [ ] No CHEATS tag; Shift+F12 prints "Cheats are not available in Classic Mode"; `god`, `give all`, `timescale 0.5` refused in the console.
+- [ ] Console (backtick) opens; `version`, `where`, `help` work.
+- [ ] F2 → Video: FOV slider runs 72–90. F2 → Tartarus: only the Classic Mode explanation.
+- [ ] F3 HUD view, Shift+F1: the small view sits in the stock bottom-left square.
+- [ ] Middle mouse button fires a flare; right button fires a secondary (BUG-007).
+- [ ] `classic 0` then `classic 1` in a level: everything above still holds afterwards.
+
+## Runs
+
+| Date | Build | Result |
+|---|---|---|
+| 2026-11-02 | `648ace30` + F-062 | Pass (scripted, `-classic`): no stick ring, stock mouse turned the ship, no CHEATS tag, Shift+F12 refused, console works, FOV 72, Tartarus tab shows only the Classic text, stock small view, `classic 0`/`1` round trip clean. Fixed on the way: cheat commands in Classic said "unlock it first" instead of the Classic refusal; the tab's Classic text overflowed. Not covered by the script: middle/right buttons (checked by hand for BUG-007 the same day). |

@@ -397,8 +397,36 @@ std::string Squash(const std::string &s) {
 }
 
 void RegisterCommands(ConsoleCore &con) {
-  con.AddCommand({"cheat", "cheat [password]", "Unlock a cheat (same passwords as the cheat menu); no argument lists them",
+  con.AddCommand({"cheat", "cheat [password] | cheat use <password> [value]",
+                  "Unlock a cheat (same passwords as the cheat menu); 'use' fires a button, flips a toggle or sets the "
+                  "time scale; no argument lists them",
                   CMD_NONE, [](const CommandArgs &a, ConsoleCore &c) {
+                    if (a.size() > 1 && a[1] == "use") {
+                      if (a.size() < 3) {
+                        c.Print("usage: cheat use <password> [value]");
+                        return;
+                      }
+                      const CheatInfo *row = FindCheatByPassword(a[2]);
+                      if (row == nullptr) {
+                        c.Print("cheat use: unknown cheat '" + a[2] + "'");
+                        return;
+                      }
+                      float value = -1.0f;
+                      if (row->kind == CheatKind::Slider) {
+                        value = 1.0f;
+                        if (a.size() > 3) {
+                          char *end = nullptr;
+                          value = std::strtof(a[3].c_str(), &end);
+                          if (end == a[3].c_str() || *end != '\0' || !std::isfinite(value)) {
+                            c.Print("cheat use: value must be a number");
+                            return;
+                          }
+                          value = std::clamp(value, kTorporMin, kTorporMax);
+                        }
+                      }
+                      Use(row->id, value);
+                      return;
+                    }
                     if (a.size() > 1) {
                       TryPassword(a[1]);
                       return;
@@ -601,6 +629,10 @@ void Cheats_Init() {
 }
 
 bool Cheats_AllowsCommand(const char *command) {
+  // In Classic Mode and multiplayer let the command run: each one checks RefusalReason() first
+  // and says why, which is clearer than "unlock it first".
+  if (RefusalReason() != nullptr)
+    return true;
   for (const CommandCheat &cc : kCommandCheats) {
     if (std::strcmp(cc.command, command) == 0)
       return g_state.IsUnlocked(cc.cheat);

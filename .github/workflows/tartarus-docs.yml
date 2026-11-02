@@ -1,0 +1,17 @@
+# Tartarus: documentation and Classic Mode audits (IMP-001, AV-001). Tartarus-owned file.
+name: Tartarus audits
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  audits:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check F-/D-/AV-/BUG-/IMP- cross-references (IMP-001)
+        run: python3 tools/check_xrefs.py --strict
+      - name: Check every hook is in the Classic Mode checklist (AV-001)
+        run: python3 tools/classic_audit.py

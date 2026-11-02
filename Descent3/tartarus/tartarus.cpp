@@ -22,7 +22,13 @@
 
 #include "args.h"
 #include "cfile.h"
+#include "binds.h"
 #include "cheats.h"
+#include "ddio.h"
+#include "descent.h"
+#include "game.h"
+#include "gameloop.h"
+#include "gamesequence.h"
 #include "classic.h"
 #include "console.h"
 #include "display.h"
@@ -34,6 +40,11 @@
 #include "version.h"
 
 namespace tartarus {
+
+namespace {
+Cvar *con_pause = nullptr;
+bool g_we_paused = false; // the console/cheat menu called PauseGame() and owes a ResumeGame()
+} // namespace
 
 void Tartarus_Init() {
   LOG_INFO << "[tartarus] " << BuildString() << ", " << UpstreamString();
@@ -63,6 +74,9 @@ void Tartarus_Init() {
   Display_Init();
   Console_Init();
   Cheats_Init();
+  Binds_Init();
+  con_pause = Cvars().RegisterBool("con_pause", true,
+                                   "Pause the game while the console or cheat menu is open (single-player)", CVAR_ARCHIVE);
   MouseFlight_Init();
   RawMouse_Init();
   SmallViews_Init();
@@ -78,9 +92,44 @@ bool SkipBriefing() {
   return skip;
 }
 
-bool HandleKey(int key) { return Console_HandleKey(key) || Cheats_HandleKey(key); }
+namespace {
+
+// Pause while the console or cheat menu is open (IMP-004): single-player, in a level only.
+void UpdatePause() {
+  const bool overlay = Console_IsOpen() || Cheats_MenuIsOpen();
+  const bool want = overlay && con_pause != nullptr && con_pause->GetBool() && !(Game_mode & GM_MULTI) &&
+                    GetFunctionMode() == GAME_MODE && Game_interface_mode == GAME_INTERFACE;
+  if (want && !g_we_paused && !Game_paused) {
+    PauseGame();
+    g_we_paused = true;
+  } else if (!want && g_we_paused) {
+    g_we_paused = false;
+    if (Game_paused)
+      ResumeGame();
+  }
+}
+
+} // namespace
+
+bool HandleKey(int key) {
+  const bool used = Console_HandleKey(key) || Cheats_HandleKey(key) || Binds_HandleKey(key);
+  UpdatePause();
+  return used;
+}
+
+void PausedFrame() {
+  if (!g_we_paused)
+    return; // paused by something else (pause key, menus): not ours to touch
+  if (Descent != nullptr && Descent->active()) {
+    int key;
+    while ((key = ddio_KeyInKey()) != 0)
+      HandleKey(key); // keys the overlays do not use are dropped, as while typing unpaused
+  }
+  UpdatePause();
+}
 
 void Frame() {
+  UpdatePause();
   Cheats_Frame();
   MouseFlight_Frame();
   RawMouse_Frame();
