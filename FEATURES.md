@@ -281,7 +281,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Should
 **Acceptance:**
 - SDL relative mode, no OS acceleration, `m_sensitivity` and `m_accel 0` by default
-**Status:** Not started (Phase 2)
+**Status:** In progress (Phase 2), 2026-11-02. Findings: SDL3's relative mode is already unaccelerated (`SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE` defaults to 0), so there is no OS acceleration to remove; upstream's "smoothing" is 20 Hz sampling (`MOUSE_POLLING_TIME`): the controller reads the mouse at most every 50 ms and reuses the reading on the frames between, so movement arrives late and in steps. Done: `m_raw` (read every frame), `m_sensitivity`, `m_accel`; the virtual joystick (F-067) is now always read every frame. Measured with the `where` command (120 injected counts, `m_mode 0`): upstream 5.6–7.2° at 60 and 120 fps; `m_raw 1` 1.9° at both (frame-rate independent, but ~3.6x less per count); `m_raw 1` with `m_sensitivity 3.5` gave 18.1° at 60 fps but 6.9° at 120, which is not yet explained (input-chain nonlinearity, or XTest delivery). So `m_raw` defaults to off (owner's choice, 2026-11-02) and the stock mouse is unchanged; pending: tune `m_sensitivity` for `m_raw 1` by feel or a better measurement, then decide the default.
 **Notes:** Upstream already uses `SDL_SetWindowRelativeMouseMode`; this item is about removing acceleration/smoothing and exposing one sensitivity. Pairs with F-067.
 
 ### F-063 Gamepad with gyro aim

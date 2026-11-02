@@ -36,6 +36,7 @@
 #include "mouse_flight_core.h"
 #include "object.h"
 #include "player.h"
+#include "raw_mouse.h"
 #include "renderer.h"
 #include "ddio.h"
 
@@ -94,8 +95,10 @@ float RadiusCounts() {
 }
 
 void Filter(int *dx, int *dy, unsigned btnmask) {
-  if (!MouseFlight_Active())
-    return; // upstream mouse, untouched
+  if (!MouseFlight_Active()) {
+    RawMouse_ScaleCounts(dx, dy); // stock mouse paths: m_sensitivity (F-062)
+    return;
+  }
   const unsigned pressed = btnmask & ~g_last_buttons;
   g_last_buttons = btnmask;
   if (!StickContext()) {

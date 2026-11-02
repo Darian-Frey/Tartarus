@@ -21,6 +21,7 @@
 #include "console.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <fstream>
 #include <string>
 
@@ -38,6 +39,9 @@
 #include "grtext.h"
 #include "log.h"
 #include "renderer.h"
+#include "object.h"
+#include "player.h"
+#include "vecmat.h"
 #include "version.h"
 
 namespace fs = std::filesystem;
@@ -128,6 +132,22 @@ void RegisterEngineCommands(ConsoleCore &con) {
                     Console_Close(); // keep the console out of the picture
                     DoScreenshot();
                     c.Print("screenshot saved");
+                  }});
+  con.AddCommand({"where", "where", "Show the ship's room, position and heading/pitch/bank (also logged)", CMD_NONE,
+                  [](const CommandArgs &, ConsoleCore &c) {
+                    if (Player_object == nullptr) {
+                      c.Print("where: not in a level");
+                      return;
+                    }
+                    angvec a;
+                    vm_ExtractAnglesFromMatrix(&a, &Player_object->orient);
+                    auto deg = [](angle v) { return static_cast<double>(v) * 360.0 / 65536.0; };
+                    char buf[160];
+                    std::snprintf(buf, sizeof(buf), "room %d  pos %.1f %.1f %.1f  heading %.1f  pitch %.1f  bank %.1f",
+                                  Player_object->roomnum, Player_object->pos.x(), Player_object->pos.y(),
+                                  Player_object->pos.z(), deg(a.h()), deg(a.p()), deg(a.b()));
+                    c.Print(buf);
+                    LOG_INFO << "[tartarus] where: " << buf;
                   }});
   con.AddCommand({"version", "version", "Show the build and upstream revision", CMD_NONE,
                   [](const CommandArgs &, ConsoleCore &c) {

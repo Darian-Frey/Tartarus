@@ -28,6 +28,7 @@ list(APPEND HEADERS
   tartarus/mouse_flight.h
   tartarus/mouse_flight_core.h
   tartarus/options_tartarus.h
+  tartarus/raw_mouse.h
   tartarus/small_view_layout.h
   tartarus/small_views.h
   tartarus/tartarus.h
@@ -48,6 +49,8 @@ list(APPEND CPPS
   tartarus/mouse_flight.cpp
   tartarus/mouse_flight_core.cpp
   tartarus/options_tartarus.cpp
+  tartarus/raw_mouse.cpp
+  tartarus/raw_mouse_core.cpp
   tartarus/small_view_layout.cpp
   tartarus/small_views.cpp
   tartarus/tartarus.cpp

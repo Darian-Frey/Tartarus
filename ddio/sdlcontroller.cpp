@@ -831,6 +831,8 @@ void sdlgameController::extctl_getpos(int id) {
 // TARTARUS: F-067 virtual joystick sees each batch of mouse counts first and may zero them
 // (set by Descent3/tartarus/mouse_flight.cpp; null = upstream behaviour).
 void (*Tartarus_mouse_filter)(int *dx, int *dy, unsigned btnmask) = nullptr;
+// TARTARUS: F-062 sample the mouse every frame instead of every MOUSE_POLLING_TIME (set by raw_mouse.cpp).
+bool Tartarus_mouse_every_frame = false;
 
 void sdlgameController::mouse_geteval() {
   int x, y, dx, dy; //,z;
@@ -840,7 +842,7 @@ void sdlgameController::mouse_geteval() {
     return;
   }
 
-  if (std::abs(g_accum_frame_time) > SDL_FLT_EPSILON)
+  if (std::abs(g_accum_frame_time) > SDL_FLT_EPSILON && !Tartarus_mouse_every_frame) // TARTARUS: F-062
     return;
 
   btnmask = (unsigned)ddio_MouseGetState(&x, &y, &dx, &dy);

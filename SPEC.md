@@ -75,6 +75,7 @@ Built-in commands (Phase 1):
 | `quit` | leave the game; shows the normal exit confirmation |
 | `set <cvar> <value>`, `reset <cvar>`, `toggle <bool cvar>` | explicit forms of cvar assignment |
 | `echo <text>`, `clear`, `version` | |
+| `where` | ship room, position and heading/pitch/bank in degrees; also written to the log (for measuring) |
 
 Input capture: while open, the console consumes every key (the toggle key and `Escape` close it); all ship controls are suspended and the key/mouse queues are flushed on close; the game keeps running (`con_pause` is not implemented yet). Editing keys: Left/Right, Home/End, Backspace/Delete, Up/Down history, Page Up/Down scroll, Tab complete, Ctrl+U clear line, Ctrl+L clear scrollback. Implemented cvars so far: `con_height`, `con_anim_time`, `con_lines`; `con_key` (rebinding) and `con_pause` pending.
 
@@ -268,7 +269,7 @@ Visited set: room index added on entry; persisted in the save sidecar `AMAP` rec
 
 ## 11. Modernisation constants (Phases 2 and 5)
 
-`r_fov` (default 72 as upstream; 60–120 in Tartarus mode, 72–90 in Classic; affects the 3D view only; the horizontal FOV of a 4:3 view, wider windows see more at the sides; mirrors upstream's `RS_fov`, which saves it), `r_bar_fill 1` (0 black bars as upstream, 1 blurred copy around 4:3 menu screens, 2 around any frame narrower than the window; ARCHIVE, available in Classic Mode as a display option), `r_bar_fill_brightness 0.35` (0–1), `m_sensitivity 1.0`, `m_accel 0`, `g_quicksave_key F5`, `g_quickload_key F9`, `g_checkpoints 1`. Fixed-timestep proposal (D-012): `phys_fixedstep 0|1`, `phys_hz 120`, render interpolation between the last two physics states.
+`r_fov` (default 72 as upstream; 60–120 in Tartarus mode, 72–90 in Classic; affects the 3D view only; the horizontal FOV of a 4:3 view, wider windows see more at the sides; mirrors upstream's `RS_fov`, which saves it), `r_bar_fill 1` (0 black bars as upstream, 1 blurred copy around 4:3 menu screens, 2 around any frame narrower than the window; ARCHIVE, available in Classic Mode as a display option), `r_bar_fill_brightness 0.35` (0–1), `m_raw 0` (1 = read the mouse every frame for the stock mouse modes instead of upstream's 20 Hz; the virtual joystick is always read every frame; off by default until `m_sensitivity` is tuned for it), `m_sensitivity 1.0` (0.05–10, multiplies mouse counts for the stock mouse modes; try 3–4 with `m_raw 1`), `m_accel 0` (1 = desktop acceleration curve via SDL's relative-mode system scale), all `CLASSIC_LOCKED` and single-player only, `g_quicksave_key F5`, `g_quickload_key F9`, `g_checkpoints 1`. Fixed-timestep proposal (D-012): `phys_fixedstep 0|1`, `phys_hz 120`, render interpolation between the last two physics states.
 
 ---
 
