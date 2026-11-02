@@ -262,6 +262,7 @@ void ResetSmallViews() {
 }
 
 #include "vclip.h"
+#include "tartarus/small_views.h" // TARTARUS: F-060
 
 // How long the static is visbile
 #define STATIC_TIME 0.25f
@@ -481,6 +482,8 @@ void DrawSmallViews() {
       top = y - (h / 2);
       right = x + (w / 2);
       bot = y + (h / 2);
+      // TARTARUS: F-060 small-view size/shape/position from hud_sv_* (no-op in Classic Mode or at defaults)
+      tartarus::SmallViews_Adjust(v, (svp->flags & SVF_BIGGER) != 0, &left, &top, &right, &bot);
 
       // Set window color
       outline_color = (svp->flags & SVF_POPUP) ? GR_RGB(255, 0, 0) : GR_RGB(0, 0, 255);

@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Options menu (F2) "Mouse flight" tab (F-067, first page of F-069). Follows
-// the pattern of the upstream sheets in config.cpp: setup() builds the page,
-// finish() writes the values back, here into the m_* cvars (saved to
-// tartarus.cfg).
+// Options menu (F2) "Tartarus" tab (first page of F-069): mouse flight
+// (F-067, m_* cvars) and the rear-view mirror presets for the left small view
+// (F-060, hud_sv_left_* cvars). One tab because upstream's option list holds
+// eight buttons. Follows the pattern of the upstream sheets in config.cpp:
+// setup() builds the page, finish() writes the values back to the cvars
+// (saved to tartarus.cfg).
 
 #pragma once
 
@@ -30,7 +32,7 @@ class newuiSheet;
 
 namespace tartarus {
 
-class MouseOptionsSheet {
+class TartarusOptionsSheet {
 public:
   void Setup(newuiMenu *menu);
   void Finish();
@@ -44,6 +46,8 @@ private:
   bool *invert_y_ = nullptr;
   bool *indicator_ = nullptr;
   bool *roll_x_ = nullptr;
+  int *mirror_ = nullptr;
+  int mirror_initial_ = 0;
 };
 
 } // namespace tartarus

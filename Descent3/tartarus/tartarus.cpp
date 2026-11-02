@@ -27,6 +27,7 @@
 #include "console.h"
 #include "display.h"
 #include "mouse_flight.h"
+#include "small_views.h"
 #include "cvar.h"
 #include "log.h"
 #include "version.h"
@@ -62,6 +63,7 @@ void Tartarus_Init() {
   Console_Init();
   Cheats_Init();
   MouseFlight_Init();
+  SmallViews_Init();
 }
 
 bool SkipCinematics() {

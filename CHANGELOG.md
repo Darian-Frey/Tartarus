@@ -4,6 +4,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 2)
+- Options (F2): the Mouse tab is now the **Tartarus** tab and adds a rear-view mirror choice for the left small window: Stock, Top left or Top right (wide mirror), plus "Custom" when set from the console (F-060) — 2026-11-02.
+- Small-view windows (rear view, Guide-Bot, missile camera) in the HUD layout: size, shape and position per window with `hud_sv_left_*` / `hud_sv_right_*` and `hud_sv_bigger_scale`; the defaults reproduce the stock layout exactly (F-060). 6 unit tests — 2026-11-01.
 - Command-line `-skipbriefing` (no pre-level briefing or ship selection) and `-skipcinematics` (in-game cinematics such as level intros end as soon as a key could skip them; the ship is placed where the cinematic would leave it). For quicker testing: level 1 is flyable in about 9 s instead of 21 s — 2026-11-01.
 - Menus no longer sit between black bars on widescreen displays: the bars show a blurred, darkened copy of the screen (`r_bar_fill`, `r_bar_fill_brightness`) (F-060) — 2026-11-01.
 - Field of view 60–120° in Tartarus mode (stock 72–90, kept in Classic Mode): Options → Video slider and `r_fov` in the console (F-060) — 2026-11-01.

@@ -53,6 +53,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **cheat_table.cpp / cheats.cpp.** `cheat_table.cpp` (pure C++, unit-tested, AV-004) holds the SPEC §4 password table and `CheatState`: per-pilot-session unlocks, active toggles, time scale, and `Holds()`, which folds god mode into the individual holds. `cheats.cpp` is the engine glue: an overlay menu drawn like the console (`rend_FillRect` + `grtext`, controls suspended while open; not `newui`, so it can sit over the running game), the effects (one-shot ones reuse what `GameCheat.cpp` does), and `Cheats_Frame()`, which holds energy/shields/ammo/afterburner at max, re-applies invulnerability and cloak, and undoes exactly what it applied when a hold ends. Sets upstream `IsCheater` and zeroes the score on unlock and use; refuses when `IsClassic()` (and switches everything off on the way in), in multiplayer (state forgotten, player object untouched) or outside a level. Draws the CHEATS tag itself, so no HUD-item hook is needed. Upstream's typed cheats are untouched.
 
+**small_view_layout.cpp / small_views.cpp.** Small-view windows in the HUD layout (F-060, SPEC §14). `small_view_layout.cpp` (pure, unit-tested against a verbatim copy of upstream's arithmetic) computes a window's rectangle from size, aspect, position and the "bigger" scale, clamped inside the 3D view, and returns upstream's exact rectangle at the defaults. `small_views.cpp` registers the `hud_sv_*` cvars and replaces the rectangle in `DrawSmallViews()`; cockpit monitors are untouched.
+
 **tartarus.cpp.** `Tartarus_Init()` plus the per-frame dispatchers the GameLoop hooks call (`HandleKey`, `Frame`, `TimeScale`, `RenderOverlays`), so a new module never needs a new hook in the loop.
 
 **datadir.cpp / datadir_steam.cpp.** `DataDir_Probe()` runs in `InitIOSystems()` after the user, config and platform base directories are added, and acts only if none of them provides `d3.hog` (so `-additionaldir` always wins). It probes the native, Flatpak and Snap Steam roots and every library in their `libraryfolders.vdf`, keeps directories holding `d3.hog`, de-duplicates by canonical path, and adds the first with `cf_AddBaseDirectory()`, the mechanism `-additionaldir` uses. `DataDir_RequireHog()` stops with an error naming the file and every directory searched when `d3.hog` fails to open. `datadir_steam.cpp` is pure standard C++ and unit-tested (`Descent3/tartarus/tests/`). Runs in Classic Mode too: it is a compatibility fix.
@@ -94,7 +96,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/TelCom.cpp` (`TelComShow`, `TelComHandleAllEvents`), `Descent3/TelComGoals.cpp` | menu-scale virtual mouse space and position reads (`kUiMouseScale`) | TelCom pointer speed (BUG-006) |
 | `Descent3/Controls.cpp::DoMovement` | `MouseFlight_Apply()` after `DoControllerMovement()` | virtual-joystick mouse (F-067) |
 | `Descent3/Controls.cpp` (flare button read) | flare packet zeroed when `MouseFlight_ReservesButton()` | middle button recentres only (F-067) |
-| `Descent3/config.cpp::OptionsMenu` | `tartarus::MouseOptionsSheet` setup/finish beside upstream's sheets | Options → Mouse tab (F-067, F-069) |
+| `Descent3/config.cpp::OptionsMenu` | `tartarus::TartarusOptionsSheet` setup/finish beside upstream's sheets | Options → Tartarus tab: mouse flight and rear-view mirror (F-067, F-060, F-069) |
 | `ddio/lnxmouse.cpp` (`sdlMouseButtonDownFilter`, `sdlMouseButtonUpFilter`) | swap SDL's middle (2) and right (3) button numbers | mouse buttons (BUG-007) |
 | `ddio/sdlcontroller.cpp::mouse_geteval` | `Tartarus_mouse_filter` pointer (defined there, null = upstream) called on each batch of mouse counts | virtual-joystick mouse (F-067) |
 | `Descent3/mmItem.cpp::mmInterface::CopyrightText` | `DrawMenuBuildString()` early return | build string (F-004) |
@@ -104,7 +106,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/WeaponFire.cpp` (weapon-vs-wall impact, where `WF_GRAVITY_FIELD` is handled ~line 3078) | spawn grav well for Tartarus flag | gravity missile |
 | `Descent3/hud.cpp::RenderHUDItems` + `HUD_ITEM_*` | register cloak gauge, orientation items | HUD |
 | `Descent3/gauges.cpp` | cockpit-mode variants if cockpit view is kept | HUD |
-| `Descent3/SmallViews.cpp::DrawSmallViews` (HUD/dormant-cockpit branch) | small-view size, aspect and position from `hud_sv_*` | small views (F-060) |
+| `Descent3/SmallViews.cpp::DrawSmallViews` (HUD/dormant-cockpit branch) | `SmallViews_Adjust()` after upstream computes the rectangle: size, aspect and position from `hud_sv_*`; no-op in Classic Mode | small views (F-060) |
 | `physics/physics.cpp` (autolevel block) | strength/delay/hold/snap | orientation |
 | `Descent3/TelComAutoMap.cpp` | draw/input calls into `automap_ext` | automap |
 | `Descent3/gamesave.cpp` / `Descent3/loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |
