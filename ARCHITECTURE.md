@@ -59,7 +59,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **small_view_layout.cpp / small_views.cpp.** Small-view windows in the HUD layout (F-060, SPEC §14). `small_view_layout.cpp` (pure, unit-tested against a verbatim copy of upstream's arithmetic) computes a window's rectangle from size, aspect, position and the "bigger" scale, clamped inside the 3D view, and returns upstream's exact rectangle at the defaults. `small_views.cpp` registers the `hud_sv_*` cvars and replaces the rectangle in `DrawSmallViews()`; cockpit monitors are untouched.
 
-**deck_core.cpp / deck.cpp.** The options deck (F-069, D-016). `deck_core.cpp` (pure, unit-tested) builds pages from cvar metadata plus a curated table, and computes each row's text and next value. `deck.cpp` draws it as an overlay with `rend_FillRect`, `rend_DrawLine` and scaled `grtext` in a 1280x720 layout, takes F2 in `HandleKey()` (no upstream hook), handles keys and the mouse, and applies changes through the cvars; pausing comes from `UpdatePause()`. Classic Mode and multiplayer never reach it.
+**deck_core.cpp / deck.cpp.** The options deck (F-069, D-016). `deck_core.cpp` (pure, unit-tested) builds pages from cvar metadata plus a curated table, and computes each row's text and next value. `deck.cpp` draws it as an overlay with `rend_FillRect`, `rend_DrawLine` and scaled `grtext` in a 1280x720 layout, takes F2 in `HandleKey()` (no upstream hook for the in-level deck), runs its own loop over the menu scene from the main menu (`Deck_RunFromMenu()`, one hook in `menu.cpp`), handles keys and the mouse, and applies changes through the cvars; pausing comes from `UpdatePause()`. Classic Mode and multiplayer never reach it.
 
 **binds_core.cpp / binds.cpp.** Console key bindings (F-010). `binds_core.cpp` (pure, unit-tested) parses key names with `ctrl+`/`alt+`/`shift+`, keeps the table and writes `binds.cfg`; the engine key codes are passed in by `binds.cpp`, which registers `bind`/`unbind`, runs `binds.cfg` at start-up and, third in `HandleKey()` after the console and cheat menu, runs a bound line in a level.
 
@@ -122,7 +122,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `physics/physics.cpp` (autolevel block) | strength/delay/hold/snap | orientation |
 | `Descent3/TelComAutoMap.cpp` | draw/input calls into `automap_ext` | automap |
 | `Descent3/gamesave.cpp` / `Descent3/loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |
-| `Descent3/menu.cpp` / `Descent3/newui.cpp` options | Tartarus options page | UI |
+| `Descent3/menu.cpp` (`IDV_OPTIONS`) | `Deck_RunFromMenu()` before the stock `OptionsMenu()` | options deck from the main menu (F-069, D-016) |
 | `.github/workflows/build.yml` | Windows, macOS, arm64-cross and Debug matrix entries commented out | Linux x64 Release only (D-014, D-015) |
 | `.github/workflows/cd.yml` | push trigger replaced by `workflow_dispatch` and a weekly `schedule` | builds on demand (D-015) |
 | `Descent3/CMakeLists.txt` | `include(tartarus/tartarus.cmake)` before `add_executable(Descent3)`: sources, version header, tests | build |

@@ -71,6 +71,10 @@ const std::vector<DeckPageDef> &DefaultDeckPages();
 /// Curated cvars that are not registered are skipped.
 std::vector<DeckPage> BuildDeckPages(const CvarRegistry &reg, const std::vector<DeckPageDef> &defs);
 
+/// Gives a row its choices at run time (lists the table cannot know).
+void DeckSetChoices(std::vector<DeckPage> &pages, const std::string &cvar,
+                    std::vector<std::pair<std::string, std::string>> choices);
+
 /// What the row shows for the cvar's current value.
 std::string DeckValueText(const DeckRow &row, const Cvar &cv);
 /// Slider position, 0 to 1.

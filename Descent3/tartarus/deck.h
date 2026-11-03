@@ -17,9 +17,9 @@
  */
 
 // Options deck (F-069, D-016, IMP-006): the Tartarus options screen, opened
-// with F2 in a single-player level in Tartarus mode. Classic Mode and
-// multiplayer keep the stock Options menu. Drawn as an overlay from
-// rectangles, lines and scaled text in a 1280x720 layout, so it is the same
+// with F2 in a single-player level or Options on the main menu, in Tartarus
+// mode. Classic Mode and multiplayer keep the stock Options menu. Drawn as an overlay from
+// rectangles, lines and scaled text in a fixed layout, so it is the same
 // size on screen at any resolution. Pages come from deck_core.
 
 #pragma once
@@ -34,6 +34,11 @@ bool Deck_HandleKey(int key);
 
 /// Draws the deck if open and handles the mouse. Called from RenderOverlays().
 void Deck_Render();
+
+/// Options from the main menu (Tartarus mode): runs the deck in its own loop
+/// over the menu. Returns false if the stock Options menu should open instead
+/// (Classic Mode, or the deck's Stock options entry).
+bool Deck_RunFromMenu();
 
 bool Deck_IsOpen();
 void Deck_Close();

@@ -117,3 +117,13 @@ TEST_F(DeckFixture, TogglesFlip) {
   EXPECT_EQ(DeckValueText(*v, *cv), "ON");
   EXPECT_EQ(DeckNextValue(*v, *cv, 1), "0");
 }
+
+TEST_F(DeckFixture, ChoicesCanComeFromTheRunningGame) {
+  auto pages = BuildDeckPages(reg, Defs());
+  DeckSetChoices(pages, "r_newthing", {{"640X480", "2"}, {"1280X720", "5"}});
+  const DeckRow *row = FindRow(pages, "r_newthing");
+  const Cvar *cv = reg.Find("r_newthing");
+  EXPECT_EQ(row->kind, DeckKind::Choice);
+  EXPECT_EQ(DeckValueText(*row, *cv), "1280X720");
+  EXPECT_EQ(DeckNextValue(*row, *cv, 1), "2");
+}

@@ -33,6 +33,7 @@
 #include "ddio.h"
 #include "deck_core.h"
 #include "descent.h"
+#include "display.h"
 #include "game.h"
 #include "gamefont.h"
 #include "gamesequence.h"
@@ -40,7 +41,9 @@
 #include "grdefs.h"
 #include "grtext.h"
 #include "hlsoundlib.h"
+#include "init.h"
 #include "mouse_compat.h"
+#include "newui.h"
 #include "renderer.h"
 #include "small_views.h"
 
@@ -75,6 +78,8 @@ struct Rect {
 };
 
 bool g_open = false;
+bool g_modal = false;      // running from the main menu, in Deck_RunFromMenu()
+bool g_want_stock = false; // the Stock options entry was chosen there
 std::vector<DeckPage> g_pages;
 int g_page = 0;
 std::vector<int> g_sel, g_scroll;
@@ -146,6 +151,8 @@ const DeckRow *CurrentRow() {
 
 void Open() {
   g_pages = BuildDeckPages(Cvars(), DefaultDeckPages());
+  Display_SyncModeCvars();
+  DeckSetChoices(g_pages, "r_resolution", Display_ModeChoices());
   g_sel.assign(g_pages.size(), 0);
   g_scroll.assign(g_pages.size(), 0);
   g_page = 0;
@@ -153,15 +160,18 @@ void Open() {
   SyncMirrors();
   ddio_MouseBtnDownCount(0); // drop a click left over from flying
   g_open = true;
-  SuspendControls();
+  if (!g_modal)
+    SuspendControls();
 }
 
 void RunAction(DeckAction a) {
   if (a == DeckAction::Done) {
     Deck_Close();
   } else if (a == DeckAction::StockOptions) {
+    g_want_stock = g_modal;
     Deck_Close();
-    Game_interface_mode = GAME_OPTIONS_INTERFACE;
+    if (!g_modal)
+      Game_interface_mode = GAME_OPTIONS_INTERFACE;
   }
 }
 
@@ -281,7 +291,7 @@ void DrawRows(const Theme &t) {
       Text(right - TextWidth(23.0f, shown), y, fg, 23.0f, shown);
     }
   }
-  Text(px, kCy + kCh - 40, t.dim, 16.0f, "UP/DOWN SELECT   LEFT/RIGHT CHANGE   TAB PAGE   ESC DONE");
+  Text(px, kCy + kCh - 40, t.dim, 15.0f, "UP/DOWN SELECT  LEFT/RIGHT CHANGE  TAB PAGE  ESC DONE");
 }
 
 void DrawReadout(const Theme &t) {
@@ -390,12 +400,36 @@ void Deck_Close() {
   if (!g_open)
     return;
   g_open = false;
-  if (!Console_IsOpen())
+  if (!g_modal && !Console_IsOpen())
     ResumeControls();
   if (g_restart_needed) {
     g_restart_needed = false;
     Graphics_RequestRestart();
   }
+}
+
+bool Deck_RunFromMenu() {
+  if (IsClassic())
+    return false;
+  g_modal = true;
+  g_want_stock = false;
+  Open();
+  ui_HideCursor();
+  while (g_open) {
+    Descent->defer();
+    DoUIFrameWithoutInput(); // menu background, music, stock windows behind the deck
+    Deck_Render();
+    rend_Flip();
+    int key;
+    while (g_open && (key = ddio_KeyInKey()) != 0)
+      Deck_HandleKey(key);
+  }
+  ui_ShowCursor();
+  ui_Flush();
+  Display_ApplyPending(); // resolution or fullscreen chosen here
+  g_modal = false;
+  SaveGameSettings(); // stock-owned settings changed here (FOV, VSync, brightness, volumes)
+  return !g_want_stock;
 }
 
 bool Deck_HandleKey(int key) {
@@ -454,9 +488,9 @@ bool Deck_HandleKey(int key) {
 void Deck_Render() {
   if (!g_open)
     return;
-  if (Control_poll_flag)
+  if (!g_modal && Control_poll_flag)
     SuspendControls(); // some game events resume controls behind our back
-  g_s = std::min(Max_window_w / 1280.0f, Max_window_h / 720.0f);
+  g_s = std::min(Max_window_w / 1160.0f, Max_window_h / 680.0f);
   g_ox = (Max_window_w - static_cast<int>(kW * g_s)) / 2;
   g_oy = (Max_window_h - static_cast<int>(kH * g_s)) / 2;
   const Theme &t = kThemes[std::clamp(ui_phosphor->GetInt(), 0, 3)];

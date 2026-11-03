@@ -336,11 +336,11 @@ Ranges: size 0.05–1.0, aspect 0.25–4.0, x and y −1 or 0–1. Placement is 
 
 ## 15. Options deck (F-069, D-016)
 
-**Open:** F2 in a single-player level in Tartarus mode. Classic Mode and multiplayer keep the stock Options menu. The game pauses while it is open (`con_pause`).
+**Open:** F2 in a single-player level, or Options on the main menu, in Tartarus mode. Classic Mode keeps the stock Options menu everywhere; so does multiplayer. The game pauses while it is open (`con_pause`).
 
 **Keys:** Up/Down select, Left/Right change, Enter or Space activate, Tab / Shift+Tab or Page Up/Down change page, Escape or F2 close. **Mouse:** click a page key; click a row to select it, click it again to step (left half down, right half up).
 
-**Pages:** Graphics, Controls, Audio, Gameplay, Tartarus. A curated table in `deck_core.cpp` gives order, labels and choice names; any other saved cvar with a page's prefix (`r_`, `m_`, `s_`, `g_`, `ui_`) appears on that page automatically. Cheat and unsaved cvars do not. Changes apply at once and are saved; rows marked as needing it (`r_renderscale`, `r_msaa`, `r_depthbits`) rebuild the frame when the deck closes.
+**Pages:** Graphics, Controls, Audio, Gameplay, Tartarus. A curated table in `deck_core.cpp` gives order, labels and choice names; any other saved cvar with a page's prefix (`r_`, `m_`, `s_`, `g_`, `ui_`) appears on that page automatically. Cheat and unsaved cvars do not. Changes apply at once and are saved; rows marked as needing it (`r_resolution`, `r_fullscreen`, `r_renderscale`, `r_msaa`, `r_depthbits`) rebuild the frame when the deck closes, so stepping through a list does not change the screen each time. From the main menu, resolution and fullscreen apply on close and the rest with the next level. On the console, these need `r_restart`.
 
 | Cvar | Default | Notes |
 |---|---|---|
@@ -349,6 +349,8 @@ Ranges: size 0.05–1.0, aspect 0.25–4.0, x and y −1 or 0–1. Placement is 
 | `ui_casing` | 0 | 0 gunmetal, 1 putty |
 | `hud_sv_mirror` | 0 | rear-view mirror preset, §14: 0 stock, 1 top left, 2 top right, 3 custom; not saved itself, it writes `hud_sv_left_*` |
 | `s_sfx_volume`, `s_music_volume` | stock | mirror the stock volumes, which the stock settings save |
+| `r_resolution` | stock | index into the display's mode list (the deck lists modes 640 wide and up); saved as `RS_width`/`RS_height` |
+| `r_fullscreen` | stock | fullscreen (borderless) or windowed; saved as `RS_fullscreen` |
 
-Layout is 1280x720 units scaled to the frame, so the deck keeps its size on screen; text is the game's large font scaled to a target height. Scanlines are drawn under the text because `rend_DrawLine` has no alpha.
+Layout is a 1160x680 area scaled to the frame, so the deck keeps its size on screen; text is the game's large font scaled to a target height. Scanlines are drawn under the text because `rend_DrawLine` has no alpha.
 

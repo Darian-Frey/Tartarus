@@ -18,6 +18,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/init.cpp` | `tartarus::kFovAbsMin`, `tartarus::kFovAbsMax` | gated: the load-time clamp is widened, then `Display_Init()` narrows FOV to upstream's 72–90 in Classic Mode |
 | `Descent3/mmItem.cpp` | `tartarus::DrawMenuBuildString` | active (cosmetic): main-menu build string and upstream credit (F-004) |
 | `Descent3/game.cpp` | `tartarus::Display_ScaleRenderSize`, `tartarus::Display_AdjustGameWindow` | active (display, F-068): no-ops at `r_renderscale 1` (default); otherwise the game frame renders at that multiple and full-window views stay full |
+| `Descent3/menu.cpp` | `tartarus::Deck_RunFromMenu` | gated: returns false at once, so the stock Options menu opens (D-016) |
 | `Descent3/config.cpp` | `tartarus::Display_RestoreResolution` | active (compat): BUG-004 |
 | `Descent3/config.cpp` | `tartarus::Display_FovMin`, `tartarus::Display_FovMax`, `tartarus::Display_SetFov` | gated: Video FOV slider is 72–90 as upstream |
 | `Descent3/config.cpp` | `tartarus::TartarusOptionsSheet` | gated: the Tartarus tab only shows text explaining Classic Mode |
@@ -50,7 +51,7 @@ Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinem
 - [ ] Level 1: no virtual-joystick ring; the mouse turns the ship as stock (movement = rotation).
 - [ ] No CHEATS tag; Shift+F12 prints "Cheats are not available in Classic Mode"; `god`, `give all`, `timescale 0.5` refused in the console.
 - [ ] Console (backtick) opens; `version`, `where`, `help` work.
-- [ ] F2 opens the stock Options menu, not the options deck (D-016). Video: FOV slider runs 72–90. Tartarus tab: only the Classic Mode explanation.
+- [ ] F2 and main menu Options open the stock Options menu, not the options deck (D-016). Video: FOV slider runs 72–90. Tartarus tab: only the Classic Mode explanation.
 - [ ] F3 HUD view, Shift+F1: the small view sits in the stock bottom-left square.
 - [ ] Middle mouse button fires a flare; right button fires a secondary (BUG-007).
 - [ ] `classic 0` then `classic 1` in a level: everything above still holds afterwards.

@@ -41,6 +41,8 @@
 #include "display_prefs.h"
 #include "game.h"
 #include "log.h"
+#include "pilot.h"
+#include "renderer.h"
 
 extern float Render_FOV_setting; // config.cpp
 extern float Render_FOV;         // GameLoop.cpp
@@ -53,7 +55,11 @@ namespace {
 bool g_stored_fullscreen = true;
 Cvar *r_fov = nullptr;
 Cvar *r_renderscale = nullptr;
+Cvar *r_resolution = nullptr;
+Cvar *r_fullscreen = nullptr;
 bool g_syncing_fov = false;
+bool g_syncing_mode = false;
+bool g_mode_pending = false;
 
 void SyncFovCvar() {
   if (r_fov == nullptr)
@@ -95,6 +101,18 @@ void Display_Init() {
                                         "faster); applies on r_restart, a resolution change or the next level",
                                         CVAR_ARCHIVE);
 
+  r_resolution = Cvars().RegisterInt("r_resolution", 0, 0, 1023,
+                                     "Screen resolution. On the console it is a number in the display's mode list, "
+                                     "applied by r_restart");
+  r_fullscreen = Cvars().RegisterBool("r_fullscreen", Game_fullscreen,
+                                      "Fullscreen (borderless) or windowed; saved with the video settings");
+  auto mode_changed = [](const Cvar &) {
+    if (!g_syncing_mode)
+      g_mode_pending = true;
+  };
+  r_resolution->AddChangeCallback(mode_changed);
+  r_fullscreen->AddChangeCallback(mode_changed);
+
   // Bars around frames narrower than the window (menus are 640x480): blurred fill (F-060).
   Cvar *fill = Cvars().RegisterInt("r_bar_fill", 1, 0, 2,
                                    "Bars around 4:3 screens: 0 black, 1 blurred copy in menus, 2 blurred copy always",
@@ -122,6 +140,46 @@ int Display_RestoreResolution(const std::vector<std::pair<int, int>> &modes, int
     LOG_INFO << "[tartarus] restored resolution " << w << "x" << h;
   }
   return id;
+}
+
+void Display_SyncModeCvars() {
+  if (g_mode_pending)
+    return; // keep a change that has not been applied yet
+  g_syncing_mode = true;
+  Cvars().Set("r_resolution", std::to_string(Current_video_resolution_id), CvarSource::Code);
+  Cvars().Set("r_fullscreen", Game_fullscreen ? "1" : "0", CvarSource::Code);
+  g_syncing_mode = false;
+}
+
+bool Display_ApplyPending() {
+  if (!g_mode_pending)
+    return false;
+  g_mode_pending = false;
+  const int id = r_resolution->GetInt();
+  const bool full = r_fullscreen->GetBool();
+  const bool valid = id >= 0 && id < static_cast<int>(Video_res_list.size());
+  if ((!valid || id == Current_video_resolution_id) && full == Game_fullscreen)
+    return false;
+  if (valid)
+    Current_video_resolution_id = id;
+  Game_fullscreen = full;
+  SetScreenMode(GetScreenMode(), true);
+  rend_SetPreferredState(&Render_preferred_state, true);
+  int w = Video_res_list[Current_video_resolution_id].width;
+  int h = Video_res_list[Current_video_resolution_id].height;
+  Current_pilot.set_hud_data(nullptr, nullptr, nullptr, &w, &h);
+  LOG_INFO << "[tartarus] display mode " << w << "x" << h << (full ? " fullscreen" : " windowed");
+  return true;
+}
+
+std::vector<std::pair<std::string, std::string>> Display_ModeChoices() {
+  std::vector<std::pair<std::string, std::string>> out;
+  for (size_t i = 0; i < Video_res_list.size(); ++i) {
+    const auto &m = Video_res_list[i];
+    if (m.width >= 640 || static_cast<int>(i) == Current_video_resolution_id)
+      out.emplace_back(std::to_string(m.width) + "X" + std::to_string(m.height), std::to_string(i));
+  }
+  return out;
 }
 
 void Display_ScaleRenderSize(int *width, int *height) {

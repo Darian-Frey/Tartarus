@@ -26,6 +26,7 @@
 
 #include "args.h"
 #include "console.h"
+#include "display.h"
 #include "game.h"
 #include "cvar.h"
 #include "log.h"
@@ -172,6 +173,8 @@ void Graphics_Frame() {
   if (!g_restart_pending)
     return;
   g_restart_pending = false;
+  if (Display_ApplyPending())
+    return; // already rebuilt the frame
   if (GetScreenMode() == SM_GAME) {
     // As the Video tab does after a change: new screen mode, then a forced renderer re-init, so the
     // offscreen frame is rebuilt (MSAA, depth bits) even when its size stays the same.

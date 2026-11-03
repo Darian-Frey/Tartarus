@@ -64,7 +64,9 @@ DeckRow MakeRow(const Cvar &cv, const char *label, double step) {
 const std::vector<DeckPageDef> &DefaultDeckPages() {
   static const std::vector<DeckPageDef> pages = {
       {"GRAPHICS",
-       {{"r_renderscale", "Render scale", 0.25, {}, true},
+       {{"r_resolution", "Resolution", 0, {}, true},
+        {"r_fullscreen", "Fullscreen", 0, {}, true},
+        {"r_renderscale", "Render scale", 0.25, {}, true},
         {"r_fov", "Field of view", 5},
         {"r_vsync", "Vertical sync"},
         {"r_vsync_adaptive", "Adaptive sync"},
@@ -84,7 +86,13 @@ const std::vector<DeckPageDef> &DefaultDeckPages() {
         {"m_vj_indicator", "Show indicator"},
         {"m_vj_roll_x", "Left/right rolls"},
         {"m_raw", "Raw stock mouse"},
-        {"m_sensitivity", "Stock mouse speed", 0.25}},
+        {"m_sensitivity", "Stock mouse speed", 0.25},
+        {"m_accel", "Desktop acceleration"},
+        {"m_vj_curve", "Response curve", 0.1},
+        {"m_vj_deadzone", "Dead zone", 0.01},
+        {"m_vj_radius", "Full-turn travel", 0.02},
+        {"m_vj_recentre_button", "Recentre button", 0,
+         {{"NONE", "0"}, {"LEFT", "1"}, {"RIGHT", "2"}, {"MIDDLE", "3"}, {"BUTTON 4", "4"}, {"BUTTON 5", "5"}}}},
        {"m_"}},
       {"AUDIO", {{"s_sfx_volume", "Sound volume", 0.1}, {"s_music_volume", "Music volume", 0.1}}, {"s_"}},
       {"GAMEPLAY",
@@ -141,6 +149,19 @@ std::vector<DeckPage> BuildDeckPages(const CvarRegistry &reg, const std::vector<
     out.push_back(std::move(page));
   }
   return out;
+}
+
+void DeckSetChoices(std::vector<DeckPage> &pages, const std::string &cvar,
+                    std::vector<std::pair<std::string, std::string>> choices) {
+  for (DeckPage &p : pages) {
+    for (DeckRow &r : p.rows) {
+      if (r.cvar == cvar) {
+        r.kind = DeckKind::Choice;
+        r.choices = std::move(choices);
+        return;
+      }
+    }
+  }
 }
 
 namespace {

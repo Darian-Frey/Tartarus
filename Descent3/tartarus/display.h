@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -57,6 +58,17 @@ void Display_ScaleRenderSize(int *width, int *height);
 /// saved 3D-window size is in frame pixels, so a size at or above the
 /// unscaled resolution (or the frame) means "full window" at any scale.
 void Display_AdjustGameWindow(int *width, int *height);
+
+/// Display mode for the options deck (F-069): r_resolution (index into the
+/// display's mode list) and r_fullscreen mirror the stock settings. Changes
+/// wait here until Display_ApplyPending(), so stepping through the list does
+/// not change the screen each time.
+void Display_SyncModeCvars();
+/// Copies a changed r_resolution / r_fullscreen into the stock settings and
+/// rebuilds the screen, as the Video tab does. Returns true if anything changed.
+bool Display_ApplyPending();
+/// Resolutions offered in the deck: (label, index), small modes left out.
+std::vector<std::pair<std::string, std::string>> Display_ModeChoices();
 
 /// Called by SaveGameSettings() after upstream's writes: stores the resolution
 /// by size and rewrites RS_fullscreen so command-line flags stay session-only.

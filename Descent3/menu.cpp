@@ -661,6 +661,7 @@
 #include "log.h"
 #include "menu.h"
 #include "mmItem.h"
+#include "tartarus/deck.h" // TARTARUS: F-069
 #include "game.h"
 #include "Mission.h"
 #include "multi_ui.h"
@@ -835,7 +836,8 @@ int MainMenu() {
       break;
     case IDV_OPTIONS:
       main_menu.SetMusicRegion(OPTIONS_MUSIC_REGION);
-      OptionsMenu();
+      if (!tartarus::Deck_RunFromMenu()) // TARTARUS: options deck in Tartarus mode (F-069, D-016)
+        OptionsMenu();
       break;
     case IDV_PILOT:
       main_menu.SetMusicRegion(OPTIONS_MUSIC_REGION);

@@ -2,7 +2,7 @@
 # Tartarus: run a scripted test in a silent, throwaway copy of the player's
 # profile. The real profile is only read. Usage:
 #   tools/run_probe.sh <work-dir> <probe.py> [extra game args...]
-# Extra tartarus.cfg lines come from $CFG (newline-separated).
+# Extra tartarus.cfg lines come from $CFG (newline-separated); MENU=1 stays at the main menu.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 work=$1; probe=$(realpath "$2"); shift 2
@@ -17,8 +17,10 @@ sed -i 's/"SND_mastervol"="[0-9.]*"/"SND_mastervol"="0.000000"/; s/"MUS_mastervo
         s/"RS_height"=dword:[0-9A-Fa-f]*/"RS_height"=dword:2D0/' "$p/.Descent3Registry"
 printf 'set classic 0\n' > "$p/tartarus.cfg"
 [ -n "$CFG" ] && printf '%s\n' "$CFG" >> "$p/tartarus.cfg"
+level="-mission d3 -loadlevel 1"
+[ -n "$MENU" ] && level=""  # MENU=1 stays at the main menu
 cd "$work"
 PYTHONPATH="$root/tools" XDG_DATA_HOME="$work/xdg" timeout 200 python3 "$probe" "$work" \
   "$root/builds/linux/build/Release/Descent3" -windowed -logfile -nosound -nomusic -pilot bob \
-  -mission d3 -loadlevel 1 -skipbriefing -skipcinematics "$@" >/dev/null 2>&1 || true
+  $level -skipbriefing -skipcinematics "$@" >/dev/null 2>&1 || true
 tail -1 "$work/drive.log"
