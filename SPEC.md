@@ -34,6 +34,8 @@ Naming: lowercase, `snake_case`, prefixed by area:
 | `m_` | mouse |
 | `g_` | general gameplay |
 | `con_` | console itself |
+| `ui_` | Tartarus menus |
+| `s_` | audio |
 | `phys_` | physics timing (fixed timestep, D-012) |
 
 `tartarus.cfg` format: one `set <name> <value>` per line, `//` comments, written atomically (temp + rename).
@@ -329,3 +331,24 @@ Applies to the HUD (non-cockpit) layout only; cockpit view keeps the cockpit mon
 | `hud_sv_bigger_scale` | 1.25 | multiplier applied when a view has `SVF_BIGGER` (e.g. guided missile), 1.0–2.0; 1.25 reproduces upstream's `w += w / 4` |
 
 Ranges: size 0.05–1.0, aspect 0.25–4.0, x and y −1 or 0–1. Placement is clamped so the whole window stays inside the 3D view; a window larger than the view is capped to it. With every value at its default the layout is pixel-identical to upstream (unit test against upstream's own arithmetic). Setting only `x` (or only `y`) leaves the other axis where upstream puts it. Options (F2) → Tartarus → **Rear-view mirror (F3 view)** sets the left window to a preset: Stock (all defaults), Top left (`size 0.18`, `aspect 2.0`, `x 0.18`, `y 0.15`) or Top right (`x 0.82`, otherwise the same); the mirrors sit below the Score and Guide-Bot text. When the left window's values match no preset, a fourth choice "Custom (console)" is shown and selected, and the menu leaves the values alone unless another choice is picked. Shift+F1 still decides what the left window shows. The right window and `hud_sv_bigger_scale` are console-only until F-069.
+
+---
+
+## 15. Options deck (F-069, D-016)
+
+**Open:** F2 in a single-player level in Tartarus mode. Classic Mode and multiplayer keep the stock Options menu. The game pauses while it is open (`con_pause`).
+
+**Keys:** Up/Down select, Left/Right change, Enter or Space activate, Tab / Shift+Tab or Page Up/Down change page, Escape or F2 close. **Mouse:** click a page key; click a row to select it, click it again to step (left half down, right half up).
+
+**Pages:** Graphics, Controls, Audio, Gameplay, Tartarus. A curated table in `deck_core.cpp` gives order, labels and choice names; any other saved cvar with a page's prefix (`r_`, `m_`, `s_`, `g_`, `ui_`) appears on that page automatically. Cheat and unsaved cvars do not. Changes apply at once and are saved; rows marked as needing it (`r_renderscale`, `r_msaa`, `r_depthbits`) rebuild the frame when the deck closes.
+
+| Cvar | Default | Notes |
+|---|---|---|
+| `ui_scanlines` | 28 | 0–60, scanline strength on the deck screen |
+| `ui_phosphor` | 0 | 0 amber, 1 green, 2 ice, 3 plain (no scanlines) |
+| `ui_casing` | 0 | 0 gunmetal, 1 putty |
+| `hud_sv_mirror` | 0 | rear-view mirror preset, §14: 0 stock, 1 top left, 2 top right, 3 custom; not saved itself, it writes `hud_sv_left_*` |
+| `s_sfx_volume`, `s_music_volume` | stock | mirror the stock volumes, which the stock settings save |
+
+Layout is 1280x720 units scaled to the frame, so the deck keeps its size on screen; text is the game's large font scaled to a target height. Scanlines are drawn under the text because `rend_DrawLine` has no alpha.
+

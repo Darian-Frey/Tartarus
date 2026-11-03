@@ -163,6 +163,11 @@ void Graphics_Init() {
   Tartarus_before_flip = &BeforeFlip;
 }
 
+void Graphics_RequestRestart() {
+  if (GetScreenMode() == SM_GAME)
+    g_restart_pending = true;
+}
+
 void Graphics_Frame() {
   if (!g_restart_pending)
     return;

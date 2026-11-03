@@ -27,6 +27,17 @@ namespace tartarus {
 /// Registers the hud_sv_* cvars. Called from Tartarus_Init().
 void SmallViews_Init();
 
+/// Rear-view mirror presets for the left window (F-060): 0 stock, 1 top left,
+/// 2 top right. SmallViews_CurrentMirror() returns kMirrorCustom when the
+/// hud_sv_left_* values match no preset.
+inline constexpr int kMirrorPresets = 3;
+inline constexpr int kMirrorCustom = kMirrorPresets;
+const char *SmallViews_MirrorLabel(int preset);
+int SmallViews_CurrentMirror();
+void SmallViews_ApplyMirror(int preset);
+/// Refreshes the hud_sv_mirror cvar from the hud_sv_left_* values.
+void SmallViews_SyncMirrorCvar();
+
 /// Called from DrawSmallViews() (HUD layout) after upstream computes a
 /// window's rectangle. Leaves it alone in Classic Mode or when the window's
 /// cvars are at their defaults; otherwise replaces it.

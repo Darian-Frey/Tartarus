@@ -25,6 +25,7 @@
 #include "binds.h"
 #include "cheats.h"
 #include "ddio.h"
+#include "deck.h"
 #include "descent.h"
 #include "game.h"
 #include "gameloop.h"
@@ -82,6 +83,7 @@ void Tartarus_Init() {
   MouseFlight_Init();
   RawMouse_Init();
   SmallViews_Init();
+  Deck_Init();
 }
 
 bool SkipCinematics() {
@@ -98,7 +100,7 @@ namespace {
 
 // Pause while the console or cheat menu is open (IMP-004): single-player, in a level only.
 void UpdatePause() {
-  const bool overlay = Console_IsOpen() || Cheats_MenuIsOpen();
+  const bool overlay = Console_IsOpen() || Cheats_MenuIsOpen() || Deck_IsOpen();
   const bool want = overlay && con_pause != nullptr && con_pause->GetBool() && !(Game_mode & GM_MULTI) &&
                     GetFunctionMode() == GAME_MODE && Game_interface_mode == GAME_INTERFACE;
   if (want && !g_we_paused && !Game_paused) {
@@ -114,7 +116,7 @@ void UpdatePause() {
 } // namespace
 
 bool HandleKey(int key) {
-  const bool used = Console_HandleKey(key) || Cheats_HandleKey(key) || Binds_HandleKey(key);
+  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Binds_HandleKey(key);
   UpdatePause();
   return used;
 }
@@ -143,6 +145,7 @@ float TimeScale() { return Cheats_TimeScale(); }
 void RenderOverlays() {
   MouseFlight_Render();
   Cheats_Render();
+  Deck_Render();
   Console_Render();
 }
 

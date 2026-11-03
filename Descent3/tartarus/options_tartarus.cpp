@@ -28,6 +28,7 @@
 #include "classic.h"
 #include "cvar.h"
 #include "newui.h"
+#include "small_views.h"
 
 namespace tartarus {
 
@@ -69,33 +70,6 @@ bool CvarBool(const char *name, bool fallback) {
 
 void SetCvar(const char *name, const std::string &value) {
   Cvars().Set(name, value, CvarSource::User); // User: validated and saved to tartarus.cfg
-}
-
-// Rear-view mirror presets for the left small view (F-060). Index = radio
-// position. The mirrors sit below the Score / Guide-Bot text.
-struct MirrorPreset {
-  const char *label;
-  float size, aspect, x, y;
-};
-constexpr MirrorPreset kMirrors[] = {
-    {"Stock (bottom left)", 0.25f, 1.0f, -1.0f, -1.0f},
-    {"Top left", 0.18f, 2.0f, 0.18f, 0.15f},
-    {"Top right", 0.18f, 2.0f, 0.82f, 0.15f},
-};
-constexpr int kNumMirrors = 3;
-constexpr int kMirrorCustom = kNumMirrors; // listed only when the cvars match no preset
-
-bool Near(float a, float b) { return std::fabs(a - b) < 0.005f; }
-
-int CurrentMirror() {
-  const float size = CvarFloat("hud_sv_left_size", 0.25f), aspect = CvarFloat("hud_sv_left_aspect", 1.0f);
-  const float x = CvarFloat("hud_sv_left_x", -1.0f), y = CvarFloat("hud_sv_left_y", -1.0f);
-  for (int i = 0; i < kNumMirrors; i++) {
-    const MirrorPreset &p = kMirrors[i];
-    if (Near(size, p.size) && Near(aspect, p.aspect) && Near(x, p.x) && Near(y, p.y))
-      return i;
-  }
-  return kMirrorCustom;
 }
 
 } // namespace
@@ -147,13 +121,13 @@ void TartarusOptionsSheet::Setup(newuiMenu *menu) {
   *roll_x_ = CvarBool("m_vj_roll_x", false);
 
   // Left small window (Shift+F1 picks what it shows, e.g. the rear view), HUD view (F3).
-  mirror_initial_ = CurrentMirror();
+  mirror_initial_ = SmallViews_CurrentMirror();
   sheet_->NewGroup("Rear-view mirror (F3 view)", 0, 162);
-  mirror_ = sheet_->AddFirstLongRadioButton(kMirrors[0].label);
-  for (int i = 1; i < kNumMirrors; i++)
-    sheet_->AddLongRadioButton(kMirrors[i].label);
+  mirror_ = sheet_->AddFirstLongRadioButton(SmallViews_MirrorLabel(0));
+  for (int i = 1; i < kMirrorPresets; i++)
+    sheet_->AddLongRadioButton(SmallViews_MirrorLabel(i));
   if (mirror_initial_ == kMirrorCustom)
-    sheet_->AddLongRadioButton("Custom (console)");
+    sheet_->AddLongRadioButton(SmallViews_MirrorLabel(kMirrorCustom));
   *mirror_ = mirror_initial_;
 }
 
@@ -168,14 +142,8 @@ void TartarusOptionsSheet::Finish() {
   SetCvar("m_vj_roll_x", *roll_x_ ? "1" : "0");
 
   // Only write the mirror when the choice changed, so console values survive.
-  const int m = *mirror_;
-  if (m != mirror_initial_ && m >= 0 && m < kNumMirrors) {
-    const MirrorPreset &p = kMirrors[m];
-    SetCvar("hud_sv_left_size", Fixed2(p.size));
-    SetCvar("hud_sv_left_aspect", Fixed2(p.aspect));
-    SetCvar("hud_sv_left_x", Fixed2(p.x));
-    SetCvar("hud_sv_left_y", Fixed2(p.y));
-  }
+  if (*mirror_ != mirror_initial_)
+    SmallViews_ApplyMirror(*mirror_);
 }
 
 } // namespace tartarus

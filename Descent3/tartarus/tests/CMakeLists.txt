@@ -78,3 +78,13 @@ add_executable(
 )
 target_link_libraries(tartarus_binds_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_binds_tests)
+
+add_executable(
+  tartarus_deck_tests
+  deck_core_tests.cpp
+  ../deck_core.cpp
+  ../cvar.cpp
+  ../cmdparse.cpp
+)
+target_link_libraries(tartarus_deck_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_deck_tests)

@@ -23,6 +23,8 @@ list(APPEND HEADERS
   tartarus/console_core.h
   tartarus/cvar.h
   tartarus/datadir.h
+  tartarus/deck.h
+  tartarus/deck_core.h
   tartarus/datadir_steam.h
   tartarus/display.h
   tartarus/display_prefs.h
@@ -48,6 +50,8 @@ list(APPEND CPPS
   tartarus/console_core.cpp
   tartarus/cvar.cpp
   tartarus/datadir.cpp
+  tartarus/deck.cpp
+  tartarus/deck_core.cpp
   tartarus/datadir_steam.cpp
   tartarus/display.cpp
   tartarus/display_prefs.cpp

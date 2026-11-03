@@ -20,6 +20,7 @@
 
 #include "small_views.h"
 
+#include <cmath>
 #include <string>
 
 #include "classic.h"
@@ -40,6 +41,21 @@ struct WindowCvars {
 
 WindowCvars g_left, g_right;
 Cvar *g_bigger = nullptr;
+Cvar *g_mirror = nullptr;
+bool g_syncing_mirror = false;
+
+// The mirrors sit below the Score / Guide-Bot text.
+struct MirrorPreset {
+  const char *label;
+  float size, aspect, x, y;
+};
+constexpr MirrorPreset kMirrors[kMirrorPresets] = {
+    {"Stock (bottom left)", 0.25f, 1.0f, -1.0f, -1.0f},
+    {"Top left", 0.18f, 2.0f, 0.18f, 0.15f},
+    {"Top right", 0.18f, 2.0f, 0.82f, 0.15f},
+};
+
+bool Near(float a, float b) { return std::fabs(a - b) < 0.005f; }
 
 WindowCvars Register(const std::string &w, const std::string &side) {
   const uint32_t flags = CVAR_ARCHIVE | CVAR_CLASSIC_LOCKED;
@@ -64,6 +80,45 @@ void SmallViews_Init() {
   g_bigger = Cvars().RegisterFloat("hud_sv_bigger_scale", 1.25f, 1.0f, 2.0f,
                                    "Small views: enlargement for 'bigger' views such as the guided missile (upstream 1.25)",
                                    CVAR_ARCHIVE | CVAR_CLASSIC_LOCKED);
+  g_mirror = Cvars().RegisterInt("hud_sv_mirror", 0, 0, kMirrorCustom,
+                                 "Rear-view mirror position for the left small window (F3 view; Shift+F1 picks what "
+                                 "it shows): 0 stock, 1 top left, 2 top right, 3 custom",
+                                 CVAR_CLASSIC_LOCKED);
+  g_mirror->AddChangeCallback([](const Cvar &c) {
+    if (!g_syncing_mirror)
+      SmallViews_ApplyMirror(c.GetInt());
+  });
+}
+
+const char *SmallViews_MirrorLabel(int preset) {
+  return preset >= 0 && preset < kMirrorPresets ? kMirrors[preset].label : "Custom (console)";
+}
+
+int SmallViews_CurrentMirror() {
+  for (int i = 0; i < kMirrorPresets; i++) {
+    const MirrorPreset &p = kMirrors[i];
+    if (Near(g_left.size->GetFloat(), p.size) && Near(g_left.aspect->GetFloat(), p.aspect) &&
+        Near(g_left.x->GetFloat(), p.x) && Near(g_left.y->GetFloat(), p.y))
+      return i;
+  }
+  return kMirrorCustom;
+}
+
+void SmallViews_ApplyMirror(int preset) {
+  if (preset < 0 || preset >= kMirrorPresets)
+    return;
+  const MirrorPreset &p = kMirrors[preset];
+  CvarRegistry &cv = Cvars();
+  cv.Set("hud_sv_left_size", std::to_string(p.size), CvarSource::User);
+  cv.Set("hud_sv_left_aspect", std::to_string(p.aspect), CvarSource::User);
+  cv.Set("hud_sv_left_x", std::to_string(p.x), CvarSource::User);
+  cv.Set("hud_sv_left_y", std::to_string(p.y), CvarSource::User);
+}
+
+void SmallViews_SyncMirrorCvar() {
+  g_syncing_mirror = true;
+  Cvars().Set("hud_sv_mirror", std::to_string(SmallViews_CurrentMirror()), CvarSource::Code);
+  g_syncing_mirror = false;
 }
 
 void SmallViews_Adjust(int slot, bool bigger, int *left, int *top, int *right, int *bot) {

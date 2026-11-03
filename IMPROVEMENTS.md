@@ -23,7 +23,7 @@ Effort vocabulary: trivial | small | medium | large.
 **Trade-offs.** Wrapping at render time makes scroll offsets count wrapped rows; keep offsets in source lines and accept uneven paging.
 
 ### IMP-005: Increase the size of the in-game menus
-**Status:** suggested
+**Status:** suggested (the options deck solves this for options, D-016; other in-game dialogs remain)
 **Found:** 2026-11-02 (owner request)
 **Location:** `Descent3/newui_core.cpp` `newuiMenu::Create()` and the other `newui` windows; `ui/UISystem.cpp` (`UI_aspect_x/y`); related to F-069
 **Effort:** medium
@@ -33,7 +33,7 @@ Effort vocabulary: trivial | small | medium | large.
 **Trade-offs.** The canvas approach is simpler and consistent with the main menu, but the in-game view behind the menu must still render around it. A true scale factor touches every `newui` drawing and hit-test path; the bitmap artwork will look soft when magnified.
 
 ### IMP-006: Recreate the menus with a cassette-futurism look and feel
-**Status:** suggested
+**Status:** suggested (in progress: accepted as D-016; the in-level options deck is built, F-069)
 **Found:** 2026-11-02 (owner request)
 **Location:** new `Descent3/tartarus/` UI module; upstream `newui` screens (`config.cpp` options, `menu.cpp`/`mmItem.cpp` main menu, pilot, save/load); related to F-069, IMP-005
 **Effort:** large
@@ -49,6 +49,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Description.** Upstream's frame limiter and frame timer count whole milliseconds. Caps therefore land on 1000/n fps (`r_maxfps 144` gives a 6 ms frame, about 166 fps), and a frame faster than 1 ms would measure as zero time, which is why `r_maxfps 0` still stops at 1000 fps.
 **Proposal.** Time frames with the microsecond clock (`D3::ChronoTimer` has sub-millisecond resolution) and sleep/spin to a fractional target; keep `Frametime` from ever being zero. Pairs with F-061 (fixed-timestep physics).
 **Trade-offs.** Touches the core loop timing; verify that game speed, physics and demo playback are unchanged at 60 fps.
+
+### IMP-008: Translucent lines for the stick indicator
+**Status:** suggested
+**Found:** 2026-11-03 (F-069 scanlines)
+**Location:** `renderer/HardwareOpenGL.cpp` `rend_DrawLine()`, `Descent3/tartarus/mouse_flight.cpp` `MouseFlight_Render()`
+**Effort:** trivial
+**Description.** `rend_DrawLine()` forces `AT_ALWAYS`, so the alpha set in `MouseFlight_Render()` has no effect: the virtual-joystick ring is opaque.
+**Proposal.** Remove the alpha calls and pick a dimmer colour, or draw the ring with a small alpha-capable helper.
+**Trade-offs.** None of note.
 
 ## Applied
 

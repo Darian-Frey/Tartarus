@@ -270,7 +270,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-01
 **Status:** Accepted
 **Authors:** Shane Hartley (with Claude design discussion 2026-11-01)
-**Related:** F-060, F-062, F-063, F-067, F-068, F-069, D-005, ROADMAP.md, AV-013
+**Related:** F-060, F-062, F-063, F-067, F-068, F-069, D-005, ROADMAP.md, AV-013, D-016
 
 **Context.** In the Phase 0 playthrough the owner could not finish level 1: with the stock mouse model (mouse movement = rotation) sustained turns need repeated sweeps. The owner also wants widescreen, higher-resolution and further graphics options, and a menu able to hold them. These were Phase 4 (modernisation) or not planned at all, behind orientation aids and the new weapons.
 
@@ -330,4 +330,26 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - Clean-machine breakage is found by the weekly run at the latest; run it by hand before tagging a release and after changing dependencies or the build files.
 
 **Reversal conditions.** If breakage that only CI would catch slips through the weekly run, restore the push trigger.
+
+### D-016 Tartarus menus are a new drawn layer, in a cassette-futurism style; Classic Mode keeps the stock menus
+**Decided:** 2026-11-03
+**Recorded:** 2026-11-03
+**Status:** Accepted
+**Authors:** Shane Hartley (with Claude design discussion and a clickable mock-up, 2026-11-03)
+**Related:** F-069, F-060, D-013, IMP-005, IMP-006, AV-001
+
+**Context.** F-069 was specified as built on upstream `newui`. That system is fixed-size 640x480 bitmap artwork with an option list of eight buttons: it cannot give the look the owner wants (IMP-006), its windows shrink at high resolutions (IMP-005), and there is no room for the settings added in Phase 2.
+
+**Options.**
+- **A. Extend `newui`.** Rejected: the limits above remain.
+- **B. A new Tartarus menu layer drawn from rectangles, lines and scaled text, with pages generated from cvar metadata.** Chosen.
+
+**Decision.** Option B. Look: amber phosphor on gunmetal casing, tape-deck page keys with an orange LED on the active page, scanline strength adjustable inside the menu (`ui_scanlines`); other phosphors and casings stay available as themes, including a plain one for readability. Tartarus mode gets the new deck on F2; **Classic Mode keeps the stock menus** ("Classic is classic"), and multiplayer keeps them for now because the deck pauses the game. Stock options stay reachable from the deck until each dialog is replaced.
+
+**Consequences.**
+- Mouse, keyboard and later gamepad handling are ours to build.
+- Text uses the game's fonts until an open-licensed font passes review (D-003).
+- Screens move over one at a time: in-level options first, then options from the main menu (which needs its own loop), then the main menu, pilot and save/load screens.
+
+**Reversal conditions.** If the layer's upkeep outweighs its value, the stock menus are still there; `Deck_HandleKey()` is the only place that takes F2.
 

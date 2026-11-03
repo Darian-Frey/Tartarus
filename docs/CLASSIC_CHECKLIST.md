@@ -50,7 +50,7 @@ Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinem
 - [ ] Level 1: no virtual-joystick ring; the mouse turns the ship as stock (movement = rotation).
 - [ ] No CHEATS tag; Shift+F12 prints "Cheats are not available in Classic Mode"; `god`, `give all`, `timescale 0.5` refused in the console.
 - [ ] Console (backtick) opens; `version`, `where`, `help` work.
-- [ ] F2 → Video: FOV slider runs 72–90. F2 → Tartarus: only the Classic Mode explanation.
+- [ ] F2 opens the stock Options menu, not the options deck (D-016). Video: FOV slider runs 72–90. Tartarus tab: only the Classic Mode explanation.
 - [ ] F3 HUD view, Shift+F1: the small view sits in the stock bottom-left square.
 - [ ] Middle mouse button fires a flare; right button fires a secondary (BUG-007).
 - [ ] `classic 0` then `classic 1` in a level: everything above still holds afterwards.

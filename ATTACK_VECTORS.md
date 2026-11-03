@@ -10,7 +10,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 **Severity:** Critical
 **Description.** A new HUD element, keybind, weapon, AI change or physics tweak is active while `classic 1`. Breaks the core promise and, for multiplayer, wire compatibility with stock clients.
 **Detection.** `tools/classic_audit.py` (CI, "Tartarus audits" workflow) fails unless every upstream file with a `TARTARUS:` marker and every `tartarus::` function or `Tartarus_*` global used there is listed, with its Classic behaviour, in the hook table of `docs/CLASSIC_CHECKLIST.md`; so a new hook cannot land without a Classic review. The same file holds the manual checklist (run before each release and after hook changes) and a log of runs. (A grep for missing `IsClassic()` early-outs was the original idea; rejected as too easy to fool.)
-**Related decisions.** D-004, D-015 (the audit runs in CI on every push).
+**Related decisions.** D-004, D-015 (the audit runs in CI on every push), D-016 (Classic Mode keeps the stock menus).
 **History.** Identified at design time 2026-11-01. Audit and checklist added and first run passed 2026-11-02 (two small fixes on the way, see the checklist's run log).
 
 ### AV-002 Upstream merge drift

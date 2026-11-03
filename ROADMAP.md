@@ -54,7 +54,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] Widescreen: correct 3D aspect without `-aspect` (already true upstream, checked 2026-11-01), `r_fov` 60–120 (done 2026-11-01), HUD anchoring (fine at 16:9/16:10), menus centred with blurred bar fill (done 2026-11-01; full-width menu canvas moved to F-069) (F-060)
 - [x] Small-view windows (rear view, Guide-Bot, missile cam): per-window size, aspect and position cvars, defaults identical to upstream (F-060, SPEC.md §14) — 2026-11-01
 - [ ] Graphics options investigated against `renderer/HardwareOpenGL.cpp`, then implemented as `r_` cvars (F-068) (VSync, frame cap, trilinear/anisotropic, 24-bit depth, MSAA, render scale, gamma and `r_restart` done 2026-11-02; the Graphics page comes with F-069)
-- [ ] Options menu with Graphics / Controls / Audio / Gameplay / Tartarus pages generated from cvar metadata (F-069)
+- [ ] Options menu with Graphics / Controls / Audio / Gameplay / Tartarus pages generated from cvar metadata (F-069) (in-level options deck done 2026-11-03, D-016; options from the main menu and gamepad next)
 - [ ] SDL3 gamepad with gyro if time allows (F-063)
 - [ ] Tuning session for SPEC.md §13 defaults; values written back to SPEC
 **Acceptance:** The owner completes level 1 with the mouse in virtual-joystick mode (which also closes Phase 0); no HUD element or menu is clipped or stretched at 16:9, 16:10 and 21:9; every new option is reachable from the Options menu and the console; Classic Mode still flies exactly like upstream.

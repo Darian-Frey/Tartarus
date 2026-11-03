@@ -29,6 +29,9 @@ namespace tartarus {
 /// Called from Tartarus_Init().
 void Graphics_Init();
 
+/// Asks for the game frame to be rebuilt at the next frame (as r_restart).
+void Graphics_RequestRestart();
+
 /// Per-frame (from tartarus::Frame()): carries out a pending r_restart.
 void Graphics_Frame();
 
