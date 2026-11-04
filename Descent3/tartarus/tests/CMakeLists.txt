@@ -55,6 +55,14 @@ target_link_libraries(tartarus_mouse_flight_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_mouse_flight_tests)
 
 add_executable(
+  tartarus_orient_tests
+  orient_core_tests.cpp
+  ../orient_core.cpp
+)
+target_link_libraries(tartarus_orient_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_orient_tests)
+
+add_executable(
   tartarus_small_view_tests
   small_view_layout_tests.cpp
   ../small_view_layout.cpp

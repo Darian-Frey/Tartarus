@@ -61,10 +61,10 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 3 — Orientation and automap
 **Goal:** Pilots can always tell which way is up, and the map re-anchors them.
-**Status:** Not started
+**Status:** In progress (started 2026-11-04, alongside the end of Phase 2)
 **Features delivered:** F-040, F-041, F-042, F-043, F-050, F-051
 **Deliverables:**
-- [ ] `orient_hud.cpp`: up-tick, attitude ball, gizmo; HUD item registration in `hud.cpp`
+- [ ] `orient_hud.cpp`: up-tick (done 2026-11-04), attitude ball, gizmo; drawn from `RenderOverlays()`, so no HUD item registration in `hud.cpp`
 - [ ] Auto-level extensions in `physics/physics.cpp` behind cvars; hold and snap keys in controls config
 - [ ] Automap: visited/seen colouring, filters, 2D mode, orientation glyph in `TelComAutoMap.cpp`
 - [ ] Playtest notes on defaults (D-010) recorded in DECISIONS if defaults change

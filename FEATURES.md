@@ -202,7 +202,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - A short tick on the reticle ring always points toward world-up projected onto the view plane; fades out when the ship is within `hud_uptick_fade_deg` of upright
 - `hud_uptick` cvar; on by default in Tartarus mode
-**Status:** Not started (Phase 3)
+**Status:** Done (Phase 3), 2026-11-04, accepted by the owner: a wedge at the ring radius, `orient_core.cpp` (9 unit tests) and `orient_hud.cpp`, on the deck's Gameplay page. No upstream hook: it draws from `RenderOverlays()`. The per-frame cost has not been measured yet (AV-009).
 **Notes:** D-010. See also AV-009.
 
 ### F-041 Attitude indicator

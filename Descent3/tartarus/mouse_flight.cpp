@@ -244,6 +244,8 @@ void MouseFlight_Apply(game_controls *controls) {
   controls->bank_thrust += bank;
 }
 
+bool Flight_ContextActive() { return StickContext(); }
+
 void MouseFlight_Render() {
   if (!MouseFlight_Active() || !m_vj_indicator->GetBool() || !StickContext())
     return;

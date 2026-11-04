@@ -3,6 +3,8 @@
 Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-, AV-, BUG- and IMP- IDs for traceability. Upstream Descent 3 changes arrive via merges and are summarised, not re-listed; see upstream's CHANGELOG for detail.
 
 ## [Unreleased]
+### Added (Phase 3)
+- Reticle up-tick (F-040, D-010): a wedge at the reticle that points to world up, fading out when you are upright. On by default in Tartarus mode; `hud_uptick`, `hud_uptick_len`, `hud_uptick_fade_deg`, also on the deck's Gameplay page. 9 unit tests — 2026-11-04.
 ### Added (Phase 2)
 - Deck menus (F-069, D-016): the main menu, Save, Load (with the save's screenshot, BUG-013), New Game, level warp, Pilots, keyboard, joystick and mouse bindings, weapon order, the Keys help, the Guide-Bot menu and all message and text-entry boxes now use the deck in Tartarus mode, at the chosen resolution with the art scaled to fill the screen, with keyboard, pointer and stock hotkeys. A Key bindings row on the Controls page opens the bindings from F2 and the main menu. Classic Mode and multiplayer keep the stock screens — 2026-11-04.
 - Options deck (F-069, D-016): a new cassette-futurism options screen on F2 and from the main menu in Tartarus mode, amber on gunmetal, with Graphics, Controls, Audio, Gameplay and Tartarus pages generated from the settings, resolution and fullscreen, in-menu scanline, phosphor and casing settings, keyboard and mouse input, and a route to the stock options. Classic Mode keeps the stock menu. 7 unit tests. Test tools `tools/gamedrive.py` and `tools/run_probe.sh` — 2026-11-03.

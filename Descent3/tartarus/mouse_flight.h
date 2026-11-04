@@ -57,4 +57,7 @@ void MouseFlight_Recentre();
 /// Offset indicator and dead-zone ring. Called from RenderOverlays().
 void MouseFlight_Render();
 
+/// True while the player is flying: in a level, alive, no menu or console open.
+bool Flight_ContextActive();
+
 } // namespace tartarus

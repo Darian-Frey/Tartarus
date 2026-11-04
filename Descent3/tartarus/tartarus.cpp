@@ -35,6 +35,7 @@
 #include "display.h"
 #include "graphics.h"
 #include "mouse_flight.h"
+#include "orient_hud.h"
 #include "raw_mouse.h"
 #include "small_views.h"
 #include "cvar.h"
@@ -83,6 +84,7 @@ void Tartarus_Init() {
   MouseFlight_Init();
   RawMouse_Init();
   SmallViews_Init();
+  OrientHud_Init();
   Deck_Init();
 }
 
@@ -143,6 +145,7 @@ void Frame() {
 float TimeScale() { return Cheats_TimeScale(); }
 
 void RenderOverlays() {
+  OrientHud_Render();
   MouseFlight_Render();
   Cheats_Render();
   Deck_Render();

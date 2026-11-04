@@ -242,15 +242,15 @@ Keys held: `conv_to_shields`, `conv_to_energy`. Per frame: `amt = conv_rate * Fr
 
 ## 9. Orientation aids (F-040 – F-043)
 
-**Up vector:** indoors, world +Y; outdoors, the negative of the terrain gravity direction used by the physics module. Blend over 0.5 s when crossing a room/terrain boundary.
+**Up vector:** world +Y everywhere: the physics module applies gravity along that axis indoors and outdoors, so there is nothing to blend.
 
-**Reticle up-tick** (`hud_uptick 1`): project `up` into the view plane; angle θ = atan2(up_view.x, up_view.y). Draw a tick of length `hud_uptick_len 14` px on the reticle ring at θ. Alpha = `smoothstep(hud_uptick_fade_deg, hud_uptick_fade_deg*3, |roll|)` with `hud_uptick_fade_deg 8`, so it disappears when upright.
+**Reticle up-tick** (`hud_uptick 1`): project `up` into the view plane; angle θ = atan2(up_view.x, up_view.y). Draw a solid wedge pointing outward at θ, with a dark outline so it reads against bright walls, at the radius of the stick ring whether or not the ring is shown (12% of the view height), `hud_uptick_len 14` long in pixels of a 480-line view. Alpha = `smoothstep(hud_uptick_fade_deg, hud_uptick_fade_deg*3, |roll|)` with `hud_uptick_fade_deg 8`, so it disappears when upright; it also fades when world up points along the view, where it has no direction. Hidden when the player is not the viewer (for example a guided missile view) and whenever not flying. Options deck → Gameplay.
 
 **Attitude ball** (`hud_attitude 0`): pitch = asin(forward · up), roll = atan2(right · up, up_ship · up). 64 px ball, horizon line, 10° pitch ladder, position from the HUD layout file.
 
 **Gizmo** (`hud_gizmo 0`): 48 px, three axes in ship space, world +Y in white and brighter.
 
-**Auto-level extensions** (`al_`): `al_strength 0.0–1.0` (default 0.3 in Tartarus, maps onto the upstream slider range), `al_delay 0.4` s after last roll input before leveling resumes, `al_hold` key: roll rate toward upright `al_hold_rate 180` °/s, `al_snap` key: roll to nearest of the four uprights over `al_snap_time 0.35` s with ease-out; any roll input cancels.
+**Auto-level extensions** (`al_`): `al_strength 0.0–1.0` (default 0: stock auto-level, which is itself on at the upstream level 2 by default; raising it is opt-in, D-010, and 0 must behave exactly as upstream, AV-011), `al_delay 0.4` s after last roll input before leveling resumes, `al_hold` key: roll rate toward upright `al_hold_rate 180` °/s, `al_snap` key: roll to nearest of the four uprights over `al_snap_time 0.35` s with ease-out; any roll input cancels.
 
 Budget: all orientation HUD items together ≤ 0.2 ms/frame at 1080p (ROADMAP Phase 3 acceptance).
 
