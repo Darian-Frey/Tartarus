@@ -104,6 +104,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/gamesequence.cpp` (level start), `Descent3/gamecinematics.cpp::Cinematic_Frame` | `SkipBriefing()`, `SkipCinematics()` (command-line `-skipbriefing`, `-skipcinematics`) | test runs |
 | `renderer/HardwareOpenGL.cpp` (F-068 block, `rend_Flip`, FBO creation and teardown, `opengl_MakeFilterTypeCurrent`, `rend_GetPixel`, `rend_Screenshot`), `renderer/dyna_gl.h` (`glRenderbufferStorageMultisample`) | `Tartarus_before_flip` callback and `Tartarus_*` settings: swap interval, trilinear, anisotropy, depth bits, MSAA with a resolve target | graphics options (F-068), BUG-010 |
 | `Descent3/game.cpp::SetScreenMode` (SM_GAME) | `Display_ScaleRenderSize()` on the frame size, `Display_AdjustGameWindow()` before `InitGameScreen()` | render scale (F-068) |
+| `renderer/ShaderProgram.h::AddVertexData`, `renderer/HardwareOpenGL.cpp` (`addVertexData`) | vertices written with `glBufferSubData`; only the used vertices are sent | garbage walls after explosions (BUG-012) |
 | `Descent3/config.cpp::ConfigureDisplayResolutions` | `Display_RestoreResolution()` replaces the index-based restore | display settings (BUG-004) |
 | `Descent3/TelCom.cpp` (`TelComShow`, `TelComHandleAllEvents`), `Descent3/TelComGoals.cpp` | menu-scale virtual mouse space and position reads (`kUiMouseScale`) | TelCom pointer speed (BUG-006) |
 | `Descent3/Controls.cpp::DoMovement` | `MouseFlight_Apply()` after `DoControllerMovement()` | virtual-joystick mouse (F-067) |

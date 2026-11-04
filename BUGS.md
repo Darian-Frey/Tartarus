@@ -14,9 +14,23 @@ Severity vocabulary: low | medium | high.
 
 ## Open
 
-_None._
+### BUG-011: Alt+F2 (save game) does not reach the game on Cinnamon
+**Status:** open
+**Severity:** medium
+**Found:** 2026-11-03 (owner report: Alt+F2 does not save)
+**Location:** desktop shortcut, not game code; stock handler in `Descent3/GameLoop.cpp` `ProcessNormalKey()` (`KEY_ALTED + KEY_F2`)
+**Description.** Linux Mint's Cinnamon binds Alt+F2 to its Run dialog (`org.cinnamon.desktop.keybindings.wm panel-run-dialog`), so the desktop takes the key before the game sees it. Other desktops bind it too. The game's handler looks correct, and the options deck only takes unmodified F2. Not yet confirmed by observing the Run dialog. F9 (quick save) is not affected.
+**Fix.** Pending the owner's choice: save and load entries in the options deck, a console command for `bind`, or changing the desktop shortcut.
 
 ## Fixed
+
+### BUG-012: (upstream) Garbage colours on walls after big explosions on NVIDIA
+**Status:** fixed
+**Severity:** high
+**Found:** 2026-11-03 (owner report with screenshots, NVIDIA T1200 via PRIME offload; not seen on the Intel GPU)
+**Location:** `renderer/ShaderProgram.h` `OrphaningVertexBuffer::AddVertexData()`, `renderer/HardwareOpenGL.cpp` `Renderer::addVertexData()`
+**Description.** After enemy explosions, walls in the main view turn to pure red, green, yellow, magenta or blue with speckle and ring patterns, or go black, with stray thin polygons, while the rear-view window stays clean. It clears as the particles fade and returns with the next explosion. Cause: every `PosColorUVVertex` polygon (sprites, particles) pushed all `MAX_POINTS_IN_POLY` (100) slots into the 65,536-vertex stream, so it wrapped after about 650 polygons, and vertices were written through `GL_MAP_UNSYNCHRONIZED_BIT`. Wrapping during an explosion could overwrite vertices the GPU had not drawn yet: the walls drawn early in the frame, not the small views drawn late. NVIDIA under PRIME runs further behind the CPU than Intel. A first theory (NaN from `pow()` in the fragment shader) was tested with a colour clamp and disproved by the owner, and the clamp was removed. Not reproduced by script: missiles on a bare wall do not trigger it.
+**Fix.** Only the vertices used are sent, and they are written with `glBufferSubData`. The owner confirmed on the NVIDIA card: walls stay clean through explosions and the frame rate feels the same. Fixed 2026-11-04. Candidate upstream PR.
 
 ### BUG-010: (upstream) The VSync option is never applied
 **Status:** fixed

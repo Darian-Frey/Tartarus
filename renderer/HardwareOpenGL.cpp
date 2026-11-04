@@ -124,9 +124,11 @@ struct Renderer {
                                      typename std::iterator_traits<VertexIter>::value_type, PosColorUVVertex>>>
   size_t addVertexData(VertexIter begin, VertexIter end, PosColorUVVertex_tag = {}) {
     std::array<PosColorUV2Vertex, MAX_POINTS_IN_POLY> converted;
-    std::transform(begin, end, converted.begin(),
-                   [](auto const &vtx) { return PosColorUV2Vertex{vtx.pos, vtx.color, vtx.uv, {}}; });
-    return shader_.addVertexData(converted.cbegin(), converted.cend());
+    auto converted_end = std::transform(begin, end, converted.begin(), [](auto const &vtx) {
+      return PosColorUV2Vertex{vtx.pos, vtx.color, vtx.uv, {}};
+    });
+    // TARTARUS: BUG-012 send only the vertices used, not all MAX_POINTS_IN_POLY slots
+    return shader_.addVertexData(converted.begin(), converted_end);
   }
 
   void setFogEnabled(bool enabled) { shader_.setUniform1i("u_fog_enable", enabled); }

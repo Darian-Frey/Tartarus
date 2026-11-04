@@ -36,6 +36,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `ddio/lnxmouse.cpp` | (inline: SDL middle/right swap) | active (compat): BUG-007, right button = secondary fire as on Windows |
 | `renderer/HardwareOpenGL.cpp`, `renderer/dyna_gl.h` (`glFramebufferTexture2D`, `glRenderbufferStorageMultisample`) | `Tartarus_bar_fill_mode`, `Tartarus_bar_fill_brightness` | active (display): blurred bars around 4:3 menus (F-060); `r_bar_fill 0` restores black bars |
 | `renderer/HardwareOpenGL.cpp` | `Tartarus_before_flip`, `Tartarus_swap_interval`, `Tartarus_trilinear`, `Tartarus_anisotropy`, `Tartarus_filter_dirty`, `Tartarus_depth_bits`, `Tartarus_msaa` (and internal `Tartarus_applied_swap`, `Tartarus_max_aniso`, `Tartarus_fbo_samples`, `Tartarus_resolve_fbo`, `Tartarus_resolve_rbo`, `Tartarus_frame_src`) | active (display, F-068): VSync follows the stock checkbox (fixes BUG-010); frame cap (`r_maxfps`, 60 as upstream); trilinear, anisotropic and 24-bit depth defaults are visual only, each settable back to stock (`r_trilinear 0`, `r_anisotropy 1`, `r_depthbits 16`); MSAA off by default (`r_msaa`) |
+| `renderer/ShaderProgram.h` | (inline: vertex stream written with `glBufferSubData`) | active (compat): BUG-012, no visual change except removing the corruption |
 | `.github/workflows/build.yml` | (matrix entries commented out) | tooling: D-014, D-015 |
 | `.github/workflows/cd.yml` | (push trigger replaced by manual and weekly runs) | tooling: D-015 |
 

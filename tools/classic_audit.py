@@ -30,7 +30,7 @@ import pathlib
 import re
 import sys
 
-SOURCE_SUFFIXES = {".cpp", ".h", ".txt", ".yml", ".cmake"}
+SOURCE_SUFFIXES = {".cpp", ".h", ".txt", ".yml", ".cmake", ".glsl"}
 SKIP_DIRS = {"builds", ".git", "third_party", "editor", "legacy"}
 MARKER = re.compile(r"TARTARUS:")
 SYMBOL = re.compile(r"\btartarus::([A-Za-z_][A-Za-z0-9_]*)|(?<!::)\b(Tartarus_[A-Za-z0-9_]+)")

@@ -59,6 +59,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Proposal.** Remove the alpha calls and pick a dimmer colour, or draw the ring with a small alpha-capable helper.
 **Trade-offs.** None of note.
 
+### IMP-009: Quieter start-up and level logs
+**Status:** suggested
+**Found:** 2026-11-03 (owner asked about errors in the terminal)
+**Location:** `Descent3/OsirisLoadandBind.cpp` `Osiris_BindScriptsToObject()`; `Descent3/init.cpp` `LoadGameSettings()`
+**Effort:** trivial
+**Description.** Two harmless upstream messages make a normal run look broken. (1) Every object type with no default script logs `ERROR ... OSIRIS: Unable to load module () to bind to object (...)`, hundreds per level; the empty `()` means there is no script to load, and objects with one load correctly. (2) `Game settings contain a display resolution index that is out of bounds` appears because the saved index is checked against the short fallback list before the display's modes are known; since BUG-004 the resolution is restored by size, so the index no longer matters.
+**Proposal.** Skip the message when the module name is empty, and skip the index check (or lower it to debug), each as a marked hook.
+**Trade-offs.** Two more small edits in upstream files.
+
 ## Applied
 
 ### IMP-004: Pause the game while the cheat menu (or console) is open

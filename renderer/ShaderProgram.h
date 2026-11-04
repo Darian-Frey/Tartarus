@@ -128,9 +128,9 @@ struct OrphaningVertexBuffer : VertexBuffer<V> {
     }
 
     auto start = nextVertex_;
-    V* mapped = reinterpret_cast<V*>(dglMapBufferRange(GL_ARRAY_BUFFER, start * sizeof(V), dist * sizeof(V), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT));
-    std::copy(begin, end, mapped);
-    dglUnmapBuffer(GL_ARRAY_BUFFER);
+    // TARTARUS: BUG-012 upstream mapped this with GL_MAP_UNSYNCHRONIZED_BIT, which could overwrite vertices
+    // the GPU had not drawn yet (garbage walls after explosions on NVIDIA). glBufferSubData keeps the order.
+    dglBufferSubData(GL_ARRAY_BUFFER, start * sizeof(V), dist * sizeof(V), &*begin);
 
     nextVertex_ += dist;
     return start;
