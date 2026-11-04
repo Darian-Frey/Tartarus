@@ -129,6 +129,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/game.cpp::SetScreenMode` | `Display_MenuSize()` after the fixed menu size | native menu frame while a deck screen runs (D-016) |
 | `Descent3/newui.cpp` | `Deck_MessageBox()` first in `DoMessageBox()`, `Deck_EditBox()` first in `DoEditDialog()` | deck message and text-entry boxes (F-069, D-016) |
 | `Descent3/ctlconfig.cpp::CtlConfig` | `ControlsDeck_Run()` after `LoadControlConfig()` | deck bindings and weapon order (F-069, D-016) |
+| `Descent3/gamesequence.cpp::RunGameMenu` | `Deck_RunPendingControls()` before `OptionsMenu()` | Key bindings row of the in-level deck (F-069, D-016) |
 | `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |
 | `Descent3/buddymenu.cpp::BuddyDisplay` | `BuddyDeck_Pick()` after the menu data arrives | deck Guide-Bot menu (F-069, D-016) |
 | `Descent3/pilot.cpp::PilotSelect` | `PilotDeck_Run()` | deck Pilots screen (F-069, D-016) |

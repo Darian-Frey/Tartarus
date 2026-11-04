@@ -1086,6 +1086,7 @@
 #include "bsp.h"
 #include "args.h"
 #include "tartarus/tartarus.h" // TARTARUS: -skipbriefing
+#include "tartarus/deck.h" // TARTARUS: D-016
 
 //	Variables
 tGameState Game_state = GAMESTATE_IDLE;      // current game state.
@@ -1991,7 +1992,8 @@ void RunGameMenu() {
     case GAME_OPTIONS_INTERFACE: {
       extern void OptionsMenu();
       ui_ShowCursor();
-      OptionsMenu();
+      if (!tartarus::Deck_RunPendingControls()) // TARTARUS: D-016 Key bindings row of the options deck
+        OptionsMenu();
       ui_HideCursor();
     } break;
     case GAME_HELP_INTERFACE: {

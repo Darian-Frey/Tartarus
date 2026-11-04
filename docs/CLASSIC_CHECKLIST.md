@@ -24,6 +24,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/gamesave.cpp` | `tartarus::SaveDeck_Run`, `tartarus::SaveDeck_PickLoad`, `tartarus::SaveDeck_SlotPath`, `tartarus::kSaveDeckStock` | gated: both report Classic Mode at once, so the stock Save and Load dialogs run (D-016) |
 | `Descent3/newui.cpp` | `tartarus::Deck_MessageBox`, `tartarus::Deck_EditBox`, `tartarus::kDeckStock` | gated: report stock in Classic Mode and multiplayer (D-016) |
 | `Descent3/ctlconfig.cpp` | `tartarus::ControlsDeck_Run` | gated: false in Classic Mode and multiplayer, stock controls screen (D-016) |
+| `Descent3/gamesequence.cpp` | `tartarus::Deck_RunPendingControls` | gated: false unless the deck asked, and the deck never opens in Classic Mode, so `OptionsMenu()` runs (D-016) |
 | `Descent3/help.cpp` | `tartarus::HelpDeck_Run` | gated: false in Classic Mode, stock Keys screen (D-016) |
 | `Descent3/buddymenu.cpp` | `tartarus::BuddyDeck_Pick`, `tartarus::kDeckStock` | gated: stock Guide-Bot menu in Classic Mode and multiplayer (D-016) |
 | `Descent3/pilot.cpp` | `tartarus::PilotDeck_Run` | gated: false in Classic Mode, stock Pilots screen (D-016) |
@@ -65,11 +66,11 @@ Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinem
 - [ ] F2 and main menu Options open the stock Options menu, not the options deck (D-016). Video: FOV slider runs 72–90. Tartarus tab: only the Classic Mode explanation.
 - [ ] F3 HUD view, Shift+F1: the small view sits in the stock bottom-left square.
 - [ ] Middle mouse button fires a flare; right button fires a secondary (BUG-007).
-- [ ] `classic 0` then `classic 1` in a level: everything above still holds afterwards.
+- [ ] Round trip, in a separate launch **without** `-classic` (that flag makes `classic 0` do nothing): `classic 1`, `classic 0`, `classic 1` in a level; afterwards no ring, stock mouse, F2 opens the stock Options menu, cheats refused.
 
 ## Runs
 
 | Date | Build | Result |
 |---|---|---|
-| 2026-11-04 | `8680cede` + deck menus | Partial (scripted, `-classic`, deck hooks only): Keys, Guide-Bot, Save, Abort, main menu, Pilots and Quit are all the stock screens at 640x480. Not covered: New Game, Load, key bindings, and the rest of the manual run. |
+| 2026-11-04 | `65dd4ab1` + Key bindings row | Pass (scripted): no ring, stock mouse turned the ship (heading 359.7 to 26.3), no CHEATS tag, Shift+F12 and `god`, `give all`, `timescale 0.5` refused, console works, stock Options with FOV 72 and the Classic text on the Tartarus tab, stock small view, middle button flare and right button secondary (count 7 to 6), and stock main menu, New Game, Pilots, Save, Load, Keys, Guide-Bot, Quit, Abort and key bindings. Round trip tested from Tartarus mode. Not observed: the small view after Shift+F1 in the HUD view (the shot was in the cockpit view). The 2026-11-02 round trip may have run under `-classic` and so proved nothing; it is superseded by this one. |
 | 2026-11-02 | `648ace30` + F-062 | Pass (scripted, `-classic`): no stick ring, stock mouse turned the ship, no CHEATS tag, Shift+F12 refused, console works, FOV 72, Tartarus tab shows only the Classic text, stock small view, `classic 0`/`1` round trip clean. Fixed on the way: cheat commands in Classic said "unlock it first" instead of the Classic refusal; the tab's Classic text overflowed. Not covered by the script: middle/right buttons (checked by hand for BUG-007 the same day). |

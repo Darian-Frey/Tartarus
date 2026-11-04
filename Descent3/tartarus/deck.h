@@ -95,6 +95,10 @@ void Deck_DrawChunks(const int *bm_array, int chunks_w, int chunks_h, int src_w,
 /// Draws the main menu art scaled to cover the frame. False in Classic Mode.
 bool Deck_DrawMenuArt(int *bm_array, int chunks_w, int chunks_h);
 
+/// Called from the game's menu loop before the stock Options menu: true if the
+/// deck's Key bindings row asked for the controls screens and they have run.
+bool Deck_RunPendingControls();
+
 bool Deck_IsOpen();
 void Deck_Close();
 

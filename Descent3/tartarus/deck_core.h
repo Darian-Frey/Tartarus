@@ -32,7 +32,7 @@
 namespace tartarus {
 
 enum class DeckKind { Toggle, Slider, Choice, Action };
-enum class DeckAction { None, StockOptions, Done };
+enum class DeckAction { None, StockOptions, KeyBindings, Done };
 
 struct DeckRow {
   std::string label;

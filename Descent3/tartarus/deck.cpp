@@ -28,6 +28,7 @@
 #include "classic.h"
 #include "console.h"
 #include "controls.h"
+#include "ctlconfig.h"
 #include "cvar.h"
 #include "d3music.h"
 #include "ddio.h"
@@ -83,6 +84,7 @@ struct Rect {
 };
 
 bool g_open = false;
+bool g_want_controls = false; // key bindings asked for in a level
 bool g_modal = false;      // running from the main menu, in Deck_RunFromMenu()
 bool g_want_stock = false; // the Stock options entry was chosen there
 std::vector<DeckPage> g_pages;
@@ -172,6 +174,16 @@ void Open() {
 void RunAction(DeckAction a) {
   if (a == DeckAction::Done) {
     Deck_Close();
+  } else if (a == DeckAction::KeyBindings) {
+    if (g_modal) {
+      CtlConfig(CTLCONFIG_KEYBOARD);
+    } else {
+      // A whole screen cannot run inside the key handler: go through the
+      // game's menu loop, as Stock options does.
+      g_want_controls = true;
+      Deck_Close();
+      Game_interface_mode = GAME_OPTIONS_INTERFACE;
+    }
   } else if (a == DeckAction::StockOptions) {
     g_want_stock = g_modal;
     Deck_Close();
@@ -322,7 +334,9 @@ void DrawReadout(const Theme &t) {
   // Word-wrap the setting's own description.
   std::string line, word;
   const std::string text = row->kind == DeckKind::Action
-                               ? (row->action == DeckAction::StockOptions ? "Opens the stock Options menu." : "Close this screen.")
+                               ? (row->action == DeckAction::StockOptions  ? "Opens the stock Options menu."
+                                  : row->action == DeckAction::KeyBindings ? "Keyboard, joystick and mouse bindings, and weapon order."
+                                                                           : "Close this screen.")
                                : row->help + (row->needs_restart ? " Applies when this screen closes." : "");
   for (size_t i = 0; i <= text.size(); ++i) {
     if (i == text.size() || text[i] == ' ') {
@@ -433,6 +447,14 @@ void Deck_Close() {
     g_restart_needed = false;
     Graphics_RequestRestart();
   }
+}
+
+bool Deck_RunPendingControls() {
+  if (!g_want_controls)
+    return false;
+  g_want_controls = false;
+  CtlConfig(CTLCONFIG_KEYBOARD);
+  return true;
 }
 
 bool Deck_RunFromMenu() {
@@ -569,12 +591,19 @@ void DrawList(const DeckListSpec &spec, int sel, int *scroll, std::vector<std::p
 namespace {
 
 void DrawBackground(const DeckListSpec &spec) {
-  if (spec.background != nullptr)
+  if (spec.background != nullptr) {
     spec.background();
-  else if (GetUICallback() == MenuScene)
+  } else if (GetUICallback() == MenuScene) {
     MainBackground(); // not the stock frame: it would draw the stock menu items
-  else
+  } else {
+    // In a level the menu frame has no art, and some callbacks draw nothing.
+    if (GetScreenMode() == SM_MENU) {
+      StartFrame(0, 0, Max_window_w, Max_window_h, false);
+      rend_FillRect(GR_BLACK, 0, 0, Max_window_w, Max_window_h);
+      EndFrame();
+    }
     DoUIFrameWithoutInput();
+  }
 }
 
 } // namespace
