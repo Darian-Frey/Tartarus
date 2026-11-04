@@ -1,7 +1,7 @@
 > **Status:** Active
 > **Provenance:** Shane Hartley (project owner, design); Claude (initial documentation scaffolding, 2026-11-01)
-> **Last reviewed:** 2026-11-01
-> **Why this status:** Idea-to-scaffold stage. Design documents written; no fork commit yet. Next step is Phase 0 of ROADMAP.md (fork, build, baseline).
+> **Last reviewed:** 2026-11-04
+> **Why this status:** In development. Upstream is merged and the game plays from a Steam install; Phases 0 and 1 of ROADMAP.md are closed apart from listed deferrals, and Phase 2 (controls and display) is under way.
 
 # Tartarus — a tactical Descent 3 for Linux
 
@@ -10,6 +10,14 @@
 Tartarus is a Linux-first fork of the open-source Descent 3 engine ([DescentDevelopers/Descent3](https://github.com/DescentDevelopers/Descent3), GPL-3.0). It keeps the original game intact behind a **Classic Mode** switch and layers on a set of *tactical* additions that exploit Descent's six-degrees-of-freedom tunnels rather than simply adding bigger guns: a player-triggered cloak, a gravity missile that drags enemies round corners, orientation aids for pilots who lose track of "up", an overhauled automap, a proper developer console, and a password-gated cheat menu. It is for people who own Descent 3 (Steam or otherwise) and want it to run natively and well on Linux, and for anyone who wants a modern, scriptable sandbox on top of the 1999 engine.
 
 Tartarus is an engine fork only. It does **not** include any Descent 3 game data; you need your own copy of the game.
+
+## The deck
+
+Tartarus replaces the stock menus with a cassette-futurism "deck": amber phosphor on a gunmetal casing, drawn at your screen's resolution. Classic Mode keeps the original menus.
+
+![The main menu on the deck](docs/images/deck-main.png)
+
+![The Graphics page of the options deck](docs/images/deck-options.png)
 
 ## Credits and licence
 
