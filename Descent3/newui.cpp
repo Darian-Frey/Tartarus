@@ -302,6 +302,7 @@
 #include <cstring>
 
 #include "log.h"
+#include "tartarus/deck_screens.h" // TARTARUS: D-016
 #include "newui.h"
 #include "game.h"
 #include "renderer.h"
@@ -630,6 +631,11 @@ void DoWaitPopup(bool enable, const char *message) {
 
 //	puts up a message box with a title and message.
 int DoMessageBox(const char *title, const char *msg, int type, ddgr_color title_color, ddgr_color text_color) {
+  // TARTARUS: D-016 deck message box in Tartarus mode
+  const int deck_result = tartarus::Deck_MessageBox(title, msg, type);
+  if (deck_result != tartarus::kDeckStock)
+    return deck_result;
+
   newuiMessageBox mbox;
   newuiSheet *sheet;
 
@@ -723,6 +729,11 @@ int DoMessageBoxAdvanced(const char *title, const char *msg, const char *btn0_ti
 }
 
 bool DoEditDialog(const char *title, char *buffer, int buflen, bool showcancel) {
+  // TARTARUS: D-016 deck text entry in Tartarus mode
+  const int deck_result = tartarus::Deck_EditBox(title, buffer, buflen, showcancel);
+  if (deck_result != tartarus::kDeckStock)
+    return deck_result != 0;
+
   newuiMessageBox mbox;
   newuiSheet *sheet;
 

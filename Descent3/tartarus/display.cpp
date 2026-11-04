@@ -39,7 +39,10 @@
 #include "classic.h"
 #include "cvar.h"
 #include "display_prefs.h"
+#include "ddio.h"
 #include "game.h"
+#include "mouse_compat.h"
+#include "newui_core.h"
 #include "log.h"
 #include "pilot.h"
 #include "renderer.h"
@@ -50,6 +53,8 @@ extern int Tartarus_bar_fill_mode;          // renderer/HardwareOpenGL.cpp (TART
 extern float Tartarus_bar_fill_brightness;  // renderer/HardwareOpenGL.cpp (TARTARUS hook)
 
 namespace tartarus {
+
+static bool g_native_menu = false; // D-016: see Display_MenuSize()
 
 namespace {
 bool g_stored_fullscreen = true;
@@ -181,6 +186,29 @@ std::vector<std::pair<std::string, std::string>> Display_ModeChoices() {
   }
   return out;
 }
+
+void Display_MenuSize(int *width, int *height) {
+  if (!g_native_menu || IsClassic() || Current_video_resolution_id < 0 ||
+      Current_video_resolution_id >= static_cast<int>(Video_res_list.size()))
+    return;
+  *width = Video_res_list[Current_video_resolution_id].width;
+  *height = Video_res_list[Current_video_resolution_id].height;
+}
+
+void Display_NativeMenu(bool on) {
+  if (on == g_native_menu || IsClassic() || GetScreenMode() != SM_MENU)
+    return;
+  void (*callback)() = GetUICallback(); // SetScreenMode() resets it
+  g_native_menu = on;
+  SetScreenMode(SM_MENU, true);
+  SetUICallback(callback);
+  // Same pointer speed as the stock 640x480 frame, whatever the resolution:
+  // the mouse space stays 480 units tall and takes the frame's shape.
+  if (on)
+    ddio_MouseSetVCoords(480 * kUiMouseScale * Max_window_w / Max_window_h, 480 * kUiMouseScale);
+}
+
+bool Display_NativeMenuActive() { return g_native_menu; }
 
 void Display_ScaleRenderSize(int *width, int *height) {
   const float s = r_renderscale != nullptr ? r_renderscale->GetFloat() : 1.0f;

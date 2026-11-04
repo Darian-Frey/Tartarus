@@ -23,7 +23,7 @@ Effort vocabulary: trivial | small | medium | large.
 **Trade-offs.** Wrapping at render time makes scroll offsets count wrapped rows; keep offsets in source lines and accept uneven paging.
 
 ### IMP-005: Increase the size of the in-game menus
-**Status:** suggested (the options deck solves this for options, D-016; other in-game dialogs remain)
+**Status:** suggested (the deck solves this for options, Save, Load, Keys, the Guide-Bot menu and message boxes, D-016; multiplayer dialogs remain)
 **Found:** 2026-11-02 (owner request)
 **Location:** `Descent3/newui_core.cpp` `newuiMenu::Create()` and the other `newui` windows; `ui/UISystem.cpp` (`UI_aspect_x/y`); related to F-069
 **Effort:** medium

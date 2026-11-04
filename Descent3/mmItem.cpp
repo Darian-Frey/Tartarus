@@ -123,6 +123,7 @@
 #include "mem.h"
 #include "pserror.h"
 #include "tartarus/version.h" // TARTARUS: F-004
+#include "tartarus/deck.h" // TARTARUS: D-016
 
 // externed from newui.cpp
 extern int UI_frame_result;
@@ -472,7 +473,10 @@ void MenuScene() {
   if (MM_object) {
     StartFrame();
 
-    if (static_menu_background) {
+    // TARTARUS: D-016 art scaled to fill the frame in Tartarus mode
+    if (static_menu_background && tartarus::Deck_DrawMenuArt(MM_object->m_art.bm_array, MM_object->m_art.bmps_w,
+                                                             MM_object->m_art.bmps_h)) {
+    } else if (static_menu_background) {
       DrawLargeBitmap(&MM_object->m_art, 0, 0, 1.0f);
     } else {
 #ifdef MOVIE_MENU

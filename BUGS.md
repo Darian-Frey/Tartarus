@@ -20,9 +20,17 @@ Severity vocabulary: low | medium | high.
 **Found:** 2026-11-03 (owner report: Alt+F2 does not save)
 **Location:** desktop shortcut, not game code; stock handler in `Descent3/GameLoop.cpp` `ProcessNormalKey()` (`KEY_ALTED + KEY_F2`)
 **Description.** Linux Mint's Cinnamon binds Alt+F2 to its Run dialog (`org.cinnamon.desktop.keybindings.wm panel-run-dialog`), so the desktop takes the key before the game sees it. Other desktops bind it too. The game's handler looks correct, and the options deck only takes unmodified F2. Not yet confirmed by observing the Run dialog. F9 (quick save) is not affected.
-**Fix.** Pending the owner's choice: save and load entries in the options deck, a console command for `bind`, or changing the desktop shortcut.
+**Fix.** Pending the owner's choice: save and load entries in the options deck, a console command for `bind`, or changing the desktop shortcut. F9 opens the deck Save screen on the first save of a session (F-069).
 
 ## Fixed
+
+### BUG-013: No screenshot on the deck Load screen
+**Status:** fixed
+**Severity:** low
+**Found:** 2026-11-04 (scripted run of the new Load screen; also seen by the owner)
+**Location:** `Descent3/tartarus/deck_save.cpp` `Preview()`; cause in `renderer/HardwareOpenGL.cpp` `rend_Screenshot()`
+**Description.** The deck's readout panel stayed empty on the Load screen. The screenshot was in the save and loaded correctly (160x120, two chunks) and the draw ran, but nothing appeared. `rend_Screenshot()` writes pixels with `GR_RGB16()`, which leaves `OPAQUE_FLAG` clear, and the renderer draws such pixels fully transparent whatever the alpha type. A first theory, that the draw should ignore texture alpha, was tested and made no difference. The stock Load dialog draws the same bitmaps and probably has the same problem; not checked.
+**Fix.** `Preview()` sets `OPAQUE_FLAG` on the thumbnail after loading it, leaving upstream's code alone. Verified in a scripted run. Fixed 2026-11-04. If the stock dialog is affected too, candidate upstream PR.
 
 ### BUG-012: (upstream) Garbage colours on walls after big explosions on NVIDIA
 **Status:** fixed

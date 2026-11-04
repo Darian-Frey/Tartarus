@@ -24,6 +24,7 @@
 #include "gamefont.h"
 #include "grdefs.h"
 #include "grtext.h"
+#include "display.h"
 #include "tartarus_version.h"
 
 namespace tartarus {
@@ -33,6 +34,9 @@ const char *BuildString() { return "Tartarus " TARTARUS_VERSION " " TARTARUS_GIT
 const char *UpstreamString() { return "based on Descent 3 Open Source " TARTARUS_UPSTREAM_HASH; }
 
 bool DrawMenuBuildString() {
+  if (Display_NativeMenuActive())
+    return true; // the deck prints these on its casing
+
   // Same font, colour and baseline as the upstream version line; right-aligned
   // because our text is longer than the fixed 164 px upstream allows.
   constexpr int kRightMargin = 8;

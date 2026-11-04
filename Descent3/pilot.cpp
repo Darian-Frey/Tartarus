@@ -596,6 +596,7 @@
 #include "mem.h"
 #include "newui.h"
 #include "pilot.h"
+#include "tartarus/deck_screens.h" // TARTARUS: D-016
 #include "polymodel.h"
 #include "pserror.h"
 #include "pstring.h"
@@ -902,6 +903,10 @@ void selectcb(newuiMenu *menu, int16_t id, void *data) {
 }
 
 void PilotSelect() {
+  // TARTARUS: D-016 deck Pilots screen in Tartarus mode
+  if (tartarus::PilotDeck_Run())
+    return;
+
   newuiMenu menu;
   pilot_select_menu select{};
   pilot_edit_menu edit{};

@@ -945,6 +945,7 @@ void SetScreenMode(int sm, bool force_res_change) {
     } else {
       scr_width = FIXED_SCREEN_WIDTH;
       scr_height = FIXED_SCREEN_HEIGHT;
+      tartarus::Display_MenuSize(&scr_width, &scr_height); // TARTARUS: D-016 full-resolution menus in Tartarus mode
       scr_bitdepth = 32;
     }
 

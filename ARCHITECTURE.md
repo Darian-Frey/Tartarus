@@ -59,7 +59,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **small_view_layout.cpp / small_views.cpp.** Small-view windows in the HUD layout (F-060, SPEC §14). `small_view_layout.cpp` (pure, unit-tested against a verbatim copy of upstream's arithmetic) computes a window's rectangle from size, aspect, position and the "bigger" scale, clamped inside the 3D view, and returns upstream's exact rectangle at the defaults. `small_views.cpp` registers the `hud_sv_*` cvars and replaces the rectangle in `DrawSmallViews()`; cockpit monitors are untouched.
 
-**deck_core.cpp / deck.cpp.** The options deck (F-069, D-016). `deck_core.cpp` (pure, unit-tested) builds pages from cvar metadata plus a curated table, and computes each row's text and next value. `deck.cpp` draws it as an overlay with `rend_FillRect`, `rend_DrawLine` and scaled `grtext` in a 1280x720 layout, takes F2 in `HandleKey()` (no upstream hook for the in-level deck), runs its own loop over the menu scene from the main menu (`Deck_RunFromMenu()`, one hook in `menu.cpp`), handles keys and the mouse, and applies changes through the cvars; pausing comes from `UpdatePause()`. Classic Mode and multiplayer never reach it.
+**deck_core.cpp / deck.cpp.** The options deck (F-069, D-016). `deck_core.cpp` (pure, unit-tested) builds pages from cvar metadata plus a curated table, and computes each row's text and next value. `deck.cpp` draws it as an overlay with `rend_FillRect`, `rend_DrawLine` and scaled `grtext` in a 1280x720 layout, takes F2 in `HandleKey()` (no upstream hook for the in-level deck), runs its own loop over the menu scene from the main menu (`Deck_RunFromMenu()`, one hook in `menu.cpp`), handles keys and the mouse, and applies changes through the cvars; pausing comes from `UpdatePause()`. Classic Mode and multiplayer never reach it. `Deck_RunList()` is the reusable list screen for the other menus, with `Deck_Confirm()`, `Deck_Message()` and `Deck_RunText()`; `MainDeck_Run()` is the main menu, `deck_save.cpp` the Save and Load screens, `deck_controls.cpp` the bindings and weapon order, and `deck_screens.cpp` the rest; each stock screen asks there first and runs itself on `kDeckStock`. While one runs, `Display_NativeMenu()` switches the menu frame to the chosen resolution (about 35 ms) and back, because stock screens draw at fixed 640x480 coordinates.
 
 **binds_core.cpp / binds.cpp.** Console key bindings (F-010). `binds_core.cpp` (pure, unit-tested) parses key names with `ctrl+`/`alt+`/`shift+`, keeps the table and writes `binds.cfg`; the engine key codes are passed in by `binds.cpp`, which registers `bind`/`unbind`, runs `binds.cfg` at start-up and, third in `HandleKey()` after the console and cheat menu, runs a bound line in a level.
 
@@ -124,6 +124,16 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/TelComAutoMap.cpp` | draw/input calls into `automap_ext` | automap |
 | `Descent3/gamesave.cpp` / `Descent3/loadstate.cpp` | mode stamp + Tartarus sidecar chunk | saves |
 | `Descent3/menu.cpp` (`IDV_OPTIONS`) | `Deck_RunFromMenu()` before the stock `OptionsMenu()` | options deck from the main menu (F-069, D-016) |
+| `Descent3/menu.cpp` (main menu loop) | `MainDeck_Run()` before `main_menu.DoUI()`, rows mapped to the `IDV_` ids | deck main menu (F-069, D-016) |
+| `Descent3/mmItem.cpp::MenuScene` | `Deck_DrawMenuArt()` before `DrawLargeBitmap()` | menu art scaled to fill the frame (D-016) |
+| `Descent3/game.cpp::SetScreenMode` | `Display_MenuSize()` after the fixed menu size | native menu frame while a deck screen runs (D-016) |
+| `Descent3/newui.cpp` | `Deck_MessageBox()` first in `DoMessageBox()`, `Deck_EditBox()` first in `DoEditDialog()` | deck message and text-entry boxes (F-069, D-016) |
+| `Descent3/ctlconfig.cpp::CtlConfig` | `ControlsDeck_Run()` after `LoadControlConfig()` | deck bindings and weapon order (F-069, D-016) |
+| `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |
+| `Descent3/buddymenu.cpp::BuddyDisplay` | `BuddyDeck_Pick()` after the menu data arrives | deck Guide-Bot menu (F-069, D-016) |
+| `Descent3/pilot.cpp::PilotSelect` | `PilotDeck_Run()` | deck Pilots screen (F-069, D-016) |
+| `Descent3/menu.cpp` (`MenuNewGame`, `DisplayLevelWarpDlg`) | `MissionDeck_Pick()`, `LevelDeck_Pick()` before each stock UI loop | deck New Game and level warp (F-069, D-016) |
+| `Descent3/gamesave.cpp` | `SaveDeck_Run()` in `SaveGameDialog()`, `SaveDeck_PickLoad()` and `SaveDeck_SlotPath()` in `LoadGameDialog()` | deck Save and Load screens (F-069, D-016) |
 | `.github/workflows/build.yml` | Windows, macOS, arm64-cross and Debug matrix entries commented out | Linux x64 Release only (D-014, D-015) |
 | `.github/workflows/cd.yml` | push trigger replaced by `workflow_dispatch` and a weekly `schedule` | builds on demand (D-015) |
 | `Descent3/CMakeLists.txt` | `include(tartarus/tartarus.cmake)` before `add_executable(Descent3)`: sources, version header, tests | build |

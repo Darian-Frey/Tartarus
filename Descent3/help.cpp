@@ -141,6 +141,7 @@
 #include "grtext.h"
 #include "gamefont.h"
 #include "stringtable.h"
+#include "tartarus/deck_screens.h" // TARTARUS: D-016
 
 #define TITLETEXT TXT_HELP
 static const int HelpText[] = {TXI_ESC,
@@ -200,6 +201,10 @@ static const int HelpText[] = {TXI_ESC,
 #define WND_HELP_Y (Game_window_h - WND_HELP_H) / 2
 
 void HelpDisplay(void) {
+  // TARTARUS: D-016 deck Keys screen in Tartarus mode
+  if (tartarus::HelpDeck_Run(HelpText))
+    return;
+
   newuiTiledWindow help_wnd;
   newuiSheet *sheet;
   int strs_to_print = 0;

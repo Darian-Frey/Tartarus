@@ -281,6 +281,7 @@
 #include <cstring>
 
 #include "ctlconfig.h"
+#include "tartarus/deck_controls.h" // TARTARUS: D-016
 #include "CtlCfgElem.h"
 #include "ctlconfigtxt.h"
 #include "game.h"
@@ -1410,6 +1411,16 @@ void CtlConfig(int mode) {
   // must switch to standard resolution for large window
   SetScreenMode(SM_MENU);
   LoadControlConfig();
+  // TARTARUS: D-016 deck controls screens in Tartarus mode
+  if (tartarus::ControlsDeck_Run(mode, CtlConfigUICB, ctl_cfg_set_and_verify_changes, Cfg_key_elements, N_KEY_CFG_FN,
+                                 Cfg_joy_elements, N_JOY_CFG_FN)) {
+    SaveControlConfig();
+    PltWriteFile(&Current_pilot);
+    SetScreenMode(old_mode);
+    SetUICallback(old_callback);
+    Skip_render_game_frame = false;
+    return;
+  }
   // open menu
   menu.Create();
   menu.Open();

@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace tartarus {
 
 /// Registers ui_* and the audio mirror cvars. Called from Tartarus_Init().
@@ -39,6 +42,58 @@ void Deck_Render();
 /// over the menu. Returns false if the stock Options menu should open instead
 /// (Classic Mode, or the deck's Stock options entry).
 bool Deck_RunFromMenu();
+
+/// One row of a list screen.
+struct DeckListItem {
+  std::string label;
+  std::string value;  // right-aligned text, may be empty
+  std::string help;   // shown in the readout panel
+  int hotkey = 0;     // engine key code that picks this row at once, or 0
+  bool enabled = true;
+};
+
+struct DeckListSpec {
+  std::string title;
+  std::vector<DeckListItem> items;
+  std::vector<std::string> info;     // lines at the top of the readout panel
+  int selected = 0;
+  bool allow_cancel = true;          // Escape returns -1
+  bool compact = false;              // smaller rows, for long lists
+  bool read_only = false;            // nothing to choose: the footer says so
+  std::string footer;                // replaces the usual key hints
+  int close_key = 0;                 // a second key that cancels, such as the one that opened the screen
+  void (*background)() = nullptr;    // draws behind the deck; default: the menu art or the stock UI frame
+  void (*preview)(int row, int x1, int y1, int x2, int y2) = nullptr; // draws a 4:3 picture in the readout panel
+};
+
+/// The deck's reusable list screen, in its own loop: keyboard and mouse.
+/// Returns the chosen row, or -1 if cancelled.
+int Deck_RunList(const DeckListSpec &spec);
+
+/// Prompts on the deck, in the same style.
+bool Deck_Confirm(const std::string &title, const std::string &text); // Yes/No, No selected
+void Deck_Message(const std::string &title, const std::string &text);
+/// Edits a line of text. False if cancelled; *text is only changed on Enter.
+bool Deck_RunText(const std::string &title, const std::string &prompt, std::string *text, size_t max_len,
+                  bool allow_cancel = true);
+
+/// Shows spec's first row and calls poll each frame with the key pressed (0 for
+/// none), until it returns true.
+void Deck_RunPoll(const DeckListSpec &spec, bool (*poll)(int key, void *data), void *data);
+
+/// False until the deck's settings exist: early start-up errors use the stock box.
+bool Deck_Ready();
+
+/// The main menu. Returns the chosen row of kMainDeckRows, or -1 in Classic
+/// Mode (the caller runs the stock menu).
+inline constexpr int kMainDeckRows = 8;
+int MainDeck_Run();
+
+/// Draws a chunked bitmap of src_w x src_h at x, y.
+void Deck_DrawChunks(const int *bm_array, int chunks_w, int chunks_h, int src_w, int src_h, float x, float y, float scale);
+
+/// Draws the main menu art scaled to cover the frame. False in Classic Mode.
+bool Deck_DrawMenuArt(int *bm_array, int chunks_w, int chunks_h);
 
 bool Deck_IsOpen();
 void Deck_Close();

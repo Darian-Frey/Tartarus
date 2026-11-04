@@ -299,6 +299,7 @@
 #include "d3music.h"
 #include "pserror.h"
 #include "weather.h"
+#include "tartarus/deck_save.h" // TARTARUS: D-016
 
 // function prototypes.
 
@@ -397,6 +398,10 @@ void SaveGameDialog() {
       return;
     }
   }
+
+  // TARTARUS: D-016 deck save screen in Tartarus mode
+  if (tartarus::SaveDeck_Run())
+    return;
 
   // open window
   wnd.Create(TXT_SAVEGAME, 0, 0, GAMESAVE_WND_W, GAMESAVE_WND_H);
@@ -589,6 +594,16 @@ bool LoadGameDialog() {
   if (!std::filesystem::is_directory(savegame_dir)) {
     DoMessageBox(TXT_ERROR, TXT_ERRNOSAVEGAMES, MSGBOX_OK);
     return false;
+  }
+
+  // TARTARUS: D-016 deck load screen in Tartarus mode
+  const int deck_slot = tartarus::SaveDeck_PickLoad();
+  if (deck_slot != tartarus::kSaveDeckStock) {
+    if (deck_slot < 0)
+      return false;
+    LGS_Path = tartarus::SaveDeck_SlotPath(deck_slot);
+    SetGameState(GAMESTATE_LOADGAME);
+    return true;
   }
 
   // open window

@@ -54,6 +54,16 @@ void Display_SetFov(float degrees);
 /// SetScreenMode(SM_GAME) on the size it is about to use. Menus keep 640x480.
 void Display_ScaleRenderSize(int *width, int *height);
 
+/// Called from SetScreenMode() for menus. Stock screens (TelCom, multiplayer,
+/// controls) draw at fixed 640x480 coordinates, so the frame only takes the
+/// chosen resolution while a deck screen has asked for it (D-016).
+void Display_MenuSize(int *width, int *height);
+
+/// Switches the menu frame between native and 640x480. Does nothing in a level
+/// or in Classic Mode; keeps the UI callback across the switch.
+void Display_NativeMenu(bool on);
+bool Display_NativeMenuActive();
+
 /// Called from SetScreenMode(SM_GAME) before InitGameScreen(): the pilot's
 /// saved 3D-window size is in frame pixels, so a size at or above the
 /// unscaled resolution (or the frame) means "full window" at any scale.

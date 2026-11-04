@@ -16,9 +16,18 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/init.cpp` | `tartarus::Tartarus_Init` | active: loads `tartarus.cfg`, sets up cvars, console and modules; no gameplay change by itself |
 | `Descent3/init.cpp` | `tartarus::Display_SaveSettings` | active (compat): BUG-004/005 |
 | `Descent3/init.cpp` | `tartarus::kFovAbsMin`, `tartarus::kFovAbsMax` | gated: the load-time clamp is widened, then `Display_Init()` narrows FOV to upstream's 72–90 in Classic Mode |
+| `Descent3/mmItem.cpp` | `tartarus::Deck_DrawMenuArt` | gated: returns false in Classic Mode, stock art drawing (D-016) |
 | `Descent3/mmItem.cpp` | `tartarus::DrawMenuBuildString` | active (cosmetic): main-menu build string and upstream credit (F-004) |
+| `Descent3/game.cpp` | `tartarus::Display_MenuSize` | gated: menus stay 640x480 in Classic Mode (D-016) |
 | `Descent3/game.cpp` | `tartarus::Display_ScaleRenderSize`, `tartarus::Display_AdjustGameWindow` | active (display, F-068): no-ops at `r_renderscale 1` (default); otherwise the game frame renders at that multiple and full-window views stay full |
-| `Descent3/menu.cpp` | `tartarus::Deck_RunFromMenu` | gated: returns false at once, so the stock Options menu opens (D-016) |
+| `Descent3/menu.cpp` | `tartarus::Deck_RunFromMenu`, `tartarus::MainDeck_Run`, `tartarus::kMainDeckRows` | gated: both return at once in Classic Mode, so the stock menus run (D-016) |
+| `Descent3/gamesave.cpp` | `tartarus::SaveDeck_Run`, `tartarus::SaveDeck_PickLoad`, `tartarus::SaveDeck_SlotPath`, `tartarus::kSaveDeckStock` | gated: both report Classic Mode at once, so the stock Save and Load dialogs run (D-016) |
+| `Descent3/newui.cpp` | `tartarus::Deck_MessageBox`, `tartarus::Deck_EditBox`, `tartarus::kDeckStock` | gated: report stock in Classic Mode and multiplayer (D-016) |
+| `Descent3/ctlconfig.cpp` | `tartarus::ControlsDeck_Run` | gated: false in Classic Mode and multiplayer, stock controls screen (D-016) |
+| `Descent3/help.cpp` | `tartarus::HelpDeck_Run` | gated: false in Classic Mode, stock Keys screen (D-016) |
+| `Descent3/buddymenu.cpp` | `tartarus::BuddyDeck_Pick`, `tartarus::kDeckStock` | gated: stock Guide-Bot menu in Classic Mode and multiplayer (D-016) |
+| `Descent3/pilot.cpp` | `tartarus::PilotDeck_Run` | gated: false in Classic Mode, stock Pilots screen (D-016) |
+| `Descent3/menu.cpp` | `tartarus::MissionDeck_Pick`, `tartarus::LevelDeck_Pick`, `tartarus::kDeckStock` | gated: stock New Game and level warp in Classic Mode (D-016) |
 | `Descent3/config.cpp` | `tartarus::Display_RestoreResolution` | active (compat): BUG-004 |
 | `Descent3/config.cpp` | `tartarus::Display_FovMin`, `tartarus::Display_FovMax`, `tartarus::Display_SetFov` | gated: Video FOV slider is 72–90 as upstream |
 | `Descent3/config.cpp` | `tartarus::TartarusOptionsSheet` | gated: the Tartarus tab only shows text explaining Classic Mode |
@@ -49,6 +58,7 @@ Cvars: every gameplay- or feel-changing cvar is `CLASSIC_LOCKED` and reads as it
 Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinematics`), then:
 
 - [ ] Main menu: build string bottom right; menus otherwise stock (blurred side bars are expected, `r_bar_fill`).
+- [ ] Main menu, New Game, Pilots, key bindings, Save (F9), Load (Alt+F3), Keys (F1), Guide-Bot (F4) and the Quit and Abort boxes are the stock screens, not the deck (D-016).
 - [ ] Level 1: no virtual-joystick ring; the mouse turns the ship as stock (movement = rotation).
 - [ ] No CHEATS tag; Shift+F12 prints "Cheats are not available in Classic Mode"; `god`, `give all`, `timescale 0.5` refused in the console.
 - [ ] Console (backtick) opens; `version`, `where`, `help` work.
@@ -61,4 +71,5 @@ Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinem
 
 | Date | Build | Result |
 |---|---|---|
+| 2026-11-04 | `8680cede` + deck menus | Partial (scripted, `-classic`, deck hooks only): Keys, Guide-Bot, Save, Abort, main menu, Pilots and Quit are all the stock screens at 640x480. Not covered: New Game, Load, key bindings, and the rest of the manual run. |
 | 2026-11-02 | `648ace30` + F-062 | Pass (scripted, `-classic`): no stick ring, stock mouse turned the ship, no CHEATS tag, Shift+F12 refused, console works, FOV 72, Tartarus tab shows only the Classic text, stock small view, `classic 0`/`1` round trip clean. Fixed on the way: cheat commands in Classic said "unlock it first" instead of the Classic refusal; the tab's Classic text overflowed. Not covered by the script: middle/right buttons (checked by hand for BUG-007 the same day). |

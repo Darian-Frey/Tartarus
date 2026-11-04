@@ -661,6 +661,7 @@
 #include "log.h"
 #include "menu.h"
 #include "mmItem.h"
+#include "tartarus/deck_screens.h" // TARTARUS: D-016
 #include "tartarus/deck.h" // TARTARUS: F-069
 #include "game.h"
 #include "Mission.h"
@@ -803,7 +804,11 @@ int MainMenu() {
     res = FirstGame ? IDV_NEWGAME : -1;
     if (res == -1) {
       main_menu.SetMusicRegion(MM_MUSIC_REGION);
-      res = main_menu.DoUI();
+      // TARTARUS: D-016 new main menu in Tartarus mode; rows match the stock items above
+      static const int deck_ids[tartarus::kMainDeckRows] = {IDV_NEWGAME, IDV_LOADGAME,    IDV_PLAYDEMO, IDV_OPTIONS,
+                                                            IDV_PILOT,   IDV_MULTIPLAYER, IDV_CREDITS,  IDV_QUIT};
+      const int deck_row = tartarus::MainDeck_Run();
+      res = deck_row >= 0 ? deck_ids[deck_row] : main_menu.DoUI();
     }
     switch (res) {
     case IDV_NEWGAME:
@@ -1185,6 +1190,16 @@ bool MenuNewGame() {
 #endif
   DoWaitMessage(false);
 redo_newgame_menu:
+  // TARTARUS: D-016 deck mission list in Tartarus mode
+  {
+    const int deck_mission = tartarus::MissionDeck_Pick(msn_lb, filelist);
+    if (deck_mission != tartarus::kDeckStock) {
+      if (deck_mission >= 0)
+        msn_lb->SetCurrentIndex(deck_mission);
+      res = deck_mission >= 0 ? UID_OK : UID_CANCEL;
+      goto newgame_chosen;
+    }
+  }
   // run menu
   menu.Open();
 
@@ -1226,6 +1241,7 @@ redo_newgame_menu:
 #endif
   } while (res != UID_OK && res != UID_CANCEL && res != UID_MSNLB);
   menu.Close();
+newgame_chosen: // TARTARUS: D-016
   // check stuff
   if (res == UID_CANCEL) {
     retval = false;
@@ -1317,6 +1333,13 @@ int DisplayLevelWarpDlg(int max_level) {
 
   if (mn3_handle != -1) {
     cf_CloseLibrary(mn3_handle);
+  }
+
+  // TARTARUS: D-016 deck level list in Tartarus mode
+  const int deck_level = tartarus::LevelDeck_Pick(level_listbox, highest_allowed, Current_mission.name);
+  if (deck_level != tartarus::kDeckStock) {
+    menu.Destroy();
+    return deck_level;
   }
 
   // Main UI loop
