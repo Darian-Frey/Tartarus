@@ -5,7 +5,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 ## [Unreleased]
 ### Added (Phase 3)
 - Automap: whatever the scanner has not reached is now blank, including openings to unknown rooms (F-050); `map_scan_dim` above 0 brings back dim edges — 2026-11-05.
-- Full-resolution automap (F-050): in Tartarus mode the map opens in the deck casing at your resolution instead of inside TelCom, with sharp lines and an amber ship marker in place of the stock model. Classic Mode and multiplayer keep TelCom — 2026-11-05.
+- Full-resolution automap (F-050): in Tartarus mode the map opens in the deck casing at your resolution instead of inside TelCom, with sharp lines and an amber ship marker in place of the stock model. It shows the level name and the chosen marker's message. Classic Mode and multiplayer keep TelCom — 2026-11-05.
 - Automap scans survive save and load (F-050), in a `.amap` file beside each save; the save format is unchanged and older saves simply start unscanned. 6 unit tests — 2026-11-05.
 - Automap scanner look (F-050): a pale green wireframe on black in place of the shaded rooms, dim edges for surfaces seen but not scanned, and new surfaces flash when the map opens. `map_scan_flash`. 2 unit tests — 2026-11-05.
 - Automap laser scanner, prototype (F-050): the ship scans surfaces within 200 units as it flies, and the map shows scanned surfaces brightly and others dimly. `map_scan`, `map_scan_range`, `map_scan_rays`, `map_scan_dim`, `map_scan_status`. Scans are not saved yet. 8 unit tests — 2026-11-05.

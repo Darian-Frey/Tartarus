@@ -82,9 +82,10 @@ bool Deck_RunText(const std::string &title, const std::string &prompt, std::stri
 void Deck_RunPoll(const DeckListSpec &spec, bool (*poll)(int key, void *data), void *data);
 
 /// A picture on the deck's screen, full width: frame draws into the rectangle,
-/// in pixels, and returns true to close; key gets each key pressed.
-void Deck_RunView(const std::string &title, const std::string &footer, bool (*frame)(int left, int top, int right, int bottom),
-                  void (*key)(int key));
+/// in pixels, and returns true to close; key gets each key pressed; lines gives
+/// the text over its top left, asked for every frame.
+void Deck_RunView(std::vector<std::string> (*lines)(), const std::string &footer,
+                  bool (*frame)(int left, int top, int right, int bottom), void (*key)(int key));
 
 /// False until the deck's settings exist: early start-up errors use the stock box.
 bool Deck_Ready();

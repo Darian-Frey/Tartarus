@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <fstream>
 #include <iterator>
 #include <string>
@@ -41,11 +42,14 @@
 #include "renderer.h"
 #include "game.h"
 #include "gamesequence.h"
+#include "marker.h"
+#include "Mission.h"
 #include "mouse_flight.h"
 #include "object.h"
 #include "player.h"
 #include "room.h"
 #include "scan_core.h"
+#include "stringtable.h"
 #include "ddio.h"
 
 extern bool Skip_render_game_frame; // GameLoop.cpp
@@ -165,6 +169,16 @@ bool MapFrame(int left, int top, int right, int bottom) {
   const float frametime = std::clamp(now - g_map_time, 0.001f, 0.1f);
   g_map_time = now;
   return TCAMDeckFrame(left, top, right, bottom, frametime);
+}
+
+std::vector<std::string> MapLines() {
+  std::vector<std::string> lines = {Level_info.name};
+  if (AM_current_marker >= 0) {
+    char label[64];
+    std::snprintf(label, sizeof(label), TXT_VIEW_MARKER, AM_current_marker + 1);
+    lines.push_back(std::string(label) + ": " + MarkerMessages[AM_current_marker]);
+  }
+  return lines;
 }
 
 void MapKey(int key) {
@@ -369,7 +383,7 @@ bool MapScan_RunMap() {
   ResumeControls();
   TCAMDeckBegin();
   g_map_time = timer_GetTime();
-  Deck_RunView("Automap", "F1 TERRAIN   F2 CENTRE ON SHIP   F3 LEVEL THE VIEW   1-8 MARKERS   ESC CLOSE", MapFrame, MapKey);
+  Deck_RunView(MapLines, "F1 TERRAIN   F2 CENTRE ON SHIP   F3 LEVEL THE VIEW   1-8 MARKERS   ESC CLOSE", MapFrame, MapKey);
   TCAMDeckEnd();
   SuspendControls();
   ddio_KeyFlush();

@@ -706,8 +706,8 @@ void Deck_RunPoll(const DeckListSpec &spec, bool (*poll)(int key, void *data), v
   ui_Flush();
 }
 
-void Deck_RunView(const std::string &title, const std::string &footer, bool (*frame)(int left, int top, int right, int bottom),
-                  void (*key)(int key)) {
+void Deck_RunView(std::vector<std::string> (*lines)(), const std::string &footer,
+                  bool (*frame)(int left, int top, int right, int bottom), void (*key)(int key)) {
   NativeFrame native;
   ui_HideCursor();
   ddio_KeyFlush();
@@ -726,7 +726,11 @@ void Deck_RunView(const std::string &title, const std::string &footer, bool (*fr
     EndLayout();
     done = frame(X(kCx), Y(kCy), X(kCx + kCw), Y(kCy + kCh));
     BeginLayout();
-    Text(kCx + 14, kCy + 10, t.ph, 22.0f, title);
+    int y = kCy + 10;
+    for (const std::string &line : lines()) {
+      Text(kCx + 14, y, t.ph, y == kCy + 10 ? 22.0f : 17.0f, line);
+      y += 26;
+    }
     EndLayout();
     rend_Flip();
     int pressed;

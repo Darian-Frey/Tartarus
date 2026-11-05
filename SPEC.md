@@ -289,7 +289,7 @@ Budget: all orientation HUD items together ≤ 0.2 ms/frame at 1080p (ROADMAP Ph
 
 Saving: the scan goes in a `.amap` file beside each save, as upstream's `.cnt`, so the save format does not change (the sidecar this section first proposed was never built). It is a bitset per room, stamped with a fingerprint of the level; a damaged or mismatched file is ignored. Loading always replaces the scan, with nothing if there is no file, as saves from before the scanner have. A save in Classic Mode removes any old `.amap` beside it.
 
-**Map screen:** in Tartarus mode single player the automap key opens the map in the deck casing at the chosen resolution, not in TelCom. F1 terrain, F2 centre on ship, F3 level the view, 1-8 markers, Escape or the automap key closes. It opens `map_scan_camera 60` units behind the ship. The stock ship model is replaced by an amber wedge with a raised spine, a steady size on screen and visible through walls. Opening the map from TelCom's own menu still uses the TelCom screen, with the scanner look.
+**Map screen:** in Tartarus mode single player the automap key opens the map in the deck casing at the chosen resolution, not in TelCom. F1 terrain, F2 centre on ship, F3 level the view, 1-8 markers, Escape or the automap key closes. The level name shows top left, with the chosen marker and its message under it. It opens `map_scan_camera 60` units behind the ship. The stock ship model is replaced by an amber wedge with a raised spine, a steady size on screen and visible through walls. Opening the map from TelCom's own menu still uses the TelCom screen, with the scanner look.
 
 ---
 
