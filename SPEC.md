@@ -256,6 +256,7 @@ Keys held: `conv_to_shields`, `conv_to_energy`. Per frame: `amt = conv_rate * Fr
 - Range tape (`hud_flight_range 1`, D-017): on the right, distance along the nose to the first wall, terrain or closed door; robots do not count. One ray every `hud_flight_range_every 4` frames, up to `hud_flight_range_max 400`, smoothed over `hud_flight_range_smooth 0.1` s; the reading shows `---` when nothing is in range. Ticks every 25, labels every 50, 100 each side.
 - Climb rate (`hud_flight_climb 1`): the smoothed velocity along world up, signed, under the range tape, labelled VS.
 - Tape layout: `hud_flight_tape_x 0.17` from each side of the view, centred at `hud_flight_tape_y 0.4`, half-height `hud_flight_tape_height 0.18`, which keeps them above the monitors.
+- Status words (`hud_flight_status 1`): either side of the heading tape, only while active. Left: SLIDE, BANK (the toggle keys held). Right: HOLD, SNAP (F-043), BOOST (afterburner), LIGHT (headlight).
 
 **Reticle** (F-047, `hud_reticle 1`): 0 stock, 1 gunsight (dot in a broken ring), 2 brackets, 3 chevrons, 4 cross. Size `hud_reticle_size 1`, brightness `hud_reticle_alpha 0.9`. It sits where the stock reticle does, slightly below the centre of the view, so aim is unchanged. Every style shows the same indicators: primaries as bars left and right (and a bar above for a centre gun), missiles as pips underneath, placed by side; bright is ready to fire, dim is a slot that is not. Stock always in Classic Mode.
 

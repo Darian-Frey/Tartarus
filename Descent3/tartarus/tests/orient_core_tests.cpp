@@ -25,6 +25,9 @@
 using tartarus::BallOffset;
 using tartarus::BankCommand;
 using tartarus::ClimbLabel;
+using tartarus::FlightStatus;
+using tartarus::StatusWordsLeft;
+using tartarus::StatusWordsRight;
 using tartarus::LevelRate;
 using tartarus::NearestUpright;
 using tartarus::WrapDegrees;
@@ -471,3 +474,27 @@ TEST(OrientLevel, CommandIsLimitedToFullBank) {
 TEST(OrientLevel, NoRateNoCommand) { EXPECT_EQ(BankCommand(0, 12000, 120), 0.0f); }
 
 TEST(OrientLevel, NoDragIsSafe) { EXPECT_EQ(BankCommand(45, 12000, 0), 0.0f); }
+
+TEST(OrientStatus, NothingActiveShowsNothing) {
+  EXPECT_TRUE(StatusWordsLeft({}).empty());
+  EXPECT_TRUE(StatusWordsRight({}).empty());
+}
+
+TEST(OrientStatus, ModesGoLeftAssistsGoRight) {
+  FlightStatus status;
+  status.slide = true;
+  status.hold = true;
+  ASSERT_EQ(StatusWordsLeft(status).size(), 1u);
+  EXPECT_STREQ(StatusWordsLeft(status)[0], "SLIDE");
+  ASSERT_EQ(StatusWordsRight(status).size(), 1u);
+  EXPECT_STREQ(StatusWordsRight(status)[0], "HOLD");
+}
+
+TEST(OrientStatus, AllWordsInOrder) {
+  FlightStatus status;
+  status.hold = status.snap = status.boost = status.light = true;
+  const auto words = StatusWordsRight(status);
+  ASSERT_EQ(words.size(), 4u);
+  EXPECT_STREQ(words[0], "HOLD");
+  EXPECT_STREQ(words[3], "LIGHT");
+}

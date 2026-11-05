@@ -65,7 +65,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 **Features delivered:** F-040, F-041, F-042, F-043, F-045, F-046, F-047, F-050, F-051
 **Deliverables:**
 - [x] `orient_hud.cpp`: up-tick, attitude ball, gizmo; drawn from `RenderOverlays()`, so no HUD item registration in `hud.cpp` — 2026-11-04
-- [ ] Flight HUD on the canopy (F-046, D-017): master switch, horizon, ladder and flight path marker, roll arc and heading tape (F-045), speed, wall range and climb rate (done 2026-11-05); status words
+- [x] Flight HUD on the canopy (F-046, D-017): master switch, horizon, ladder and flight path marker, roll arc and heading tape (F-045), speed, wall range and climb rate, status words — 2026-11-05
 - [x] Reticle styles (F-047): four drawn styles with loaded-weapon indicators; stock kept for Classic Mode — 2026-11-05
 - [x] Auto-level hold and snap keys and `al_strength` (F-043), as bank input in `level_assist.cpp`; `physics/physics.cpp` needed no change — 2026-11-05
 - [ ] Automap: visited/seen colouring, filters, 2D mode, orientation glyph in `TelComAutoMap.cpp`

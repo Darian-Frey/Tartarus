@@ -33,6 +33,12 @@ void Level_Init();
 /// Takes the snap key from the key queue. True if it was that key.
 bool Level_HandleKey(int key);
 
+/// For the flight HUD's status words, as of the last controls frame.
+bool Level_Holding();
+bool Level_Snapping();
+bool Level_SlideToggled();
+bool Level_BankToggled();
+
 /// Adds the bank input. Called from the controls stage, after all other input.
 void Level_Apply(game_controls *controls);
 

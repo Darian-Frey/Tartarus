@@ -54,6 +54,8 @@ constexpr float kSlowestLoop = 0.2f;
 constexpr float kSnapPatience = 0.15f;
 
 bool g_snapping = false;
+bool g_holding = false;
+bool g_slide = false, g_bank = false;
 float g_snap_target = 0.0f;
 float g_snap_wait = 0.0f; // above 0: a tap waiting for the roll input to end
 float g_since_roll = 0.0f;
@@ -86,11 +88,19 @@ bool Level_HandleKey(int key) {
   return true;
 }
 
+bool Level_Holding() { return g_holding; }
+bool Level_Snapping() { return g_snapping; }
+bool Level_SlideToggled() { return g_slide; }
+bool Level_BankToggled() { return g_bank; }
+
 void Level_Apply(game_controls *controls) {
+  g_holding = false;
   if (IsClassic() || !Flight_ContextActive() || Player_object == nullptr || Viewer_object != Player_object) {
     g_snapping = false;
     return;
   }
+  g_slide = controls->toggle_slide;
+  g_bank = controls->toggle_bank;
   // Any roll input wins, and cancels a snap in progress (AV-011). A tap just
   // after letting go of the bank key still sees it for a moment, so it waits.
   g_since_roll += Frametime;
@@ -124,6 +134,7 @@ void Level_Apply(game_controls *controls) {
     else
       rate = LevelRate(error, std::max(al_snap_time->GetFloat() / 3.0f, kSlowestLoop), 1000.0f); // three time constants: nearly there
   } else if (KeyDown(al_hold_key)) {
+    g_holding = true;
     if (std::fabs(roll) > kDeadZoneDeg)
       rate = LevelRate(roll, kSlowestLoop, al_hold_rate->GetFloat());
   } else if (al_strength->GetFloat() > 0.0f && g_since_roll >= al_delay->GetFloat()) {

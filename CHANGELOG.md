@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 3)
+- Flight HUD, fourth stage (F-046): status words either side of the heading tape, shown only while active: SLIDE, BANK, HOLD, SNAP, BOOST, LIGHT; `hud_flight_status`. 3 unit tests — 2026-11-05.
 - Hold and snap to upright (F-043): hold X to roll upright, tap Z to roll to the nearest upright, and `al_strength` for extra auto-level (off by default). Any roll input cancels. Keys and speeds are settings; speeds and strength are on the deck's Gameplay page. Stock physics is unchanged. 7 unit tests — 2026-11-05.
 - Attitude ball and gizmo opacity (F-041, F-042): `hud_attitude_alpha` and `hud_gizmo_alpha`, also on the deck's Gameplay page — 2026-11-05.
 - Reticle styles (F-047): in Tartarus mode a drawn reticle replaces the old bitmaps, with a choice of Gunsight, Brackets, Chevrons, Cross or Stock on the deck's Gameplay page. Bars and pips show which guns and missile launchers are ready, as before. Classic Mode keeps the stock reticle. 5 unit tests — 2026-11-05.

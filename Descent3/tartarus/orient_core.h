@@ -168,6 +168,17 @@ float LevelRate(float error_deg, float time_constant, float limit);
 /// thrust against the ship's drag gives its top rate, in 65536ths of a turn.
 float BankCommand(float rate_deg, float full_rotthrust, float rotdrag);
 
+/// What the flight HUD's status words report.
+struct FlightStatus {
+  bool slide = false, bank = false;                       // flying modes
+  bool hold = false, snap = false, boost = false, light = false; // assists and systems
+};
+
+/// The words to show, in order: flying modes for the left of the tape,
+/// assists and systems for the right. Only what is active.
+std::vector<const char *> StatusWordsLeft(const FlightStatus &status);
+std::vector<const char *> StatusWordsRight(const FlightStatus &status);
+
 struct FlightMarker {
   Point2 position;
   bool reversed = false; // moving backwards: this is the opposite of the direction of travel

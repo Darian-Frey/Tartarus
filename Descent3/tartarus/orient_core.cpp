@@ -280,6 +280,28 @@ ReticleBank DecodeReticleMask(unsigned exists_mask, unsigned ready_mask) {
   return bank;
 }
 
+std::vector<const char *> StatusWordsLeft(const FlightStatus &status) {
+  std::vector<const char *> words;
+  if (status.slide)
+    words.push_back("SLIDE");
+  if (status.bank)
+    words.push_back("BANK");
+  return words;
+}
+
+std::vector<const char *> StatusWordsRight(const FlightStatus &status) {
+  std::vector<const char *> words;
+  if (status.hold)
+    words.push_back("HOLD");
+  if (status.snap)
+    words.push_back("SNAP");
+  if (status.boost)
+    words.push_back("BOOST");
+  if (status.light)
+    words.push_back("LIGHT");
+  return words;
+}
+
 float WrapDegrees(float degrees) {
   degrees = std::fmod(degrees + 180.0f, 360.0f);
   if (degrees < 0.0f)

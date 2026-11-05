@@ -38,9 +38,11 @@
 #include "grdefs.h"
 #include "grtext.h"
 #include "hud.h"
+#include "level_assist.h"
 #include "mouse_flight.h"
 #include "object.h"
 #include "orient_core.h"
+#include "player.h"
 #include "renderer.h"
 
 namespace tartarus {
@@ -74,6 +76,7 @@ Cvar *hud_flight_climb = nullptr;
 Cvar *hud_flight_tape_x = nullptr;
 Cvar *hud_flight_tape_y = nullptr;
 Cvar *hud_flight_tape_height = nullptr;
+Cvar *hud_flight_status = nullptr;
 Cvar *hud_reticle = nullptr;
 Cvar *hud_reticle_size = nullptr;
 Cvar *hud_reticle_alpha = nullptr;
@@ -546,6 +549,34 @@ void DrawTapes(const matrix &orient, float half_width, float alpha) {
   }
 }
 
+// Words either side of the heading tape, only while active: an empty row is
+// the normal state, so this adds nothing to look at until it matters.
+void DrawStatusWords() {
+  const uint32_t flags = Players[Player_num].flags;
+  FlightStatus status;
+  status.slide = Level_SlideToggled();
+  status.bank = Level_BankToggled();
+  status.hold = Level_Holding();
+  status.snap = Level_Snapping();
+  status.boost = (flags & PLAYER_FLAGS_AFTERBURN_ON) != 0;
+  status.light = (flags & PLAYER_FLAGS_HEADLIGHT) != 0;
+
+  const float cx = Game_window_x + Game_window_w / 2.0f;
+  const float y = Game_window_y + hud_flight_heading_y->GetFloat() * Game_window_h - grtext_GetTextHeight("0") / 2.0f;
+  const float half = hud_flight_heading_width->GetFloat() * Game_window_w;
+  const float gap = 10.0f * Scale();
+  float x = cx - half - gap;
+  for (const char *word : StatusWordsLeft(status)) {
+    AddText(x, y, 1, word);
+    x -= grtext_GetTextLineWidth(word) + gap;
+  }
+  x = cx + half + gap;
+  for (const char *word : StatusWordsRight(status)) {
+    AddText(x, y, -1, word);
+    x += grtext_GetTextLineWidth(word) + gap;
+  }
+}
+
 void DrawFlightHud(const matrix &orient) {
   const ViewCamera camera = WorldCamera(orient);
   const ScreenRect rect{static_cast<float>(Game_window_x), static_cast<float>(Game_window_y),
@@ -568,6 +599,8 @@ void DrawFlightHud(const matrix &orient) {
     DrawHeadingTape(half_width, alpha);
   grtext_SetFont(HUD_FONT); // text heights above depend on it
   DrawTapes(orient, half_width, alpha);
+  if (hud_flight_status->GetBool())
+    DrawStatusWords();
   FlushText(alpha);
 }
 
@@ -637,6 +670,7 @@ void OrientHud_Init() {
   hud_flight_tape_x = cv.RegisterFloat("hud_flight_tape_x", 0.17f, 0.03f, 0.4f, "Tapes: distance from the side of the view, as a fraction of its width", flags);
   hud_flight_tape_y = cv.RegisterFloat("hud_flight_tape_y", 0.4f, 0.2f, 0.7f, "Tapes: centre height, 0 = top of the view", flags);
   hud_flight_tape_height = cv.RegisterFloat("hud_flight_tape_height", 0.18f, 0.08f, 0.3f, "Tapes: half-height, as a fraction of the view height", flags);
+  hud_flight_status = cv.RegisterBool("hud_flight_status", true, "Flight HUD: status words, shown only while active", flags);
   hud_reticle = cv.RegisterInt("hud_reticle", kReticleGunsight, kReticleStock, kReticleStyles - 1,
                                "Reticle: 0 stock, 1 gunsight, 2 brackets, 3 chevrons, 4 cross", flags);
   hud_reticle_size = cv.RegisterFloat("hud_reticle_size", 1.0f, 0.5f, 2.0f, "Reticle size", flags);
