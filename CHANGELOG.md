@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 3)
+- Attitude ball (F-041) and axis gizmo (F-042): off by default (D-010), with size and position settings; `hud_attitude*`, `hud_gizmo*`, also on the deck's Gameplay page. All three orientation aids together cost about 0.05 ms a frame. 7 unit tests — 2026-11-04.
 - Reticle up-tick (F-040, D-010): a wedge at the reticle that points to world up, fading out when you are upright. On by default in Tartarus mode; `hud_uptick`, `hud_uptick_len`, `hud_uptick_fade_deg`, also on the deck's Gameplay page. 9 unit tests — 2026-11-04.
 ### Added (Phase 2)
 - Deck menus (F-069, D-016): the main menu, Save, Load (with the save's screenshot, BUG-013), New Game, level warp, Pilots, keyboard, joystick and mouse bindings, weapon order, the Keys help, the Guide-Bot menu and all message and text-entry boxes now use the deck in Tartarus mode, at the chosen resolution with the art scaled to fill the screen, with keyboard, pointer and stock hotkeys. A Key bindings row on the Controls page opens the bindings from F2 and the main menu. Classic Mode and multiplayer keep the stock screens — 2026-11-04.

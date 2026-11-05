@@ -19,6 +19,12 @@ Tartarus replaces the stock menus with a cassette-futurism "deck": amber phospho
 
 ![The Graphics page of the options deck](docs/images/deck-options.png)
 
+## Orientation aids
+
+Losing track of which way is up is a classic Descent problem. A wedge on the reticle points to world up whenever you are rolled, and two optional instruments can be switched on in the deck's Gameplay page: an axis gizmo and this attitude ball, which shows pitch and roll against the horizon. Classic Mode has none of them.
+
+<img src="docs/images/attitude-ball.png" alt="The attitude ball, rolled with the nose above the horizon line" width="200">
+
 ## Credits and licence
 
 Descent 3 was created by Outrage Entertainment and published by Interplay (1999). The source was released under GPL-3.0 on 16 April 2024 and is maintained by the DescentDevelopers community; Tartarus would not exist without their 64-bit, SDL and CMake modernisation work. Upstream's `THIRD_PARTY.md` is carried forward unchanged. See [LICENSE](LICENSE) (GPL-3.0, inherited — see D-003).

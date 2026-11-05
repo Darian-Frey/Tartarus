@@ -202,7 +202,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - A short tick on the reticle ring always points toward world-up projected onto the view plane; fades out when the ship is within `hud_uptick_fade_deg` of upright
 - `hud_uptick` cvar; on by default in Tartarus mode
-**Status:** Done (Phase 3), 2026-11-04, accepted by the owner: a wedge at the ring radius, `orient_core.cpp` (9 unit tests) and `orient_hud.cpp`, on the deck's Gameplay page. No upstream hook: it draws from `RenderOverlays()`. The per-frame cost has not been measured yet (AV-009).
+**Status:** Done (Phase 3), 2026-11-04, accepted by the owner: a wedge at the ring radius, `orient_core.cpp` (unit-tested) and `orient_hud.cpp`, on the deck's Gameplay page. No upstream hook: it draws from `RenderOverlays()`. All three aids together average 0.05 ms a frame (AV-009).
 **Notes:** D-010. See also AV-009.
 
 ### F-041 Attitude indicator
@@ -210,13 +210,13 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Aircraft-style pitch/roll ball relative to the level's up vector (terrain gravity direction outdoors; world +Y indoors), positioned per HUD layout
 - `hud_attitude` cvar; off by default
-**Status:** Not started (Phase 3)
+**Status:** Done pending the owner's trial (Phase 3), 2026-11-04: in `orient_hud.cpp`, positioned by cvars rather than a layout file, on the deck's Gameplay page.
 
 ### F-042 Orientation gizmo
 **Priority:** Should
 **Acceptance:**
 - Corner 3-axis gizmo showing world axes relative to ship; `hud_gizmo` cvar
-**Status:** Not started (Phase 3)
+**Status:** Done pending the owner's trial (Phase 3), 2026-11-04: in `orient_hud.cpp`, mid-left by default rather than a corner, where the rear-view presets sit.
 **Notes:** See also AV-009.
 
 ### F-043 Enhanced auto-level and snap-to-up

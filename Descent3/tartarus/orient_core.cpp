@@ -51,4 +51,42 @@ UpTick ComputeUpTick(float up_right, float up_up, float fade_deg) {
   return tick;
 }
 
+float PitchDegrees(float up_forward) { return std::asin(std::clamp(up_forward, -1.0f, 1.0f)) * 180.0f / kPi; }
+
+float BallOffset(float mark_deg, float pitch_deg, float range_deg) { return (mark_deg - pitch_deg) / range_deg; }
+
+std::vector<Point2> DiscAbove(float h, int segments) {
+  std::vector<Point2> points;
+  if (h >= 1.0f)
+    return points;
+  if (h <= -1.0f) {
+    for (int i = 0; i < segments; ++i) {
+      const float t = 2.0f * kPi * i / segments;
+      points.push_back({std::cos(t), std::sin(t)});
+    }
+    return points;
+  }
+  const float start = std::asin(h), end = kPi - start; // the arc above the line; the chord closes it
+  for (int i = 0; i <= segments; ++i) {
+    const float t = start + (end - start) * i / segments;
+    points.push_back({std::cos(t), std::sin(t)});
+  }
+  return points;
+}
+
+std::vector<Point2> DiscBelow(float h, int segments) {
+  std::vector<Point2> points = DiscAbove(-h, segments);
+  for (Point2 &p : points)
+    p.y = -p.y;
+  return points;
+}
+
+std::array<GizmoAxis, 3> ComputeGizmo(const float right[3], const float up[3], const float forward[3]) {
+  std::array<GizmoAxis, 3> axes;
+  for (int i = 0; i < 3; ++i)
+    axes[static_cast<size_t>(i)] = {right[i], up[i], forward[i], i};
+  std::sort(axes.begin(), axes.end(), [](const GizmoAxis &a, const GizmoAxis &b) { return a.depth > b.depth; });
+  return axes;
+}
+
 } // namespace tartarus

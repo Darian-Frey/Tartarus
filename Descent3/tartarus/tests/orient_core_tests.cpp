@@ -22,7 +22,12 @@
 
 #include "../orient_core.h"
 
+using tartarus::BallOffset;
+using tartarus::ComputeGizmo;
 using tartarus::ComputeUpTick;
+using tartarus::DiscAbove;
+using tartarus::DiscBelow;
+using tartarus::PitchDegrees;
 
 namespace {
 
@@ -79,3 +84,56 @@ TEST(OrientCore, PitchAloneShowsNothing) {
 }
 
 TEST(OrientCore, ZeroFadeShowsAnyRoll) { EXPECT_FLOAT_EQ(Rolled(1, 0.0f).alpha, 1.0f); }
+
+TEST(OrientCore, PitchFromForwardAxis) {
+  EXPECT_NEAR(PitchDegrees(0.0f), 0.0f, 1e-4f);
+  EXPECT_NEAR(PitchDegrees(1.0f), 90.0f, 1e-3f);
+  EXPECT_NEAR(PitchDegrees(-1.0f), -90.0f, 1e-3f);
+  EXPECT_NEAR(PitchDegrees(1.5f), 90.0f, 1e-3f); // rounding error in a matrix must not give NaN
+}
+
+TEST(OrientCore, NoseUpMovesTheHorizonDown) {
+  EXPECT_LT(BallOffset(0, 20, 45), 0.0f);
+  EXPECT_GT(BallOffset(0, -20, 45), 0.0f);
+  EXPECT_NEAR(BallOffset(30, 30, 45), 0.0f, 1e-6f); // the mark at the nose sits in the centre
+}
+
+TEST(OrientCore, DiscSplitsAtTheLine) {
+  for (float h : {-0.6f, 0.0f, 0.6f}) {
+    for (const auto &p : DiscAbove(h, 32))
+      EXPECT_GE(p.y, h - 1e-4f);
+    for (const auto &p : DiscBelow(h, 32))
+      EXPECT_LE(p.y, h + 1e-4f);
+  }
+}
+
+TEST(OrientCore, LineOutsideTheDiscGivesAllOrNothing) {
+  EXPECT_TRUE(DiscAbove(1.2f, 32).empty());
+  EXPECT_EQ(DiscAbove(-1.2f, 32).size(), 32u);
+  EXPECT_EQ(DiscBelow(1.2f, 32).size(), 32u);
+  EXPECT_TRUE(DiscBelow(-1.2f, 32).empty());
+}
+
+TEST(OrientCore, DiscPolygonsFitTheRenderer) {
+  EXPECT_LT(DiscAbove(0.3f, 32).size(), 100u); // rend_DrawPolygon2D asserts nv < 100
+}
+
+TEST(OrientCore, GizmoWhenLevelShowsUpUpward) {
+  const float right[3] = {1, 0, 0}, up[3] = {0, 1, 0}, forward[3] = {0, 0, 1};
+  bool found = false;
+  for (const auto &axis : ComputeGizmo(right, up, forward)) {
+    if (axis.axis == 1) {
+      EXPECT_FLOAT_EQ(axis.y, 1.0f);
+      EXPECT_FLOAT_EQ(axis.x, 0.0f);
+      found = true;
+    }
+  }
+  EXPECT_TRUE(found);
+}
+
+TEST(OrientCore, GizmoDrawsFarthestFirst) {
+  const float right[3] = {0.6f, 0, 0.8f}, up[3] = {0, 1, 0}, forward[3] = {-0.8f, 0, 0.6f};
+  const auto axes = ComputeGizmo(right, up, forward);
+  EXPECT_GE(axes[0].depth, axes[1].depth);
+  EXPECT_GE(axes[1].depth, axes[2].depth);
+}
