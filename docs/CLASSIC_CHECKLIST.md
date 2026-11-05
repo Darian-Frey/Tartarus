@@ -21,6 +21,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/game.cpp` | `tartarus::Display_MenuSize` | gated: menus stay 640x480 in Classic Mode (D-016) |
 | `Descent3/game.cpp` | `tartarus::Display_ScaleRenderSize`, `tartarus::Display_AdjustGameWindow` | active (display, F-068): no-ops at `r_renderscale 1` (default); otherwise the game frame renders at that multiple and full-window views stay full |
 | `Descent3/menu.cpp` | `tartarus::Deck_RunFromMenu`, `tartarus::MainDeck_Run`, `tartarus::kMainDeckRows` | gated: both return at once in Classic Mode, so the stock menus run (D-016) |
+| `Descent3/gamesave.cpp` | `tartarus::MapScan_Save`, `tartarus::MapScan_Load` | gated: in Classic Mode a save only removes any old `.amap` beside it, and a load clears the side table; the save file itself is untouched (F-050) |
 | `Descent3/gamesave.cpp` | `tartarus::SaveDeck_Run`, `tartarus::SaveDeck_PickLoad`, `tartarus::SaveDeck_SlotPath`, `tartarus::kSaveDeckStock` | gated: both report Classic Mode at once, so the stock Save and Load dialogs run (D-016) |
 | `Descent3/newui.cpp` | `tartarus::Deck_MessageBox`, `tartarus::Deck_EditBox`, `tartarus::kDeckStock` | gated: report stock in Classic Mode and multiplayer (D-016) |
 | `Descent3/ctlconfig.cpp` | `tartarus::ControlsDeck_Run` | gated: false in Classic Mode and multiplayer, stock controls screen (D-016) |

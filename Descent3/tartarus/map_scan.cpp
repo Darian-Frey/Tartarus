@@ -21,7 +21,10 @@
 #include "map_scan.h"
 
 #include <algorithm>
+#include <fstream>
+#include <iterator>
 #include <string>
+#include <system_error>
 #include <vector>
 
 #include "3d.h"
@@ -30,6 +33,7 @@
 #include "cvar.h"
 #include "findintersection.h"
 #include "grdefs.h"
+#include "log.h"
 #include "renderer.h"
 #include "game.h"
 #include "gamesequence.h"
@@ -65,6 +69,20 @@ float g_flash_start = -100.0f;
 std::vector<float> g_line_xyz, g_line_rgba; // edges kept until every surface is drawn
 bool g_idle = false;   // a whole pass found nothing new: wait for the ship to move
 vector g_idle_from{};
+
+std::filesystem::path ScanPath(std::filesystem::path save_path) {
+  save_path.replace_extension(".amap");
+  return save_path;
+}
+
+// A .amap only fits the level it was made in.
+uint32_t LevelFingerprint() {
+  uint32_t hash = 2166136261u;
+  for (int i = 0; i <= Highest_room_index; ++i) {
+    hash = (hash ^ static_cast<uint32_t>(Rooms[i].used ? Rooms[i].num_faces : 0)) * 16777619u;
+  }
+  return hash;
+}
 
 bool Active() { return !IsClassic() && !(Game_mode & GM_MULTI) && map_scan != nullptr && map_scan->GetBool(); }
 
@@ -126,7 +144,9 @@ void MapScan_Init() {
                           int total = 0;
                           for (int i = 0; i <= Highest_room_index; ++i)
                             total += Rooms[i].used ? Rooms[i].num_faces : 0;
-                          c.Print("scanned " + std::to_string(g_table.Total()) + " of " + std::to_string(total) + " surfaces");
+                          const std::string text = "scanned " + std::to_string(g_table.Total()) + " of " + std::to_string(total) + " surfaces";
+                          c.Print(text);
+                          LOG_INFO << "[tartarus] " << text;
                         }});
 }
 
@@ -182,6 +202,30 @@ void MapScan_Frame() {
     if (RayReaches(&ship, centre, fp.normal) && g_table.Mark(room_index, face_index))
       g_found_this_pass = true;
   }
+}
+
+void MapScan_Save(const std::filesystem::path &save_path) {
+  const std::filesystem::path path = ScanPath(save_path);
+  if (!Active()) {
+    std::error_code ignored;
+    std::filesystem::remove(path, ignored);
+    return;
+  }
+  const std::vector<uint8_t> bytes = g_table.Serialize(LevelFingerprint());
+  std::ofstream file(path, std::ios::binary | std::ios::trunc);
+  file.write(reinterpret_cast<const char *>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
+}
+
+void MapScan_Load(const std::filesystem::path &save_path) {
+  MapScan_Reset();
+  if (!Active())
+    return;
+  std::ifstream file(ScanPath(save_path), std::ios::binary);
+  if (!file)
+    return; // saved before the scanner, or in Classic Mode: nothing scanned yet
+  const std::vector<uint8_t> bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+  if (!g_table.Deserialize(bytes, LevelFingerprint()))
+    LOG_WARNING << "Scanner: ignoring a .amap file that is damaged or from another level";
 }
 
 void MapScan_MapOpened() {

@@ -140,6 +140,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/Controls.cpp` | `Level_Apply()` after `MouseFlight_Apply()` | hold and snap as bank input (F-043) |
 | `Descent3/TelComAutoMap.cpp` | `MapScan_Reset()` in `AutomapClearVisMap()`, `MapScan_MapOpened()` in `TelComAutoMap()`, `MapScan_DrawFace()` per surface in `TCAMRenderRoom()`, `MapScan_FinishRooms()` after the rooms in `TCAMCallback()`, `MapScan_Background()` for the screen colour | laser scanner on the map (F-050) |
 | `lib/renderer.h`, `renderer/HardwareOpenGL.cpp` | `rend_DrawLines3D()`, a new function | world-space lines in one draw, so depth agrees with the walls (F-050) |
+| `Descent3/gamesave.cpp` | `MapScan_Save()` at the end of `SaveGameState()`, `MapScan_Load()` in `LoadCurrentSaveGame()` | scan kept in a `.amap` file beside the save (F-050, AV-003) |
 | `Descent3/hud.cpp::RenderReticle` | `OrientHud_RenderReticle()` before the stock drawing, with the slot masks | drawn reticle styles (F-047) |
 | `Descent3/hud.cpp::RenderHUDFrame` | `OrientHud_RenderCanopy()` before `RenderCockpit()` in cockpit view | flight HUD behind the cockpit frame (F-046, D-017) |
 | `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |

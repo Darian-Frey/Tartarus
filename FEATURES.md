@@ -266,7 +266,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Scanned, seen and unknown surfaces distinguished (was visited and seen rooms; owner, 2026-11-05); terrain can be hidden; objective, key, door and powerup markers filterable
 - 2D top-down projection mode with depth shading, toggled from within the map
 - Opening the map always starts camera-up = world-up, with a clear ship-with-up-arrow glyph (F-051)
-**Status:** In progress (Phase 3). Laser scanner prototype done 2026-11-05 (`scan_core.cpp`, `map_scan.cpp`), owner's idea replacing the visited colouring: the map shows surfaces as the scanner reaches them, 200-unit range. Wireframe look done 2026-11-05: pale green on black, dim for seen surfaces, new surfaces flash when the map opens. Scans do not yet survive save and load. Next: saving, a full-resolution map screen, symbols and filters, 2D mode.
+**Status:** In progress (Phase 3). Laser scanner prototype done 2026-11-05 (`scan_core.cpp`, `map_scan.cpp`), owner's idea replacing the visited colouring: the map shows surfaces as the scanner reaches them, 200-unit range. Wireframe look done 2026-11-05: pale green on black, dim for seen surfaces, new surfaces flash when the map opens. Saving done 2026-11-05: a `.amap` file beside each save, leaving the save format alone. Next: a full-resolution map screen, symbols and filters, 2D mode.
 **Notes:** `Descent3/TelComAutoMap.cpp`.
 
 ### F-051 Automap orientation anchoring

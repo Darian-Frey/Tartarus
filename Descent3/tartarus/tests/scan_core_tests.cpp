@@ -95,3 +95,60 @@ TEST(ScanCore, UnscannedIsNeverNew) {
   t.OpenMap();
   EXPECT_FALSE(t.IsNew(1, 0));
 }
+
+TEST(ScanSave, RoundTrip) {
+  ScanTable t;
+  t.Mark(0, 0);
+  t.Mark(0, 9);
+  t.Mark(3, 7);
+  ScanTable u;
+  ASSERT_TRUE(u.Deserialize(t.Serialize(42), 42));
+  EXPECT_TRUE(u.IsScanned(0, 0));
+  EXPECT_TRUE(u.IsScanned(0, 9));
+  EXPECT_TRUE(u.IsScanned(3, 7));
+  EXPECT_FALSE(u.IsScanned(0, 1));
+  EXPECT_EQ(u.Total(), 3u);
+}
+
+TEST(ScanSave, EmptyRoundTrip) {
+  ScanTable t, u;
+  EXPECT_TRUE(u.Deserialize(t.Serialize(1), 1));
+  EXPECT_EQ(u.Total(), 0u);
+}
+
+TEST(ScanSave, FromAnotherLevelIsRefused) {
+  ScanTable t;
+  t.Mark(1, 1);
+  ScanTable u;
+  EXPECT_FALSE(u.Deserialize(t.Serialize(42), 43));
+  EXPECT_EQ(u.Total(), 0u);
+}
+
+TEST(ScanSave, TruncatedIsRefusedAndLeavesNothing) {
+  ScanTable t;
+  for (int i = 0; i < 40; ++i)
+    t.Mark(2, i);
+  auto bytes = t.Serialize(42);
+  bytes.resize(bytes.size() - 3);
+  ScanTable u;
+  EXPECT_FALSE(u.Deserialize(bytes, 42));
+  EXPECT_EQ(u.Total(), 0u);
+}
+
+TEST(ScanSave, GarbageIsRefused) {
+  ScanTable u;
+  EXPECT_FALSE(u.Deserialize({1, 2, 3}, 42));
+  EXPECT_FALSE(u.Deserialize(std::vector<uint8_t>(64, 0xff), 42));
+}
+
+TEST(ScanSave, LoadedSurfacesAreNotNew) {
+  ScanTable t;
+  t.Mark(1, 1);
+  ScanTable u;
+  ASSERT_TRUE(u.Deserialize(t.Serialize(42), 42));
+  u.OpenMap();
+  EXPECT_FALSE(u.IsNew(1, 1));
+  u.Mark(1, 2);
+  u.OpenMap();
+  EXPECT_TRUE(u.IsNew(1, 2));
+}

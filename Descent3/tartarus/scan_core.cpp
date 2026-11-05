@@ -62,6 +62,80 @@ size_t ScanTable::ScannedInRoom(int room) const {
   return count;
 }
 
+namespace {
+
+constexpr uint8_t kMagic[4] = {'A', 'M', 'A', 'P'};
+constexpr uint32_t kVersion = 1;
+constexpr size_t kHeaderBytes = 16;
+constexpr uint32_t kMostRooms = 1u << 16, kMostFaces = 1u << 20; // far past any level: guards against damage
+
+void Put32(std::vector<uint8_t> *out, uint32_t value) {
+  for (int shift = 0; shift < 32; shift += 8)
+    out->push_back(static_cast<uint8_t>(value >> shift));
+}
+
+bool Get32(const std::vector<uint8_t> &bytes, size_t *at, uint32_t *value) {
+  if (*at + 4 > bytes.size())
+    return false;
+  *value = 0;
+  for (int i = 0; i < 4; ++i)
+    *value |= static_cast<uint32_t>(bytes[*at + static_cast<size_t>(i)]) << (i * 8);
+  *at += 4;
+  return true;
+}
+
+} // namespace
+
+std::vector<uint8_t> ScanTable::Serialize(uint32_t fingerprint) const {
+  std::vector<uint8_t> out(kMagic, kMagic + 4);
+  Put32(&out, kVersion);
+  Put32(&out, fingerprint);
+  Put32(&out, static_cast<uint32_t>(rooms_.size()));
+  for (const std::vector<uint16_t> &faces : rooms_) {
+    Put32(&out, static_cast<uint32_t>(faces.size()));
+    uint8_t byte = 0;
+    for (size_t i = 0; i < faces.size(); ++i) {
+      if (faces[i] != 0)
+        byte |= static_cast<uint8_t>(1u << (i % 8));
+      if (i % 8 == 7 || i + 1 == faces.size()) {
+        out.push_back(byte);
+        byte = 0;
+      }
+    }
+  }
+  return out;
+}
+
+bool ScanTable::Deserialize(const std::vector<uint8_t> &bytes, uint32_t fingerprint) {
+  Clear();
+  if (bytes.size() < kHeaderBytes)
+    return false;
+  for (size_t i = 0; i < 4; ++i) {
+    if (bytes[i] != kMagic[i])
+      return false;
+  }
+  size_t at = 4;
+  uint32_t version = 0, stamp = 0, room_count = 0;
+  if (!Get32(bytes, &at, &version) || !Get32(bytes, &at, &stamp) || !Get32(bytes, &at, &room_count))
+    return false;
+  if (version != kVersion || stamp != fingerprint || room_count > kMostRooms)
+    return false;
+  for (uint32_t room = 0; room < room_count; ++room) {
+    uint32_t face_count = 0;
+    if (!Get32(bytes, &at, &face_count) || face_count > kMostFaces || at + (face_count + 7) / 8 > bytes.size()) {
+      Clear();
+      return false;
+    }
+    for (uint32_t face = 0; face < face_count; ++face) {
+      if (bytes[at + face / 8] & (1u << (face % 8)))
+        Mark(static_cast<int>(room), static_cast<int>(face));
+    }
+    at += (face_count + 7) / 8;
+  }
+  generation_ = 2; // what was loaded is generation 1: not new at the next opening
+  return true;
+}
+
 void ScanTable::OpenMap() {
   new_generation_ = generation_;
   ++generation_;

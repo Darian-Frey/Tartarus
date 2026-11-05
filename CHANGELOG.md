@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 3)
+- Automap scans survive save and load (F-050), in a `.amap` file beside each save; the save format is unchanged and older saves simply start unscanned. 6 unit tests — 2026-11-05.
 - Automap scanner look (F-050): a pale green wireframe on black in place of the shaded rooms, dim edges for surfaces seen but not scanned, and new surfaces flash when the map opens. `map_scan_flash`. 2 unit tests — 2026-11-05.
 - Automap laser scanner, prototype (F-050): the ship scans surfaces within 200 units as it flies, and the map shows scanned surfaces brightly and others dimly. `map_scan`, `map_scan_range`, `map_scan_rays`, `map_scan_dim`, `map_scan_status`. Scans are not saved yet. 8 unit tests — 2026-11-05.
 - Flight HUD, fourth stage (F-046): status words either side of the heading tape, shown only while active: SLIDE, BANK, HOLD, SNAP, BOOST, LIGHT; `hud_flight_status`. 3 unit tests — 2026-11-05.

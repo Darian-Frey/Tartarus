@@ -37,6 +37,12 @@ public:
   size_t ScannedInRoom(int room) const;
   size_t Total() const { return total_; }
 
+  /// The table as bytes for a .amap file, stamped with a fingerprint of the level.
+  std::vector<uint8_t> Serialize(uint32_t fingerprint) const;
+  /// Replaces the table from Serialize()'s bytes. False, leaving it empty, if
+  /// they are damaged or from another level. Loaded surfaces are not "new".
+  bool Deserialize(const std::vector<uint8_t> &bytes, uint32_t fingerprint);
+
   /// The map has opened: what was scanned since it last opened is now "new".
   void OpenMap();
   bool IsNew(int room, int face) const;

@@ -300,6 +300,7 @@
 #include "pserror.h"
 #include "weather.h"
 #include "tartarus/deck_save.h" // TARTARUS: D-016
+#include "tartarus/map_scan.h" // TARTARUS: F-050
 
 // function prototypes.
 
@@ -723,6 +724,7 @@ bool LoadCurrentSaveGame() {
     DoMessageBox(TXT_ERROR, TXT_LOADGAMEFAILED, MSGBOX_OK);
     return false;
   }
+  tartarus::MapScan_Load(LGS_Path); // TARTARUS: F-050 always replaces the table: a load skips the level-start clear
   AddHUDMessage(TXT_GAMERESTORED);
   return true;
 }
@@ -832,6 +834,8 @@ bool SaveGameState(const std::filesystem::path &pathname, const char *descriptio
   // end
   END_VERIFY_SAVEFILE(fp, "Total save");
   cfclose(fp);
+
+  tartarus::MapScan_Save(pathname); // TARTARUS: F-050 beside the save; the save format is untouched
 
   return true;
 }

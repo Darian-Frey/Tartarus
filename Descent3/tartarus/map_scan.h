@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <filesystem>
+
 #include "grdefs.h"
 #include "vecmat_external.h"
 
@@ -36,6 +38,14 @@ void MapScan_Reset();
 
 /// Fires this frame's rays. Called from Frame().
 void MapScan_Frame();
+
+/// Saves the scan beside a saved game, as upstream's .cnt, so the save format
+/// is untouched (AV-003). In Classic Mode it removes any old file instead, which
+/// would otherwise be paired with the wrong save.
+void MapScan_Save(const std::filesystem::path &save_path);
+
+/// Replaces the scan with the one beside a saved game, or with nothing.
+void MapScan_Load(const std::filesystem::path &save_path);
 
 /// The automap has opened: what was scanned since last time flashes.
 void MapScan_MapOpened();
