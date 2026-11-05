@@ -292,6 +292,8 @@ bool TelComAutoMap(tTelComInfo *tcs) {
   TelComEnableSystemKey(TCSYS_ENTER, true);    // processing other keys is a waste of cpu
   TelComEnableSystemKey(TCSYS_PRINTSCRN, true);
 
+  tartarus::MapScan_MapOpened(); // TARTARUS: F-050 what is new since last time flashes
+
   // Classify faces
   ClassifyAMFaces();
 
@@ -308,7 +310,7 @@ bool TelComAutoMap(tTelComInfo *tcs) {
 
   // setup general background, plain color
   TCBKGDESC backg;
-  backg.color = BACKGROUND_COLOR;
+  backg.color = tartarus::MapScan_Background(BACKGROUND_COLOR); // TARTARUS: F-050 black in the scanner look
   backg.caps = TCBGD_COLOR;
   backg.type = TC_BACK_STATIC;
 
@@ -509,6 +511,10 @@ void TCAMRenderRoom(int roomnum) {
         continue;
     }
 
+    // TARTARUS: F-050 scanner look in Tartarus mode; portals to unseen rooms stay stock
+    if (!black_face && !wacky_face && tartarus::MapScan_DrawFace(roomnum, i, AM_rotated_points, AM_view_pos))
+      continue;
+
     // Color this face from the lightmaps
     if (!black_face && !wacky_face && (fp->flags & FF_LIGHTMAP)) {
       int lm_handle = LightmapInfo[fp->lmi_handle].lm_handle;
@@ -533,10 +539,9 @@ void TCAMRenderRoom(int roomnum) {
         int g = (texel >> 5) & 0x1f;
         int b = (texel) & 0x1f;
 
-        const float scan = tartarus::MapScan_Brightness(roomnum, i); // TARTARUS: F-050 1 in Classic Mode
-        p->p3_r = lm_red[r] * scan;
-        p->p3_g = lm_green[g] * scan;
-        p->p3_b = lm_blue[b] * scan;
+        p->p3_r = lm_red[r];
+        p->p3_g = lm_green[g];
+        p->p3_b = lm_blue[b];
         p->p3_a = 1.0;
         p->p3_flags |= PF_RGBA;
       }
@@ -819,6 +824,7 @@ void TCAMCallback(void) {
   for (int i = 0; i < Num_AM_rooms; i++) {
     TCAMRenderRoom(AM_room_list[i]);
   }
+  tartarus::MapScan_FinishRooms(); // TARTARUS: F-050 edges go on after every surface
 
   // Render terrain
   if (AM_terrain)

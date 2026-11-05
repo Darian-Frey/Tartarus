@@ -77,3 +77,21 @@ TEST(ScanCore, BackOfASurfaceIsNotInReach) {
   const float centre[3] = {0, 0, 100}, normal[3] = {0, 0, 1}, from[3] = {0, 0, 0};
   EXPECT_FALSE(FaceInReach(centre, normal, from, 200));
 }
+
+TEST(ScanCore, ScansSinceTheMapLastOpenedAreNew) {
+  ScanTable t;
+  t.Mark(1, 0);
+  t.OpenMap();
+  EXPECT_TRUE(t.IsNew(1, 0));
+  t.Mark(1, 1);
+  EXPECT_FALSE(t.IsNew(1, 1)); // not until the next opening
+  t.OpenMap();
+  EXPECT_FALSE(t.IsNew(1, 0));
+  EXPECT_TRUE(t.IsNew(1, 1));
+}
+
+TEST(ScanCore, UnscannedIsNeverNew) {
+  ScanTable t;
+  t.OpenMap();
+  EXPECT_FALSE(t.IsNew(1, 0));
+}

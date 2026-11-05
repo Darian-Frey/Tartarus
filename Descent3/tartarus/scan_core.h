@@ -23,6 +23,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 namespace tartarus {
@@ -36,9 +37,17 @@ public:
   size_t ScannedInRoom(int room) const;
   size_t Total() const { return total_; }
 
+  /// The map has opened: what was scanned since it last opened is now "new".
+  void OpenMap();
+  bool IsNew(int room, int face) const;
+
 private:
-  std::vector<std::vector<bool>> rooms_;
+  uint16_t Get(int room, int face) const;
+
+  std::vector<std::vector<uint16_t>> rooms_; // 0 not scanned, otherwise the map opening it arrived before
   size_t total_ = 0;
+  uint16_t generation_ = 1;
+  uint16_t new_generation_ = 0;
 };
 
 /// Whether a surface can be scanned from a point: within range, and facing it.

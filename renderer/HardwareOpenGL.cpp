@@ -1949,6 +1949,29 @@ void rend_DrawTriangles2D(int handle, const float *xy, int nv) {
   dglDrawArrays(GL_TRIANGLES, gRenderer->addVertexData(vertices.begin(), vertices.end()), nv);
 }
 
+// TARTARUS: F-050 world-space lines through the same transforms as the walls, so depth agrees
+void rend_DrawLines3D(const float *xyz, const float *rgba, int nv) {
+  g3_RefreshTransforms(false);
+  gpu_SetMultitextureBlendMode(false);
+  gRenderer->setTextureEnabled(0, false);
+  gRenderer->setTextureEnabled(1, false);
+
+  constexpr int kBatch = 8192; // well inside the vertex stream, and even: lines stay whole
+  static std::vector<PosColorUV2Vertex> vertices;
+  for (int start = 0; start < nv; start += kBatch) {
+    const int count = std::min(kBatch, nv - start);
+    vertices.clear();
+    for (int i = start; i < start + count; ++i) {
+      vertices.push_back(PosColorUV2Vertex{{xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2]},
+                                           {rgba[i * 4], rgba[i * 4 + 1], rgba[i * 4 + 2], rgba[i * 4 + 3]},
+                                           {},
+                                           {}});
+    }
+    dglDrawArrays(GL_LINES, gRenderer->addVertexData(vertices.begin(), vertices.end()), count);
+  }
+  gRenderer->setTextureEnabled(0, true);
+}
+
 // Takes a screenshot of the current frame and puts it into the handle passed
 std::unique_ptr<NewBitmap> rend_Screenshot() {
   auto result =

@@ -40,7 +40,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/GameLoop.cpp` | `tartarus::PausedFrame` | active: only does anything while the console holds the pause (`con_pause`, a dev-tool convenience that changes no gameplay); the cheat menu cannot open in Classic Mode |
 | `Descent3/GameLoop.cpp` | `tartarus::RenderOverlays` | gated: no stick indicator, no CHEATS tag; the console draws when opened |
 | `Descent3/Controls.cpp` | `tartarus::MouseFlight_Apply`, `tartarus::MouseFlight_ReservesButton` | gated: return at once; flare on the middle button works as stock |
-| `Descent3/TelComAutoMap.cpp` | `tartarus::MapScan_Reset`, `tartarus::MapScan_Brightness` | gated: the reset only clears a side table, and brightness is exactly 1 in Classic Mode, so the map draws as stock (F-050) |
+| `Descent3/TelComAutoMap.cpp` | `tartarus::MapScan_Reset`, `tartarus::MapScan_MapOpened`, `tartarus::MapScan_DrawFace`, `tartarus::MapScan_FinishRooms`, `tartarus::MapScan_Background` | gated: the first two only touch a side table, `DrawFace` returns false and `Background` returns the stock colour in Classic Mode so the map draws as stock, and `FinishRooms` then has nothing to draw (F-050) |
 | `Descent3/TelCom.cpp`, `Descent3/TelComGoals.cpp` | `tartarus::kUiMouseScale` | active (compat): BUG-006 TelCom pointer speed |
 | `Descent3/Controls.cpp` | `tartarus::Level_Apply` | gated: returns at once in Classic Mode, so no bank input is added (F-043) |
 | `Descent3/SmallViews.cpp` | `tartarus::SmallViews_Adjust` | gated: upstream rectangle untouched |
@@ -50,7 +50,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `ddio/lnxmouse.cpp` | (inline: SDL middle/right swap) | active (compat): BUG-007, right button = secondary fire as on Windows |
 | `renderer/HardwareOpenGL.cpp`, `renderer/dyna_gl.h` (`glFramebufferTexture2D`, `glRenderbufferStorageMultisample`) | `Tartarus_bar_fill_mode`, `Tartarus_bar_fill_brightness` | active (display): blurred bars around 4:3 menus (F-060); `r_bar_fill 0` restores black bars |
 | `renderer/HardwareOpenGL.cpp` | `Tartarus_before_flip`, `Tartarus_swap_interval`, `Tartarus_trilinear`, `Tartarus_anisotropy`, `Tartarus_filter_dirty`, `Tartarus_depth_bits`, `Tartarus_msaa` (and internal `Tartarus_applied_swap`, `Tartarus_max_aniso`, `Tartarus_fbo_samples`, `Tartarus_resolve_fbo`, `Tartarus_resolve_rbo`, `Tartarus_frame_src`) | active (display, F-068): VSync follows the stock checkbox (fixes BUG-010); frame cap (`r_maxfps`, 60 as upstream); trilinear, anisotropic and 24-bit depth defaults are visual only, each settable back to stock (`r_trilinear 0`, `r_anisotropy 1`, `r_depthbits 16`); MSAA off by default (`r_msaa`) |
-| `lib/renderer.h`, `renderer/HardwareOpenGL.cpp` | (inline: `rend_DrawTriangles2D`) | active but unused: only the orientation aids call it, and they are off in Classic Mode (F-046) |
+| `lib/renderer.h`, `renderer/HardwareOpenGL.cpp` | (inline: `rend_DrawTriangles2D`, `rend_DrawLines3D`) | active but unused: only the orientation aids and the scanner map call them, and they are off in Classic Mode (F-046, F-050) |
 | `renderer/ShaderProgram.h` | (inline: vertex stream written with `glBufferSubData`) | active (compat): BUG-012, no visual change except removing the corruption |
 | `.github/workflows/build.yml` | (matrix entries commented out) | tooling: D-014, D-015 |
 | `.github/workflows/cd.yml` | (push trigger replaced by manual and weekly runs) | tooling: D-015 |

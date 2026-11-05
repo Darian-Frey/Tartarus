@@ -25,6 +25,15 @@ namespace tartarus {
 void ScanTable::Clear() {
   rooms_.clear();
   total_ = 0;
+  generation_ = 1;
+  new_generation_ = 0;
+}
+
+uint16_t ScanTable::Get(int room, int face) const {
+  if (room < 0 || face < 0 || static_cast<size_t>(room) >= rooms_.size())
+    return 0;
+  const std::vector<uint16_t> &faces = rooms_[static_cast<size_t>(room)];
+  return static_cast<size_t>(face) < faces.size() ? faces[static_cast<size_t>(face)] : 0;
 }
 
 bool ScanTable::Mark(int room, int face) {
@@ -32,30 +41,35 @@ bool ScanTable::Mark(int room, int face) {
     return false;
   if (static_cast<size_t>(room) >= rooms_.size())
     rooms_.resize(static_cast<size_t>(room) + 1);
-  std::vector<bool> &faces = rooms_[static_cast<size_t>(room)];
+  std::vector<uint16_t> &faces = rooms_[static_cast<size_t>(room)];
   if (static_cast<size_t>(face) >= faces.size())
-    faces.resize(static_cast<size_t>(face) + 1, false);
-  if (faces[static_cast<size_t>(face)])
+    faces.resize(static_cast<size_t>(face) + 1, 0);
+  if (faces[static_cast<size_t>(face)] != 0)
     return false;
-  faces[static_cast<size_t>(face)] = true;
+  faces[static_cast<size_t>(face)] = generation_;
   ++total_;
   return true;
 }
 
-bool ScanTable::IsScanned(int room, int face) const {
-  if (room < 0 || face < 0 || static_cast<size_t>(room) >= rooms_.size())
-    return false;
-  const std::vector<bool> &faces = rooms_[static_cast<size_t>(room)];
-  return static_cast<size_t>(face) < faces.size() && faces[static_cast<size_t>(face)];
-}
+bool ScanTable::IsScanned(int room, int face) const { return Get(room, face) != 0; }
 
 size_t ScanTable::ScannedInRoom(int room) const {
   if (room < 0 || static_cast<size_t>(room) >= rooms_.size())
     return 0;
   size_t count = 0;
-  for (bool scanned : rooms_[static_cast<size_t>(room)])
-    count += scanned ? 1 : 0;
+  for (uint16_t generation : rooms_[static_cast<size_t>(room)])
+    count += generation != 0 ? 1 : 0;
   return count;
+}
+
+void ScanTable::OpenMap() {
+  new_generation_ = generation_;
+  ++generation_;
+}
+
+bool ScanTable::IsNew(int room, int face) const {
+  const uint16_t generation = Get(room, face);
+  return generation != 0 && generation == new_generation_;
 }
 
 bool FaceInReach(const float centre[3], const float normal[3], const float from[3], float range) {

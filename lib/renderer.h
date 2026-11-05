@@ -453,6 +453,9 @@ void rend_DrawPolygon2D(int handle, g3Point **p, int nv);
 // TARTARUS: F-046 many flat triangles in one draw; xy holds nv screen points, three per triangle
 void rend_DrawTriangles2D(int handle, const float *xy, int nv);
 
+// TARTARUS: F-050 many untextured lines in world space in one draw; xyz and rgba hold nv points, two per line
+void rend_DrawLines3D(const float *xyz, const float *rgba, int nv);
+
 // Tells the software renderer whether or not to use mipping
 void rend_SetMipState(int8_t);
 

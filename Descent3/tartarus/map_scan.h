@@ -21,6 +21,11 @@
 
 #pragma once
 
+#include "grdefs.h"
+#include "vecmat_external.h"
+
+struct g3Point;
+
 namespace tartarus {
 
 /// Registers the map_scan* cvars and commands. Called from Tartarus_Init().
@@ -32,8 +37,18 @@ void MapScan_Reset();
 /// Fires this frame's rays. Called from Frame().
 void MapScan_Frame();
 
-/// How bright the automap draws a surface: 1 scanned, dim if only seen. Always
-/// 1 in Classic Mode and multiplayer, where the map is stock.
-float MapScan_Brightness(int room, int face);
+/// The automap has opened: what was scanned since last time flashes.
+void MapScan_MapOpened();
+
+/// Draws a surface in the scanner's look: fills it now and keeps its edges for
+/// MapScan_FinishRooms(). points are the room's rotated vertices. False in
+/// Classic Mode and multiplayer, and outdoors, where the caller draws it stock.
+bool MapScan_DrawFace(int room, int face, g3Point *points, const vector &eye);
+
+/// Draws the kept edges, after every surface is in the depth buffer.
+void MapScan_FinishRooms();
+
+/// The map's background: black for a scan display, otherwise the stock colour.
+ddgr_color MapScan_Background(ddgr_color stock);
 
 } // namespace tartarus
