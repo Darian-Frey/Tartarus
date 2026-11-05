@@ -36,6 +36,13 @@ void OrientHud_Render();
 bool OrientHud_RenderReticle(float cx, float cy, unsigned primary_exists, unsigned primary_ready, unsigned secondary_exists,
                              unsigned secondary_ready);
 
+/// Draws a compass tape across a rectangle's top, for the automap.
+void OrientHud_DrawCompass(float heading, int left, int top, int right);
+
+/// The map has closed: the roll arc and heading tape stand out for a moment,
+/// to get your bearings (F-051).
+void OrientHud_Reanchor();
+
 /// Draws the flight HUD. Called from RenderHUDFrame() just before the cockpit
 /// model, which then covers it wherever the frame is: that puts it on the glass.
 void OrientHud_RenderCanopy();

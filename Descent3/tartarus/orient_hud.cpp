@@ -31,6 +31,7 @@
 #include "classic.h"
 #include "cockpit.h"
 #include "cvar.h"
+#include "ddio.h"
 #include "findintersection.h"
 #include "game.h"
 #include "gamefont.h"
@@ -77,6 +78,7 @@ Cvar *hud_flight_tape_x = nullptr;
 Cvar *hud_flight_tape_y = nullptr;
 Cvar *hud_flight_tape_height = nullptr;
 Cvar *hud_flight_status = nullptr;
+Cvar *map_reanchor_time = nullptr;
 Cvar *hud_reticle = nullptr;
 Cvar *hud_reticle_size = nullptr;
 Cvar *hud_reticle_alpha = nullptr;
@@ -321,6 +323,7 @@ float g_heading_x = 0.0f, g_heading_z = 1.0f; // the nose's ground direction, he
 float g_velocity[3] = {};                     // smoothed, for the flight path marker
 
 float g_range = 0.0f;                         // smoothed, for the range tape
+float g_reanchor_start = -100.0f;
 
 // Text goes out once, after the shapes: every flush changes render state.
 struct HudText {
@@ -437,12 +440,7 @@ void DrawRollArc(const ViewCamera &camera, const matrix &orient, float half_widt
             pinned ? alpha * 0.5f : alpha); // pinned at the end: past the scale
 }
 
-void DrawHeadingTape(float half_width, float alpha) {
-  const float heading = HeadingDegrees(g_heading_x, g_heading_z);
-  const float scale = Scale();
-  const float cx = Game_window_x + Game_window_w / 2.0f;
-  const float y = Game_window_y + hud_flight_heading_y->GetFloat() * Game_window_h;
-  const float half = hud_flight_heading_width->GetFloat() * Game_window_w;
+void DrawHeadingTape(float heading, float cx, float y, float half, float scale, float half_width, float alpha) {
   const float span = hud_flight_heading_span->GetFloat();
   Stroke({cx - half, y}, {cx + half, y}, half_width, alpha);
 
@@ -591,12 +589,18 @@ void DrawFlightHud(const matrix &orient) {
     DrawHorizon(camera, half_width, alpha);
   if (hud_flight_fpm->GetBool())
     DrawFlightMarker(camera, rect, half_width * 1.2f, alpha);
+  // Just after closing the map these two stand out, to get your bearings.
+  const float cue = ReanchorStrength(timer_GetTime(), g_reanchor_start, map_reanchor_time->GetFloat());
+  const float cue_width = half_width * (1.0f + 1.5f * cue);
+  const float cue_alpha = alpha + (1.0f - alpha) * cue;
   if (hud_flight_roll->GetBool())
-    DrawRollArc(camera, orient, half_width, alpha);
+    DrawRollArc(camera, orient, cue_width, cue_alpha);
   if (hud_flight_ladder->GetBool())
     DrawLadder(camera, half_width, alpha);
   if (hud_flight_heading->GetBool())
-    DrawHeadingTape(half_width, alpha);
+    DrawHeadingTape(HeadingDegrees(g_heading_x, g_heading_z), Game_window_x + Game_window_w / 2.0f,
+                    Game_window_y + hud_flight_heading_y->GetFloat() * Game_window_h,
+                    hud_flight_heading_width->GetFloat() * Game_window_w, Scale(), cue_width, cue_alpha);
   grtext_SetFont(HUD_FONT); // text heights above depend on it
   DrawTapes(orient, half_width, alpha);
   if (hud_flight_status->GetBool())
@@ -671,6 +675,7 @@ void OrientHud_Init() {
   hud_flight_tape_y = cv.RegisterFloat("hud_flight_tape_y", 0.4f, 0.2f, 0.7f, "Tapes: centre height, 0 = top of the view", flags);
   hud_flight_tape_height = cv.RegisterFloat("hud_flight_tape_height", 0.18f, 0.08f, 0.3f, "Tapes: half-height, as a fraction of the view height", flags);
   hud_flight_status = cv.RegisterBool("hud_flight_status", true, "Flight HUD: status words, shown only while active", flags);
+  map_reanchor_time = cv.RegisterFloat("map_reanchor_time", 1.0f, 0.0f, 5.0f, "Seconds the roll arc and heading tape stand out after closing the map", flags);
   hud_reticle = cv.RegisterInt("hud_reticle", kReticleGunsight, kReticleStock, kReticleStyles - 1,
                                "Reticle: 0 stock, 1 gunsight, 2 brackets, 3 chevrons, 4 cross", flags);
   hud_reticle_size = cv.RegisterFloat("hud_reticle_size", 1.0f, 0.5f, 2.0f, "Reticle size", flags);
@@ -713,6 +718,18 @@ bool OrientHud_RenderReticle(float cx, float cy, unsigned primary_exists, unsign
   EndShapes();
   return true;
 }
+
+void OrientHud_DrawCompass(float heading, int left, int top, int right) {
+  const float scale = Game_window_h > 0 ? Max_window_h / 480.0f : 1.0f;
+  const float cx = left + (right - left) * 0.68f; // clear of the level name
+  BeginShapes();
+  grtext_SetFont(HUD_FONT);
+  DrawHeadingTape(heading, cx, top + 34.0f * scale, (right - left) * 0.2f, scale, std::max(0.6f, 0.45f * scale), 0.9f);
+  FlushText(0.9f);
+  EndShapes();
+}
+
+void OrientHud_Reanchor() { g_reanchor_start = timer_GetTime(); }
 
 void OrientHud_RenderCanopy() {
   if (IsClassic() || !hud_aids->GetBool() || !hud_flight->GetBool() || CockpitState() != COCKPIT_STATE_FUNCTIONAL || !Flying())

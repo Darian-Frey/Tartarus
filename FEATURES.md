@@ -266,14 +266,14 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Scanned, seen and unknown surfaces distinguished (was visited and seen rooms; owner, 2026-11-05); terrain can be hidden; objective, key, door and powerup markers filterable
 - 2D top-down projection mode with depth shading, toggled from within the map
 - Opening the map always starts camera-up = world-up, with a clear ship-with-up-arrow glyph (F-051)
-**Status:** In progress (Phase 3). Laser scanner prototype done 2026-11-05 (`scan_core.cpp`, `map_scan.cpp`), owner's idea replacing the visited colouring: the map shows surfaces as the scanner reaches them, 200-unit range. Wireframe look done 2026-11-05: pale green on black, unscanned surfaces blank, new surfaces flash when the map opens. Saving done 2026-11-05: a `.amap` file beside each save, leaving the save format alone. Full-resolution map screen done 2026-11-05: the map runs in the deck casing, outside TelCom, with an amber ship marker in place of the stock model. Next: compass and re-anchor cue, symbols and filters, 2D mode.
+**Status:** In progress (Phase 3). Laser scanner prototype done 2026-11-05 (`scan_core.cpp`, `map_scan.cpp`), owner's idea replacing the visited colouring: the map shows surfaces as the scanner reaches them, 200-unit range. Wireframe look done 2026-11-05: pale green on black, unscanned surfaces blank, new surfaces flash when the map opens. Saving done 2026-11-05: a `.amap` file beside each save, leaving the save format alone. Full-resolution map screen done 2026-11-05: the map runs in the deck casing, outside TelCom, with an amber ship marker in place of the stock model. Next: symbols and filters, with lighter markers and wireframe terrain, then 2D mode.
 **Notes:** `Descent3/TelComAutoMap.cpp`.
 
 ### F-051 Automap orientation anchoring
 **Priority:** Should
 **Acceptance:**
-- Player glyph shows facing and up; closing the map briefly shows the up-tick enlarged for `map_reanchor_time`
-**Status:** Not started (Phase 3)
+- Player glyph shows facing and up; closing the map briefly makes the roll arc and heading tape stand out for `map_reanchor_time` (was the up-tick, off by default since D-017)
+**Status:** Done (Phase 3), 2026-11-05: an amber wedge with a raised spine for the ship, and the closing cue; a compass tape on the map as well
 
 ---
 

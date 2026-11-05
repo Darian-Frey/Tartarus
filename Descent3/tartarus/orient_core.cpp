@@ -302,6 +302,12 @@ std::vector<const char *> StatusWordsRight(const FlightStatus &status) {
   return words;
 }
 
+float ReanchorStrength(float now, float start, float duration) {
+  if (duration <= 0.0f || now < start)
+    return 0.0f;
+  return std::clamp(1.0f - (now - start) / duration, 0.0f, 1.0f);
+}
+
 float WrapDegrees(float degrees) {
   degrees = std::fmod(degrees + 180.0f, 360.0f);
   if (degrees < 0.0f)

@@ -30,6 +30,7 @@ using tartarus::StatusWordsLeft;
 using tartarus::StatusWordsRight;
 using tartarus::LevelRate;
 using tartarus::NearestUpright;
+using tartarus::ReanchorStrength;
 using tartarus::WrapDegrees;
 using tartarus::DecodeReticleMask;
 using tartarus::ReticleLines;
@@ -497,4 +498,15 @@ TEST(OrientStatus, AllWordsInOrder) {
   ASSERT_EQ(words.size(), 4u);
   EXPECT_STREQ(words[0], "HOLD");
   EXPECT_STREQ(words[3], "LIGHT");
+}
+
+TEST(OrientReanchor, StartsFullAndFades) {
+  EXPECT_FLOAT_EQ(ReanchorStrength(10.0f, 10.0f, 1.0f), 1.0f);
+  EXPECT_FLOAT_EQ(ReanchorStrength(10.5f, 10.0f, 1.0f), 0.5f);
+  EXPECT_FLOAT_EQ(ReanchorStrength(11.5f, 10.0f, 1.0f), 0.0f);
+}
+
+TEST(OrientReanchor, NothingBeforeItStartsOrWithNoDuration) {
+  EXPECT_FLOAT_EQ(ReanchorStrength(9.0f, 10.0f, 1.0f), 0.0f);
+  EXPECT_FLOAT_EQ(ReanchorStrength(10.0f, 10.0f, 0.0f), 0.0f);
 }

@@ -46,6 +46,7 @@
 #include "Mission.h"
 #include "mouse_flight.h"
 #include "object.h"
+#include "orient_hud.h"
 #include "player.h"
 #include "room.h"
 #include "scan_core.h"
@@ -168,7 +169,9 @@ bool MapFrame(int left, int top, int right, int bottom) {
   const float now = timer_GetTime();
   const float frametime = std::clamp(now - g_map_time, 0.001f, 0.1f);
   g_map_time = now;
-  return TCAMDeckFrame(left, top, right, bottom, frametime);
+  const bool close = TCAMDeckFrame(left, top, right, bottom, frametime);
+  OrientHud_DrawCompass(TCAMDeckHeading(), left, top, right);
+  return close;
 }
 
 std::vector<std::string> MapLines() {
@@ -391,6 +394,7 @@ bool MapScan_RunMap() {
   rend_SetZBufferState(1);
   rend_SetWrapType(WT_WRAP);
   Skip_render_game_frame = false;
+  OrientHud_Reanchor();
   return true;
 }
 

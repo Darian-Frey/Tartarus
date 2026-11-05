@@ -868,6 +868,11 @@ void TCAMDeckBegin() {
   Controller->get_packet(ctfAUTOMAP_KEY, &drained);
 }
 
+float TCAMDeckHeading() {
+  const float degrees = AM_heading * 360.0f / 65536.0f;
+  return degrees;
+}
+
 bool TCAMDeckFrame(int left, int top, int right, int bottom, float frametime) {
   last_frametime = frametime;
   Sound_system.BeginSoundFrame(true);

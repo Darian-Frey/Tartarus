@@ -60,6 +60,7 @@ extern uint8_t AutomapVisMap[];
 // TARTARUS: F-050 the map without TelCom, for the deck's full-resolution screen
 void TCAMDeckBegin();
 bool TCAMDeckFrame(int left, int top, int right, int bottom, float frametime); // true to close
+float TCAMDeckHeading(); // the map camera's bearing, in degrees
 void TCAMDeckEnd();
 extern int AM_terrain, AM_realign, AM_center_on_player, AM_current_marker;
 

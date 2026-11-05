@@ -179,6 +179,9 @@ struct FlightStatus {
 std::vector<const char *> StatusWordsLeft(const FlightStatus &status);
 std::vector<const char *> StatusWordsRight(const FlightStatus &status);
 
+/// The closing-the-map cue: 1 when it starts, fading to 0 at the end of duration.
+float ReanchorStrength(float now, float start, float duration);
+
 struct FlightMarker {
   Point2 position;
   bool reversed = false; // moving backwards: this is the opposite of the direction of travel
