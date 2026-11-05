@@ -264,9 +264,9 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Should
 **Acceptance:**
 - Scanned, seen and unknown surfaces distinguished (was visited and seen rooms; owner, 2026-11-05); terrain can be hidden; objective, key, door and powerup markers filterable
-- 2D top-down projection mode with depth shading, toggled from within the map
+- 2D top-down mode: moved to IMP-010 as a nice-to-have (owner, 2026-11-05)
 - Opening the map always starts camera-up = world-up, with a clear ship-with-up-arrow glyph (F-051)
-**Status:** In progress (Phase 3). Laser scanner prototype done 2026-11-05 (`scan_core.cpp`, `map_scan.cpp`), owner's idea replacing the visited colouring: the map shows surfaces as the scanner reaches them, 200-unit range. Wireframe look done 2026-11-05: pale green on black, unscanned surfaces blank, new surfaces flash when the map opens. Saving done 2026-11-05: a `.amap` file beside each save, leaving the save format alone. Full-resolution map screen done 2026-11-05: the map runs in the deck casing, outside TelCom, with an amber ship marker in place of the stock model. Symbols and filters done 2026-11-05: keys, doors, goals and powerups where scanned, each switchable, with thin markers and wire terrain. Next: 2D mode.
+**Status:** Done (Phase 3), 2026-11-05, with 2D mode set aside (IMP-010). Laser scanner prototype done 2026-11-05 (`scan_core.cpp`, `map_scan.cpp`), owner's idea replacing the visited colouring: the map shows surfaces as the scanner reaches them, 200-unit range. Wireframe look done 2026-11-05: pale green on black, unscanned surfaces blank, new surfaces flash when the map opens. Saving done 2026-11-05: a `.amap` file beside each save, leaving the save format alone. Full-resolution map screen done 2026-11-05: the map runs in the deck casing, outside TelCom, with an amber ship marker in place of the stock model. Symbols and filters done 2026-11-05: keys, doors, goals and powerups where scanned, each switchable, with thin markers and wire terrain. Still to check on a later level: keys, goals and locked doors on the map.
 **Notes:** `Descent3/TelComAutoMap.cpp`.
 
 ### F-051 Automap orientation anchoring

@@ -59,6 +59,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Proposal.** Remove the alpha calls and pick a dimmer colour, or draw the ring with a small alpha-capable helper.
 **Trade-offs.** None of note.
 
+### IMP-010: 2D top-down automap mode
+**Status:** suggested (nice to have; moved out of F-050 by the owner, 2026-11-05)
+**Found:** 2026-11-05 (planning the last stage of F-050)
+**Location:** `Descent3/TelComAutoMap.cpp`, `Descent3/tartarus/map_scan.cpp`; related to F-050
+**Effort:** medium
+**Description.** F-050 first asked for a 2D top-down projection with depth shading, toggled from within the map. The owner set it aside: the 3D scanner map reads well, and flattening a 3D mine may overcomplicate things.
+**Proposal.** If it comes back, a top-down camera with a height slice around the ship, because mines overlap vertically and plain shading would stack rooms on top of each other.
+**Trade-offs.** A second view to build and maintain, for a map that already works in 3D.
+
 ### IMP-009: Quieter start-up and level logs
 **Status:** suggested
 **Found:** 2026-11-03 (owner asked about errors in the terminal)
