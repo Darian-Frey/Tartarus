@@ -22,6 +22,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <vector>
 
 namespace tartarus {
@@ -97,6 +98,23 @@ struct LadderBar {
 /// inner_deg to outer_deg either side. False if any of it is behind the camera.
 bool ComputeLadderBar(const ViewCamera &camera, float heading_x, float heading_z, float mark_deg, float inner_deg,
                       float outer_deg, LadderBar *bar);
+
+/// Compass bearing of a ground direction, 0 to 360, with +Z as north.
+float HeadingDegrees(float heading_x, float heading_z);
+
+struct HeadingMark {
+  float offset = 0; // -1 at the left end of the tape, 1 at the right
+  int degrees = 0;  // 0 to 359
+};
+
+/// The marks on a tape span degrees each side of heading, every step degrees.
+std::vector<HeadingMark> HeadingMarks(float heading, float span, int step);
+
+/// N, E, S and W, otherwise tens of degrees: "28" for 280.
+void HeadingLabel(int degrees, char *text, size_t size);
+
+/// Where the roll pointer sits, limited to the arc. *pinned is set if rolled past it.
+float RollPointer(float roll, float limit, bool *pinned);
 
 struct FlightMarker {
   Point2 position;

@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 
 namespace tartarus {
 
@@ -160,6 +161,44 @@ bool ComputeLadderBar(const ViewCamera &camera, float heading_x, float heading_z
   };
   return point(-outer_deg, &bar->outer_left) && point(-inner_deg, &bar->inner_left) &&
          point(inner_deg, &bar->inner_right) && point(outer_deg, &bar->outer_right);
+}
+
+float HeadingDegrees(float heading_x, float heading_z) {
+  const float degrees = std::atan2(heading_x, heading_z) * 180.0f / kPi;
+  return degrees < 0.0f ? degrees + 360.0f : degrees;
+}
+
+std::vector<HeadingMark> HeadingMarks(float heading, float span, int step) {
+  std::vector<HeadingMark> marks;
+  const int first = static_cast<int>(std::ceil((heading - span) / step)) * step;
+  for (int mark = first; static_cast<float>(mark) <= heading + span; mark += step)
+    marks.push_back({(static_cast<float>(mark) - heading) / span, ((mark % 360) + 360) % 360});
+  return marks;
+}
+
+void HeadingLabel(int degrees, char *text, size_t size) {
+  switch (degrees) {
+  case 0:
+    std::snprintf(text, size, "N");
+    break;
+  case 90:
+    std::snprintf(text, size, "E");
+    break;
+  case 180:
+    std::snprintf(text, size, "S");
+    break;
+  case 270:
+    std::snprintf(text, size, "W");
+    break;
+  default:
+    std::snprintf(text, size, "%02d", degrees / 10);
+    break;
+  }
+}
+
+float RollPointer(float roll, float limit, bool *pinned) {
+  *pinned = std::fabs(roll) > limit;
+  return std::clamp(roll, -limit, limit);
 }
 
 void SmoothVelocity(float smoothed[3], const float velocity[3], float frame_time, float time_constant) {

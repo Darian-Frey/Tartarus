@@ -1930,6 +1930,25 @@ void rend_DrawSpecialLine(g3Point *p0, g3Point *p1) {
   dglDrawArrays(GL_LINES, gRenderer->addVertexData(vertices.begin(), vertices.end()), vertices.size());
 }
 
+// TARTARUS: F-046 one draw for many triangles in the current flat colour; rend_DrawPolygon2D
+// costs a draw call and a 100-vertex conversion per shape
+void rend_DrawTriangles2D(int handle, const float *xy, int nv) {
+  g3_RefreshTransforms(true);
+  gpu_SetMultitextureBlendMode(false);
+  gpu_BindTexture(handle, MAP_TYPE_BITMAP, 0);
+  gRenderer->setTextureEnabled(1, false);
+
+  g3Point point{};
+  const color_array colour = DeterminePointColor(&point, false, true);
+  static std::vector<PosColorUV2Vertex> vertices;
+  vertices.clear();
+  for (int i = 0; i < nv; ++i) {
+    vertices.push_back(PosColorUV2Vertex{
+        {xy[i * 2] + gpu_state.clip_x1, xy[i * 2 + 1] + gpu_state.clip_y1, 0.0f}, colour, {0.5f, 0.5f, 0.0f, 1.0f}, {}});
+  }
+  dglDrawArrays(GL_TRIANGLES, gRenderer->addVertexData(vertices.begin(), vertices.end()), nv);
+}
+
 // Takes a screenshot of the current frame and puts it into the handle passed
 std::unique_ptr<NewBitmap> rend_Screenshot() {
   auto result =

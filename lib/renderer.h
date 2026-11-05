@@ -450,6 +450,9 @@ void rend_DrawPolygon3D(int handle, g3Point **p, int nv, int map_type = MAP_TYPE
 // Given a handle to a bitmap and nv point vertices, draws a 2D polygon
 void rend_DrawPolygon2D(int handle, g3Point **p, int nv);
 
+// TARTARUS: F-046 many flat triangles in one draw; xy holds nv screen points, three per triangle
+void rend_DrawTriangles2D(int handle, const float *xy, int nv);
+
 // Tells the software renderer whether or not to use mipping
 void rend_SetMipState(int8_t);
 

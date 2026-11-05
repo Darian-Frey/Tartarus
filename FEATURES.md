@@ -237,7 +237,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Could
 **Acceptance:**
 - Yaw compass strip, outdoors only by default
-**Status:** Not started; moved to Phase 3 as part of F-046 (owner, 2026-11-05), where it shows indoors too
+**Status:** Done 2026-11-05 as part of F-046, moved up from Phase 6 by the owner; it shows indoors too
 
 ### F-046 Flight HUD on the canopy
 **Priority:** Should
@@ -245,7 +245,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - In cockpit view, pale green symbols on the canopy glass, behind the cockpit frame: horizon and pitch ladder on the real world at any FOV, flight path marker, roll arc, heading tape (F-045), speed tape, range to the wall ahead, climb rate and status words
 - `hud_aids` master switch turns off every orientation aid; each element has its own switch; on by default with the canopy closed, optional in the full-screen HUD view (D-017)
 - All orientation aids within the AV-009 budget
-**Status:** In progress (Phase 3). Stage 1 done 2026-11-05: `hud_aids`, horizon, pitch ladder (dashed below the horizon) and flight path marker (crossed when moving backwards, dimmed at the edge when off screen), on the deck's Gameplay page. Next: roll arc and heading tape, then the tapes, then status words after F-043. The cost is about 0.1 ms a frame, half the budget, so later stages may need the shapes batched.
+**Status:** In progress (Phase 3). Stage 1 done 2026-11-05: `hud_aids`, horizon, pitch ladder (dashed below the horizon) and flight path marker (crossed when moving backwards, dimmed at the edge when off screen), on the deck's Gameplay page. Stage 2 done 2026-11-05: roll arc and heading tape (F-045), with all shapes batched by colour, about 0.08 ms a frame. Next: the speed and wall-range tapes and climb rate, then status words after F-043.
 **Notes:** D-017. See also AV-009. One hook in `RenderHUDFrame()`.
 
 ---

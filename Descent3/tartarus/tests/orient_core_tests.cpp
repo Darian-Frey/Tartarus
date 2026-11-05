@@ -26,6 +26,10 @@ using tartarus::BallOffset;
 using tartarus::ClipLine;
 using tartarus::ComputeFlightMarker;
 using tartarus::FlightMarkerAlpha;
+using tartarus::HeadingDegrees;
+using tartarus::HeadingLabel;
+using tartarus::HeadingMarks;
+using tartarus::RollPointer;
 using tartarus::SmoothVelocity;
 using tartarus::ComputeLadderBar;
 using tartarus::NoseHeading;
@@ -303,4 +307,52 @@ TEST(OrientFlight, MarkerClampedToTheEdgeWhenSliding) {
   EXPECT_TRUE(m.clamped);
   EXPECT_NEAR(m.position.x, 1280, 0.01f);
   EXPECT_NEAR(m.position.y, 360, 0.01f);
+}
+
+TEST(OrientFlight, HeadingFromGroundDirection) {
+  EXPECT_NEAR(HeadingDegrees(0, 1), 0.0f, 1e-3f);
+  EXPECT_NEAR(HeadingDegrees(1, 0), 90.0f, 1e-3f);
+  EXPECT_NEAR(HeadingDegrees(0, -1), 180.0f, 1e-3f);
+  EXPECT_NEAR(HeadingDegrees(-1, 0), 270.0f, 1e-3f);
+}
+
+TEST(OrientFlight, HeadingMarksCentreOnTheHeading) {
+  const auto marks = HeadingMarks(100, 30, 10);
+  ASSERT_EQ(marks.size(), 7u);
+  EXPECT_FLOAT_EQ(marks.front().offset, -1.0f);
+  EXPECT_FLOAT_EQ(marks.back().offset, 1.0f);
+  EXPECT_EQ(marks[3].degrees, 100);
+}
+
+TEST(OrientFlight, HeadingMarksWrapThroughNorth) {
+  const auto marks = HeadingMarks(5, 30, 10);
+  bool saw_north = false, saw_350 = false;
+  for (const auto &m : marks) {
+    EXPECT_GE(m.degrees, 0);
+    EXPECT_LT(m.degrees, 360);
+    saw_north |= m.degrees == 0;
+    saw_350 |= m.degrees == 350;
+  }
+  EXPECT_TRUE(saw_north);
+  EXPECT_TRUE(saw_350);
+}
+
+TEST(OrientFlight, HeadingLabels) {
+  char text[8];
+  HeadingLabel(0, text, sizeof(text));
+  EXPECT_STREQ(text, "N");
+  HeadingLabel(270, text, sizeof(text));
+  EXPECT_STREQ(text, "W");
+  HeadingLabel(280, text, sizeof(text));
+  EXPECT_STREQ(text, "28");
+  HeadingLabel(30, text, sizeof(text));
+  EXPECT_STREQ(text, "03");
+}
+
+TEST(OrientFlight, RollPointerPinsAtTheEndOfTheArc) {
+  bool pinned = false;
+  EXPECT_FLOAT_EQ(RollPointer(0.5f, 1.0f, &pinned), 0.5f);
+  EXPECT_FALSE(pinned);
+  EXPECT_FLOAT_EQ(RollPointer(-2.0f, 1.0f, &pinned), -1.0f);
+  EXPECT_TRUE(pinned);
 }

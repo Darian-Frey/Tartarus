@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <utility>
 #include <vector>
@@ -53,10 +54,17 @@ Cvar *hud_flight_horizon = nullptr;
 Cvar *hud_flight_horizon_deg = nullptr;
 Cvar *hud_flight_ladder = nullptr;
 Cvar *hud_flight_ladder_step = nullptr;
+Cvar *hud_flight_ladder_limit = nullptr;
 Cvar *hud_flight_fpm = nullptr;
 Cvar *hud_flight_fpm_speed = nullptr;
 Cvar *hud_flight_fpm_smooth = nullptr;
 Cvar *hud_flight_alpha = nullptr;
+Cvar *hud_flight_roll = nullptr;
+Cvar *hud_flight_roll_radius = nullptr;
+Cvar *hud_flight_heading = nullptr;
+Cvar *hud_flight_heading_y = nullptr;
+Cvar *hud_flight_heading_width = nullptr;
+Cvar *hud_flight_heading_span = nullptr;
 Cvar *hud_uptick = nullptr;
 Cvar *hud_uptick_len = nullptr;
 Cvar *hud_uptick_fade_deg = nullptr;
@@ -93,15 +101,45 @@ int WhiteBitmap() {
   return handle;
 }
 
-void BeginShapes() {
-  StartFrame(0, 0, Max_window_w, Max_window_h, false);
+// Shapes collect as triangles and go to the renderer one colour at a time.
+std::vector<float> g_batch;
+ddgr_color g_batch_colour = 0;
+float g_batch_alpha = 0.0f;
+
+void FlushShapes() {
+  const int bitmap = WhiteBitmap();
+  if (g_batch.empty() || bitmap < 0) {
+    g_batch.clear();
+    return;
+  }
   rend_SetOverlayType(OT_NONE);
   rend_SetZBufferState(0);
   rend_SetColorModel(CM_MONO);
   rend_SetAlphaType(AT_CONSTANT_TEXTURE);
+  rend_SetLighting(LS_FLAT_GOURAUD); // takes its colour from the flat colour
+  rend_SetTextureType(TT_LINEAR);
+  rend_SetFlatColor(g_batch_colour);
+  rend_SetAlphaValue(static_cast<uint8_t>(std::clamp(g_batch_alpha, 0.0f, 1.0f) * 255.0f));
+  rend_DrawTriangles2D(bitmap, g_batch.data(), static_cast<int>(g_batch.size() / 2));
+  g_batch.clear();
 }
 
+void UseColour(ddgr_color colour, float alpha) {
+  if (colour != g_batch_colour || alpha != g_batch_alpha) {
+    FlushShapes();
+    g_batch_colour = colour;
+    g_batch_alpha = alpha;
+  }
+}
+
+void AddTriangle(Point2 a, Point2 b, Point2 c) {
+  g_batch.insert(g_batch.end(), {a.x, a.y, b.x, b.y, c.x, c.y});
+}
+
+void BeginShapes() { StartFrame(0, 0, Max_window_w, Max_window_h, false); }
+
 void EndShapes() {
+  FlushShapes();
   rend_SetLighting(LS_NONE);
   rend_SetAlphaType(AT_ALWAYS);
   rend_SetZBufferState(1);
@@ -109,24 +147,9 @@ void EndShapes() {
 }
 
 void FillShape(const std::vector<Point2> &shape, ddgr_color colour, float alpha) {
-  const int bitmap = WhiteBitmap();
-  if (bitmap < 0 || shape.size() < 3)
-    return;
-  std::vector<g3Point> points(shape.size());
-  std::vector<g3Point *> pointers(shape.size());
-  for (size_t i = 0; i < shape.size(); ++i) {
-    points[i].p3_sx = shape[i].x;
-    points[i].p3_sy = shape[i].y;
-    points[i].p3_z = 1.0f;
-    points[i].p3_flags = PF_PROJECTED;
-    points[i].p3_u = points[i].p3_v = 0.5f;
-    pointers[i] = &points[i];
-  }
-  rend_SetLighting(LS_FLAT_GOURAUD); // takes its colour from the flat colour
-  rend_SetTextureType(TT_LINEAR);
-  rend_SetFlatColor(colour);
-  rend_SetAlphaValue(static_cast<uint8_t>(std::clamp(alpha, 0.0f, 1.0f) * 255.0f));
-  rend_DrawPolygon2D(bitmap, pointers.data(), static_cast<int>(pointers.size()));
+  UseColour(colour, alpha);
+  for (size_t i = 1; i + 1 < shape.size(); ++i)
+    AddTriangle(shape[0], shape[i], shape[i + 1]);
 }
 
 float Scale() { return Game_window_h / 480.0f; }
@@ -240,7 +263,10 @@ void Stroke(Point2 a, Point2 b, float half_width, float alpha) {
   if (length < 0.5f)
     return;
   const float nx = -dy / length * half_width, ny = dx / length * half_width;
-  FillShape({{a.x + nx, a.y + ny}, {b.x + nx, b.y + ny}, {b.x - nx, b.y - ny}, {a.x - nx, a.y - ny}}, kFlight, alpha);
+  UseColour(kFlight, alpha);
+  const Point2 p0{a.x + nx, a.y + ny}, p1{b.x + nx, b.y + ny}, p2{b.x - nx, b.y - ny}, p3{a.x - nx, a.y - ny};
+  AddTriangle(p0, p1, p2);
+  AddTriangle(p0, p2, p3);
 }
 
 Point2 Lerp(Point2 a, Point2 b, float t) { return {a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t}; }
@@ -273,12 +299,18 @@ void DrawHorizon(const ViewCamera &camera, float half_width, float alpha) {
 
 void DrawLadder(const ViewCamera &camera, float half_width, float alpha) {
   const int step = std::max(5, hud_flight_ladder_step->GetInt());
+  const float limit = hud_flight_ladder_limit->GetFloat() * Game_window_h;
   std::vector<std::pair<Point2, int>> labels;
   for (int mark = -90 + step; mark < 90; mark += step) {
     if (mark == 0)
       continue;
     LadderBar bar;
     if (!ComputeLadderBar(camera, g_heading_x, g_heading_z, static_cast<float>(mark), 3.0f, 9.0f, &bar))
+      continue;
+    // Only the middle of the view: further out it runs into the tape and the frame.
+    const float mid_x = (bar.inner_left.x + bar.inner_right.x) / 2.0f - camera.cx;
+    const float mid_y = (bar.inner_left.y + bar.inner_right.y) / 2.0f - camera.cy;
+    if (std::sqrt(mid_x * mid_x + mid_y * mid_y) > limit)
       continue;
     if (mark > 0) {
       Stroke(bar.outer_left, bar.inner_left, half_width, alpha);
@@ -291,6 +323,7 @@ void DrawLadder(const ViewCamera &camera, float half_width, float alpha) {
     }
     labels.emplace_back(bar.outer_right, std::abs(mark));
   }
+  FlushShapes(); // text goes on top
   grtext_SetFont(HUD_FONT);
   grtext_SetColor(kFlight);
   grtext_SetAlpha(static_cast<uint8_t>(alpha * 255.0f));
@@ -330,6 +363,69 @@ void DrawFlightMarker(const ViewCamera &camera, const ScreenRect &rect, float ha
   }
 }
 
+void DrawRollArc(const ViewCamera &camera, const matrix &orient, float half_width, float alpha) {
+  constexpr float kLimit = 60.0f * 3.14159265f / 180.0f;
+  const float scale = Scale();
+  const float radius = hud_flight_roll_radius->GetFloat() * Game_window_h;
+  auto on_arc = [&](float angle, float r) { return Point2{camera.cx + std::sin(angle) * r, camera.cy - std::cos(angle) * r}; };
+  constexpr int kSteps = 24;
+  for (int i = 0; i < kSteps; ++i) {
+    const float a0 = -kLimit + 2.0f * kLimit * i / kSteps, a1 = -kLimit + 2.0f * kLimit * (i + 1) / kSteps;
+    Stroke(on_arc(a0, radius), on_arc(a1, radius), half_width, alpha);
+  }
+  for (int mark : {-60, -45, -30, -20, -10, 0, 10, 20, 30, 45, 60}) {
+    const float angle = mark * 3.14159265f / 180.0f;
+    const float length = (mark % 30 == 0 ? 9.0f : 5.0f) * scale;
+    Stroke(on_arc(angle, radius), on_arc(angle, radius + length), half_width, alpha);
+  }
+  bool pinned = false;
+  const float angle = RollPointer(std::atan2(orient.rvec.y(), orient.uvec.y()), kLimit, &pinned);
+  const float dir_x = std::sin(angle), dir_y = -std::cos(angle);
+  const Point2 centre{camera.cx, camera.cy};
+  FillShape(Wedge(centre, dir_x, dir_y, radius - 9.0f * scale, 4.0f * scale, radius - 2.0f * scale), kFlight,
+            pinned ? alpha * 0.5f : alpha); // pinned at the end: past the scale
+}
+
+void DrawHeadingTape(float half_width, float alpha) {
+  const float heading = HeadingDegrees(g_heading_x, g_heading_z);
+  const float scale = Scale();
+  const float cx = Game_window_x + Game_window_w / 2.0f;
+  const float y = Game_window_y + hud_flight_heading_y->GetFloat() * Game_window_h;
+  const float half = hud_flight_heading_width->GetFloat() * Game_window_w;
+  const float span = hud_flight_heading_span->GetFloat();
+  Stroke({cx - half, y}, {cx + half, y}, half_width, alpha);
+
+  struct Label {
+    float x;
+    char text[8];
+  };
+  std::vector<Label> labels;
+  for (const HeadingMark &mark : HeadingMarks(heading, span, 5)) {
+    const float x = cx + mark.offset * half;
+    const bool major = mark.degrees % 10 == 0;
+    Stroke({x, y}, {x, y - (major ? 6.0f : 3.0f) * scale}, half_width, alpha);
+    if (major) {
+      Label label{x, ""};
+      HeadingLabel(mark.degrees, label.text, sizeof(label.text));
+      labels.push_back(label);
+    }
+  }
+  FillShape({{cx, y + 2.0f * scale}, {cx + 4.0f * scale, y + 8.0f * scale}, {cx - 4.0f * scale, y + 8.0f * scale}}, kFlight, alpha);
+
+  FlushShapes(); // text goes on top
+  grtext_SetFont(HUD_FONT);
+  grtext_SetColor(kFlight);
+  grtext_SetAlpha(static_cast<uint8_t>(alpha * 255.0f));
+  const int line = grtext_GetTextHeight("0");
+  for (const Label &label : labels)
+    grtext_Printf(static_cast<int>(label.x) - grtext_GetTextLineWidth(label.text) / 2,
+                  static_cast<int>(y - 6.0f * scale) - line - 1, "%s", label.text);
+  char bearing[8];
+  snprintf(bearing, sizeof(bearing), "%03d", static_cast<int>(heading + 0.5f) % 360);
+  grtext_Printf(static_cast<int>(cx) - grtext_GetTextLineWidth(bearing) / 2, static_cast<int>(y + 9.0f * scale), "%s", bearing);
+  grtext_Flush();
+}
+
 void DrawFlightHud(const matrix &orient) {
   const ViewCamera camera = WorldCamera(orient);
   const ScreenRect rect{static_cast<float>(Game_window_x), static_cast<float>(Game_window_y),
@@ -341,8 +437,12 @@ void DrawFlightHud(const matrix &orient) {
     DrawHorizon(camera, half_width, alpha);
   if (hud_flight_fpm->GetBool())
     DrawFlightMarker(camera, rect, half_width * 1.2f, alpha);
+  if (hud_flight_roll->GetBool())
+    DrawRollArc(camera, orient, half_width, alpha);
   if (hud_flight_ladder->GetBool())
     DrawLadder(camera, half_width, alpha);
+  if (hud_flight_heading->GetBool())
+    DrawHeadingTape(half_width, alpha);
 }
 
 bool Flying() { return Flight_ContextActive() && Player_object != nullptr && Viewer_object == Player_object; }
@@ -359,10 +459,17 @@ void OrientHud_Init() {
   hud_flight_horizon_deg = cv.RegisterFloat("hud_flight_horizon_deg", 20.0f, 6.0f, 60.0f, "Flight HUD: horizon bar, degrees each side of the nose", flags);
   hud_flight_ladder = cv.RegisterBool("hud_flight_ladder", true, "Flight HUD: pitch ladder", flags);
   hud_flight_ladder_step = cv.RegisterInt("hud_flight_ladder_step", 10, 5, 30, "Flight HUD: degrees between ladder marks", flags);
+  hud_flight_ladder_limit = cv.RegisterFloat("hud_flight_ladder_limit", 0.3f, 0.1f, 0.6f, "Flight HUD: ladder marks shown this far from the centre, as a fraction of the view height", flags);
   hud_flight_fpm = cv.RegisterBool("hud_flight_fpm", true, "Flight HUD: flight path marker, where the ship is going", flags);
   hud_flight_fpm_speed = cv.RegisterFloat("hud_flight_fpm_speed", 6.0f, 0.0f, 30.0f, "Flight path marker: hidden below this speed, full at twice it", flags);
   hud_flight_fpm_smooth = cv.RegisterFloat("hud_flight_fpm_smooth", 0.2f, 0.0f, 1.0f, "Flight path marker: smoothing time in seconds", flags);
   hud_flight_alpha = cv.RegisterFloat("hud_flight_alpha", 0.85f, 0.2f, 1.0f, "Flight HUD brightness", flags);
+  hud_flight_roll = cv.RegisterBool("hud_flight_roll", true, "Flight HUD: roll arc", flags);
+  hud_flight_roll_radius = cv.RegisterFloat("hud_flight_roll_radius", 0.34f, 0.15f, 0.48f, "Roll arc radius, as a fraction of the view height", flags);
+  hud_flight_heading = cv.RegisterBool("hud_flight_heading", true, "Flight HUD: heading tape", flags);
+  hud_flight_heading_y = cv.RegisterFloat("hud_flight_heading_y", 0.1f, 0.03f, 0.5f, "Heading tape height, 0 = top of the view", flags);
+  hud_flight_heading_width = cv.RegisterFloat("hud_flight_heading_width", 0.2f, 0.05f, 0.45f, "Heading tape half-width, as a fraction of the view width", flags);
+  hud_flight_heading_span = cv.RegisterFloat("hud_flight_heading_span", 30.0f, 10.0f, 90.0f, "Heading tape: degrees shown each side of the centre", flags);
   hud_uptick = cv.RegisterBool("hud_uptick", false, "Wedge on the reticle pointing to world up; fades out when upright", flags);
   hud_uptick_len = cv.RegisterFloat("hud_uptick_len", 14.0f, 4.0f, 40.0f, "Up-tick length, in pixels of a 480-line view", flags);
   hud_uptick_fade_deg = cv.RegisterFloat("hud_uptick_fade_deg", 8.0f, 0.0f, 45.0f,

@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 3)
+- Flight HUD, second stage (F-046, F-045): a compass heading tape along the top of the canopy and a roll arc; `hud_flight_heading*`, `hud_flight_roll*`. The ladder stays in the middle of the view. All orientation aids now draw in batches, one call per colour, through the new `rend_DrawTriangles2D`. 5 unit tests — 2026-11-05.
 - Flight HUD on the canopy, first stage (F-046, D-017): in cockpit view, a pale green horizon, pitch ladder and flight path marker that line up with the real world and sit behind the cockpit frame. On by default in Tartarus mode; `hud_flight*`. `hud_aids` turns off every orientation aid, and the up-tick now defaults to off. 16 unit tests — 2026-11-05.
 - Attitude ball (F-041) and axis gizmo (F-042): off by default (D-010), with size and position settings; `hud_attitude*`, `hud_gizmo*`, also on the deck's Gameplay page. All three orientation aids together cost about 0.05 ms a frame. 7 unit tests — 2026-11-04.
 - Reticle up-tick (F-040, D-010): a wedge at the reticle that points to world up, fading out when you are upright. On by default in Tartarus mode; `hud_uptick`, `hud_uptick_len`, `hud_uptick_fade_deg`, also on the deck's Gameplay page. 9 unit tests — 2026-11-04.

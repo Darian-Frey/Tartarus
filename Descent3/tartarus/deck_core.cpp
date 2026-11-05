@@ -105,6 +105,8 @@ const std::vector<DeckPageDef> &DefaultDeckPages() {
         {"hud_flight_horizon", "Flight HUD horizon"},
         {"hud_flight_ladder", "Flight HUD pitch ladder"},
         {"hud_flight_fpm", "Flight path marker"},
+        {"hud_flight_roll", "Flight HUD roll arc"},
+        {"hud_flight_heading", "Flight HUD heading tape"},
         {"hud_flight_alpha", "Flight HUD brightness", 0.05},
         {"hud_uptick", "Up-tick on the reticle"},
         {"hud_uptick_len", "Up-tick length", 2},
