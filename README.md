@@ -19,11 +19,50 @@ Tartarus replaces the stock menus with a cassette-futurism "deck": amber phospho
 
 ![The Graphics page of the options deck](docs/images/deck-options.png)
 
-## Orientation aids
+The deck covers the whole game in Tartarus mode: the main menu, saving and loading, pilots, new game and in-game prompts, and all the controls, with every key, joystick and mouse binding, weapon order and settings in one style.
 
-Losing track of which way is up is a classic Descent problem. In cockpit view a pale green flight HUD on the canopy shows the horizon, a pitch ladder and where the ship is actually going. Optional aids can be switched on in the deck's Gameplay page: a wedge on the reticle that points to world up, an axis gizmo and this attitude ball, which shows pitch and roll against the horizon. Classic Mode has none of them.
+![The keyboard bindings on the deck](docs/images/deck-keyboard.png)
+
+## Flight HUD
+
+In cockpit view a pale green head-up display sits on the canopy, behind the cockpit frame, so it looks as if it is on the glass. Everything lines up with the real world at any field of view.
+
+![The flight HUD, shown here on a plain background](docs/images/flight-hud.png)
+
+*Shown on a plain background so the picture contains no game artwork.*
+
+- **Horizon and pitch ladder** tilt and move with the ship, so you can always see which way is up.
+- **Flight path marker** shows where the ship is actually going, which in a craft that slides sideways is often not where the nose points. A cross through it means you are moving backwards.
+- **Heading tape and roll arc** give a compass bearing and how far you are rolled.
+- **Speed and wall range** run down either side: range is the distance to the first wall or closed door along your nose. Climb rate sits beneath.
+- **Status words** such as HOLD, SNAP, SLIDE and BOOST appear beside the tape only while active.
+
+Every part has its own switch on the deck's Gameplay page, one setting turns them all off, and the HUD can be shown without the cockpit too.
+
+## Staying upright
+
+Hold **X** to roll upright, or tap **Z** to roll to the nearest upright. Any roll input of your own cancels them. Both work as ordinary bank input, so the stock physics are untouched. Optional aids can also be switched on: a wedge on the reticle that points to world up, an axis gizmo and this attitude ball, each with adjustable size, position and transparency.
 
 <img src="docs/images/attitude-ball.png" alt="The attitude ball, rolled with the nose above the horizon line" width="200">
+
+## Reticles
+
+A choice of four drawn reticles: Gunsight, Brackets, Chevrons and Cross. The stock reticle is still available. In all of them, the bars at the sides show your primary guns and the pips underneath show your missile launchers, placed by side, and bright means ready to fire.
+
+![The four reticle styles](docs/images/reticles.png)
+
+## The automap
+
+The ship has a laser scanner. As you fly, it reaches surfaces within 200 units and builds the map, so you only know what you have been close enough to scan. Everything else is blank, and fly-throughs leave gaps until you go back for a proper look.
+
+![The scanner map on the deck](docs/images/automap.png)
+
+- **Wireframe** pale green lines on black at full resolution, with a compass and an amber marker for your ship. Surfaces new since you last looked flash when the map opens.
+- **Symbols** show doors (red when locked), keys, goals and powerups in places you have scanned, each with its own filter key. Robots are never shown.
+- **Saved** with your game, in a small file beside each save.
+- **Getting your bearings:** when you close the map, the roll arc and heading tape stand out for a moment.
+
+Classic Mode has none of this: it keeps the stock menus, reticle, map and flying.
 
 ## Credits and licence
 
