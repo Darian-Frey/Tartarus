@@ -22,14 +22,21 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
+#include <utility>
 #include <vector>
 
 #include "3d.h"
 #include "bitmap.h"
 #include "classic.h"
+#include "cockpit.h"
 #include "cvar.h"
 #include "game.h"
+#include "gamefont.h"
+#include "gameloop.h"
 #include "grdefs.h"
+#include "grtext.h"
+#include "hud.h"
 #include "mouse_flight.h"
 #include "object.h"
 #include "orient_core.h"
@@ -39,6 +46,17 @@ namespace tartarus {
 
 namespace {
 
+Cvar *hud_aids = nullptr;
+Cvar *hud_flight = nullptr;
+Cvar *hud_flight_fullscreen = nullptr;
+Cvar *hud_flight_horizon = nullptr;
+Cvar *hud_flight_horizon_deg = nullptr;
+Cvar *hud_flight_ladder = nullptr;
+Cvar *hud_flight_ladder_step = nullptr;
+Cvar *hud_flight_fpm = nullptr;
+Cvar *hud_flight_fpm_speed = nullptr;
+Cvar *hud_flight_fpm_smooth = nullptr;
+Cvar *hud_flight_alpha = nullptr;
 Cvar *hud_uptick = nullptr;
 Cvar *hud_uptick_len = nullptr;
 Cvar *hud_uptick_fade_deg = nullptr;
@@ -52,6 +70,7 @@ Cvar *hud_gizmo_size = nullptr;
 Cvar *hud_gizmo_x = nullptr;
 Cvar *hud_gizmo_y = nullptr;
 
+const ddgr_color kFlight = GR_RGB(150, 255, 190); // pale green, like a collimated HUD
 const ddgr_color kTick = GR_RGB(255, 225, 120);
 const ddgr_color kSky = GR_RGB(45, 100, 165);
 const ddgr_color kGround = GR_RGB(115, 80, 45);
@@ -214,12 +233,137 @@ void DrawGizmo(const matrix &orient) {
   }
 }
 
+// A line with some width: rend_DrawLine has neither width nor alpha.
+void Stroke(Point2 a, Point2 b, float half_width, float alpha) {
+  const float dx = b.x - a.x, dy = b.y - a.y;
+  const float length = std::sqrt(dx * dx + dy * dy);
+  if (length < 0.5f)
+    return;
+  const float nx = -dy / length * half_width, ny = dx / length * half_width;
+  FillShape({{a.x + nx, a.y + ny}, {b.x + nx, b.y + ny}, {b.x - nx, b.y - ny}, {a.x - nx, a.y - ny}}, kFlight, alpha);
+}
+
+Point2 Lerp(Point2 a, Point2 b, float t) { return {a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t}; }
+
+ViewCamera WorldCamera(const matrix &orient) {
+  ViewCamera camera{};
+  const vector *axes[3] = {&orient.rvec, &orient.uvec, &orient.fvec};
+  float *rows[3] = {camera.right, camera.up, camera.forward};
+  for (int i = 0; i < 3; ++i) {
+    rows[i][0] = axes[i]->x();
+    rows[i][1] = axes[i]->y();
+    rows[i][2] = axes[i]->z();
+  }
+  camera.cx = Game_window_x + Game_window_w / 2.0f;
+  camera.cy = Game_window_y + Game_window_h / 2.0f;
+  ViewCameraScale(&camera, static_cast<float>(Game_window_w), static_cast<float>(Game_window_h), Render_zoom);
+  return camera;
+}
+
+float g_heading_x = 0.0f, g_heading_z = 1.0f; // the nose's ground direction, held near vertical
+float g_velocity[3] = {};                     // smoothed, for the flight path marker
+
+void DrawHorizon(const ViewCamera &camera, float half_width, float alpha) {
+  LadderBar bar;
+  if (!ComputeLadderBar(camera, g_heading_x, g_heading_z, 0.0f, 3.0f, hud_flight_horizon_deg->GetFloat(), &bar))
+    return;
+  Stroke(bar.outer_left, bar.inner_left, half_width, alpha);
+  Stroke(bar.inner_right, bar.outer_right, half_width, alpha);
+}
+
+void DrawLadder(const ViewCamera &camera, float half_width, float alpha) {
+  const int step = std::max(5, hud_flight_ladder_step->GetInt());
+  std::vector<std::pair<Point2, int>> labels;
+  for (int mark = -90 + step; mark < 90; mark += step) {
+    if (mark == 0)
+      continue;
+    LadderBar bar;
+    if (!ComputeLadderBar(camera, g_heading_x, g_heading_z, static_cast<float>(mark), 3.0f, 9.0f, &bar))
+      continue;
+    if (mark > 0) {
+      Stroke(bar.outer_left, bar.inner_left, half_width, alpha);
+      Stroke(bar.inner_right, bar.outer_right, half_width, alpha);
+    } else { // dashed below the horizon, as on a real ladder
+      Stroke(bar.outer_left, Lerp(bar.outer_left, bar.inner_left, 0.4f), half_width, alpha);
+      Stroke(Lerp(bar.outer_left, bar.inner_left, 0.6f), bar.inner_left, half_width, alpha);
+      Stroke(bar.inner_right, Lerp(bar.inner_right, bar.outer_right, 0.4f), half_width, alpha);
+      Stroke(Lerp(bar.inner_right, bar.outer_right, 0.6f), bar.outer_right, half_width, alpha);
+    }
+    labels.emplace_back(bar.outer_right, std::abs(mark));
+  }
+  grtext_SetFont(HUD_FONT);
+  grtext_SetColor(kFlight);
+  grtext_SetAlpha(static_cast<uint8_t>(alpha * 255.0f));
+  for (const auto &[at, value] : labels) {
+    if (at.x > Game_window_x && at.x < Game_window_x + Game_window_w - 24 && at.y > Game_window_y &&
+        at.y < Game_window_y + Game_window_h - 16)
+      grtext_Printf(static_cast<int>(at.x) + 4, static_cast<int>(at.y) - 6, "%d", value);
+  }
+  grtext_Flush();
+}
+
+void DrawFlightMarker(const ViewCamera &camera, const ScreenRect &rect, float half_width, float alpha) {
+  const vector &v = Player_object->mtype.phys_info.velocity;
+  const float velocity[3] = {v.x(), v.y(), v.z()};
+  SmoothVelocity(g_velocity, velocity, Frametime, hud_flight_fpm_smooth->GetFloat());
+  const float strength = FlightMarkerAlpha(g_velocity, hud_flight_fpm_speed->GetFloat());
+  FlightMarker marker;
+  if (strength <= 0.0f || !ComputeFlightMarker(camera, g_velocity, rect, &marker))
+    return;
+  const float radius = 7.0f * Scale();
+  const float a = alpha * strength * (marker.clamped ? 0.5f : 1.0f); // on the edge: only a direction
+  const Point2 c = marker.position;
+  constexpr int kSides = 10;
+  for (int i = 0; i < kSides; ++i) {
+    const float t0 = 6.2831853f * i / kSides, t1 = 6.2831853f * (i + 1) / kSides;
+    Stroke({c.x + radius * std::cos(t0), c.y + radius * std::sin(t0)}, {c.x + radius * std::cos(t1), c.y + radius * std::sin(t1)},
+           half_width, a);
+  }
+  if (marker.reversed) { // a cross through it: this is where you came from
+    const float r = radius * 0.7f;
+    Stroke({c.x - r, c.y - r}, {c.x + r, c.y + r}, half_width, a);
+    Stroke({c.x - r, c.y + r}, {c.x + r, c.y - r}, half_width, a);
+  } else { // wings and a fin
+    Stroke({c.x - radius * 2.2f, c.y}, {c.x - radius, c.y}, half_width, a);
+    Stroke({c.x + radius, c.y}, {c.x + radius * 2.2f, c.y}, half_width, a);
+    Stroke({c.x, c.y - radius * 1.8f}, {c.x, c.y - radius}, half_width, a);
+  }
+}
+
+void DrawFlightHud(const matrix &orient) {
+  const ViewCamera camera = WorldCamera(orient);
+  const ScreenRect rect{static_cast<float>(Game_window_x), static_cast<float>(Game_window_y),
+                        static_cast<float>(Game_window_x + Game_window_w), static_cast<float>(Game_window_y + Game_window_h)};
+  const float half_width = std::max(0.6f, 0.45f * Scale());
+  const float alpha = hud_flight_alpha->GetFloat();
+  NoseHeading(camera.forward, &g_heading_x, &g_heading_z);
+  if (hud_flight_horizon->GetBool())
+    DrawHorizon(camera, half_width, alpha);
+  if (hud_flight_fpm->GetBool())
+    DrawFlightMarker(camera, rect, half_width * 1.2f, alpha);
+  if (hud_flight_ladder->GetBool())
+    DrawLadder(camera, half_width, alpha);
+}
+
+bool Flying() { return Flight_ContextActive() && Player_object != nullptr && Viewer_object == Player_object; }
+
 } // namespace
 
 void OrientHud_Init() {
   const uint32_t flags = CVAR_ARCHIVE | CVAR_CLASSIC_LOCKED;
   CvarRegistry &cv = Cvars();
-  hud_uptick = cv.RegisterBool("hud_uptick", true, "Wedge on the reticle pointing to world up; fades out when upright", flags);
+  hud_aids = cv.RegisterBool("hud_aids", true, "Master switch for every orientation aid", flags);
+  hud_flight = cv.RegisterBool("hud_flight", true, "Flight HUD on the canopy in cockpit view", flags);
+  hud_flight_fullscreen = cv.RegisterBool("hud_flight_fullscreen", false, "Flight HUD in the full-screen HUD view too", flags);
+  hud_flight_horizon = cv.RegisterBool("hud_flight_horizon", true, "Flight HUD: horizon line", flags);
+  hud_flight_horizon_deg = cv.RegisterFloat("hud_flight_horizon_deg", 20.0f, 6.0f, 60.0f, "Flight HUD: horizon bar, degrees each side of the nose", flags);
+  hud_flight_ladder = cv.RegisterBool("hud_flight_ladder", true, "Flight HUD: pitch ladder", flags);
+  hud_flight_ladder_step = cv.RegisterInt("hud_flight_ladder_step", 10, 5, 30, "Flight HUD: degrees between ladder marks", flags);
+  hud_flight_fpm = cv.RegisterBool("hud_flight_fpm", true, "Flight HUD: flight path marker, where the ship is going", flags);
+  hud_flight_fpm_speed = cv.RegisterFloat("hud_flight_fpm_speed", 6.0f, 0.0f, 30.0f, "Flight path marker: hidden below this speed, full at twice it", flags);
+  hud_flight_fpm_smooth = cv.RegisterFloat("hud_flight_fpm_smooth", 0.2f, 0.0f, 1.0f, "Flight path marker: smoothing time in seconds", flags);
+  hud_flight_alpha = cv.RegisterFloat("hud_flight_alpha", 0.85f, 0.2f, 1.0f, "Flight HUD brightness", flags);
+  hud_uptick = cv.RegisterBool("hud_uptick", false, "Wedge on the reticle pointing to world up; fades out when upright", flags);
   hud_uptick_len = cv.RegisterFloat("hud_uptick_len", 14.0f, 4.0f, 40.0f, "Up-tick length, in pixels of a 480-line view", flags);
   hud_uptick_fade_deg = cv.RegisterFloat("hud_uptick_fade_deg", 8.0f, 0.0f, 45.0f,
                                          "Up-tick: hidden within this many degrees of upright, full at three times that", flags);
@@ -234,14 +378,25 @@ void OrientHud_Init() {
   hud_gizmo_y = cv.RegisterFloat("hud_gizmo_y", 0.5f, 0.0f, 1.0f, "Gizmo centre, 0 = top, 1 = bottom", flags);
 }
 
+void OrientHud_RenderCanopy() {
+  if (IsClassic() || !hud_aids->GetBool() || !hud_flight->GetBool() || CockpitState() != COCKPIT_STATE_FUNCTIONAL || !Flying())
+    return;
+  BeginShapes();
+  DrawFlightHud(Player_object->orient);
+  EndShapes();
+}
+
 void OrientHud_Render() {
-  if (IsClassic())
+  if (IsClassic() || !hud_aids->GetBool())
     return;
   const bool tick = hud_uptick->GetBool(), ball = hud_attitude->GetBool(), gizmo = hud_gizmo->GetBool();
-  if ((!tick && !ball && !gizmo) || !Flight_ContextActive() || Player_object == nullptr || Viewer_object != Player_object)
+  const bool flight = hud_flight_fullscreen->GetBool() && GetHUDMode() == HUD_FULLSCREEN;
+  if ((!tick && !ball && !gizmo && !flight) || !Flying())
     return;
   const matrix &orient = Player_object->orient;
   BeginShapes();
+  if (flight)
+    DrawFlightHud(orient);
   if (tick)
     DrawUpTick(orient);
   if (ball)

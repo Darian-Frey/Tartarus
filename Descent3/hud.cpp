@@ -437,6 +437,7 @@
 #include "gamecinematics.h"
 #include "CtlCfgElem.h"
 #include "ctlconfig.h"
+#include "tartarus/orient_hud.h" // TARTARUS: F-046
 
 //////////////////////////////////////////////////////////////////////////////
 //	constants
@@ -1231,6 +1232,7 @@ void RenderHUDFrame() {
 
     case HUD_COCKPIT:
       RenderHUDItems(Hud_stat_mask);
+      tartarus::OrientHud_RenderCanopy(); // TARTARUS: F-046 before the cockpit model, which covers it: it sits on the glass
       RenderCockpit(); // called when cockpit is activating and functioning.
       if (Game_toggles.show_reticle) {
         RenderReticle();

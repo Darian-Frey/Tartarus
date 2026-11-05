@@ -21,7 +21,7 @@ Tartarus replaces the stock menus with a cassette-futurism "deck": amber phospho
 
 ## Orientation aids
 
-Losing track of which way is up is a classic Descent problem. A wedge on the reticle points to world up whenever you are rolled, and two optional instruments can be switched on in the deck's Gameplay page: an axis gizmo and this attitude ball, which shows pitch and roll against the horizon. Classic Mode has none of them.
+Losing track of which way is up is a classic Descent problem. In cockpit view a pale green flight HUD on the canopy shows the horizon, a pitch ladder and where the ship is actually going. Optional aids can be switched on in the deck's Gameplay page: a wedge on the reticle that points to world up, an axis gizmo and this attitude ball, which shows pitch and roll against the horizon. Classic Mode has none of them.
 
 <img src="docs/images/attitude-ball.png" alt="The attitude ball, rolled with the nose above the horizon line" width="200">
 

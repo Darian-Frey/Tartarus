@@ -25,6 +25,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/newui.cpp` | `tartarus::Deck_MessageBox`, `tartarus::Deck_EditBox`, `tartarus::kDeckStock` | gated: report stock in Classic Mode and multiplayer (D-016) |
 | `Descent3/ctlconfig.cpp` | `tartarus::ControlsDeck_Run` | gated: false in Classic Mode and multiplayer, stock controls screen (D-016) |
 | `Descent3/gamesequence.cpp` | `tartarus::Deck_RunPendingControls` | gated: false unless the deck asked, and the deck never opens in Classic Mode, so `OptionsMenu()` runs (D-016) |
+| `Descent3/hud.cpp` | `tartarus::OrientHud_RenderCanopy` | gated: returns at once in Classic Mode, so nothing is drawn on the canopy (F-046) |
 | `Descent3/help.cpp` | `tartarus::HelpDeck_Run` | gated: false in Classic Mode, stock Keys screen (D-016) |
 | `Descent3/buddymenu.cpp` | `tartarus::BuddyDeck_Pick`, `tartarus::kDeckStock` | gated: stock Guide-Bot menu in Classic Mode and multiplayer (D-016) |
 | `Descent3/pilot.cpp` | `tartarus::PilotDeck_Run` | gated: false in Classic Mode, stock Pilots screen (D-016) |

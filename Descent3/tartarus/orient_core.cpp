@@ -89,4 +89,109 @@ std::array<GizmoAxis, 3> ComputeGizmo(const float right[3], const float up[3], c
   return axes;
 }
 
+namespace {
+
+float Dot(const float a[3], const float b[3]) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+
+constexpr float kBehind = 0.001f;
+
+} // namespace
+
+void ViewCameraScale(ViewCamera *camera, float window_w, float window_h, float zoom) {
+  // g3_StartFrame(): the window's aspect narrows x, and zoom is scaled by 3/4.
+  const float s = window_h / window_w;
+  const float view_zoom = zoom * 0.75f;
+  camera->fx = (s <= 1.0f ? s : 1.0f / s) / view_zoom * window_w * 0.5f;
+  camera->fy = window_h * 0.5f / view_zoom;
+}
+
+bool ProjectDirection(const ViewCamera &camera, const float direction[3], Point2 *out) {
+  const float z = Dot(direction, camera.forward);
+  if (z <= kBehind)
+    return false;
+  out->x = camera.cx + Dot(direction, camera.right) / z * camera.fx;
+  out->y = camera.cy - Dot(direction, camera.up) / z * camera.fy;
+  return true;
+}
+
+bool ClipLine(const ScreenRect &rect, Point2 *a, Point2 *b) {
+  const float dx = b->x - a->x, dy = b->y - a->y;
+  float t0 = 0.0f, t1 = 1.0f;
+  const float p[4] = {-dx, dx, -dy, dy};
+  const float q[4] = {a->x - rect.x1, rect.x2 - a->x, a->y - rect.y1, rect.y2 - a->y};
+  for (int i = 0; i < 4; ++i) {
+    if (p[i] == 0.0f) {
+      if (q[i] < 0.0f)
+        return false;
+      continue;
+    }
+    const float t = q[i] / p[i];
+    if (p[i] < 0.0f)
+      t0 = std::max(t0, t);
+    else
+      t1 = std::min(t1, t);
+  }
+  if (t0 > t1)
+    return false;
+  const Point2 start = *a;
+  *a = {start.x + dx * t0, start.y + dy * t0};
+  *b = {start.x + dx * t1, start.y + dy * t1};
+  return true;
+}
+
+void NoseHeading(const float forward[3], float *heading_x, float *heading_z) {
+  const float length = std::sqrt(forward[0] * forward[0] + forward[2] * forward[2]);
+  if (length < 0.1f)
+    return;
+  *heading_x = forward[0] / length;
+  *heading_z = forward[2] / length;
+}
+
+bool ComputeLadderBar(const ViewCamera &camera, float heading_x, float heading_z, float mark_deg, float inner_deg,
+                      float outer_deg, LadderBar *bar) {
+  const float pitch = mark_deg * kPi / 180.0f;
+  const float cos_p = std::cos(pitch), sin_p = std::sin(pitch);
+  auto point = [&](float yaw_deg, Point2 *out) {
+    const float yaw = yaw_deg * kPi / 180.0f;
+    const float c = std::cos(yaw), s = std::sin(yaw);
+    // The nose's ground direction turned by yaw, then raised by the mark.
+    const float direction[3] = {cos_p * (c * heading_x + s * heading_z), sin_p, cos_p * (c * heading_z - s * heading_x)};
+    return ProjectDirection(camera, direction, out);
+  };
+  return point(-outer_deg, &bar->outer_left) && point(-inner_deg, &bar->inner_left) &&
+         point(inner_deg, &bar->inner_right) && point(outer_deg, &bar->outer_right);
+}
+
+void SmoothVelocity(float smoothed[3], const float velocity[3], float frame_time, float time_constant) {
+  const float blend = time_constant > 0.0f ? 1.0f - std::exp(-frame_time / time_constant) : 1.0f;
+  for (int i = 0; i < 3; ++i)
+    smoothed[i] += (velocity[i] - smoothed[i]) * blend;
+}
+
+float FlightMarkerAlpha(const float velocity[3], float min_speed) {
+  return Smoothstep(min_speed, min_speed * 2.0f, std::sqrt(Dot(velocity, velocity)));
+}
+
+bool ComputeFlightMarker(const ViewCamera &camera, const float velocity[3], const ScreenRect &rect, FlightMarker *marker) {
+  const float speed = std::sqrt(Dot(velocity, velocity));
+  if (speed <= 0.0f)
+    return false;
+  float direction[3] = {velocity[0] / speed, velocity[1] / speed, velocity[2] / speed};
+  marker->reversed = Dot(direction, camera.forward) < 0.0f;
+  if (marker->reversed) {
+    for (float &d : direction)
+      d = -d;
+  }
+  const float x = Dot(direction, camera.right), y = Dot(direction, camera.up);
+  const float z = std::max(Dot(direction, camera.forward), 0.01f); // sliding sideways: far off to the side
+  Point2 p{camera.cx + x / z * camera.fx, camera.cy - y / z * camera.fy};
+  Point2 centre{camera.cx, camera.cy};
+  marker->clamped = p.x < rect.x1 || p.x > rect.x2 || p.y < rect.y1 || p.y > rect.y2;
+  if (marker->clamped) {
+    ClipLine(rect, &centre, &p); // the end that stays is on the edge, on the way to the point
+  }
+  marker->position = p;
+  return true;
+}
+
 } // namespace tartarus

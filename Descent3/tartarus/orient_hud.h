@@ -16,19 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Orientation aids on the HUD (F-040 - F-042, D-010, SPEC.md §9): the reticle
-// up-tick, the attitude ball and the axis gizmo. CLASSIC_LOCKED, and off in
-// Classic Mode.
+// Orientation aids on the HUD (F-040 - F-042, F-046, D-017, SPEC.md §9): the
+// flight HUD on the canopy, and the optional reticle up-tick, attitude ball and
+// axis gizmo. CLASSIC_LOCKED, and off in Classic Mode.
 
 #pragma once
 
 namespace tartarus {
 
-/// Registers the hud_uptick*, hud_attitude* and hud_gizmo* cvars. Called from
-/// Tartarus_Init().
+/// Registers the hud_aids, hud_flight*, hud_uptick*, hud_attitude* and
+/// hud_gizmo* cvars. Called from Tartarus_Init().
 void OrientHud_Init();
 
 /// Draws the aids. Called from RenderOverlays().
 void OrientHud_Render();
+
+/// Draws the flight HUD. Called from RenderHUDFrame() just before the cockpit
+/// model, which then covers it wherever the frame is: that puts it on the glass.
+void OrientHud_RenderCanopy();
 
 } // namespace tartarus

@@ -205,9 +205,9 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 ### D-010 Orientation-aid defaults: reticle up-tick on, everything else off
 **Decided:** 2026-11-01
 **Recorded:** 2026-11-01
-**Status:** Accepted
+**Status:** Superseded by D-017 (2026-11-05)
 **Authors:** Shane Hartley (with Claude design discussion 2026-11-01)
-**Related:** F-040 – F-043, AV-011
+**Related:** F-040 – F-043, AV-011, D-017
 
 **Context.** Losing track of "up" is a known Descent frustration, but veterans prize the raw 6DOF feel.
 
@@ -353,3 +353,24 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
 **Reversal conditions.** If the layer's upkeep outweighs its value, the stock menus are still there; `Deck_HandleKey()` is the only place that takes F2.
 
+### D-017 Orientation defaults: the flight HUD on the canopy, every other aid off
+**Decided:** 2026-11-05
+**Recorded:** 2026-11-05
+**Status:** Accepted
+**Authors:** Shane Hartley (with Claude design discussion 2026-11-05)
+**Related:** F-040, F-041, F-042, F-046, D-010
+
+**Context.** The owner wanted more than the up-tick, ball and gizmo, using an aircraft head-up display as the reference, drawn so it looks as if it sits on the ship's canopy. D-010 kept only the up-tick on by default.
+
+**Options.**
+- **A. Keep D-010.** Rejected: the owner wants the flight HUD to be the main aid.
+- **B. Flight HUD on by default in cockpit view; up-tick, ball and gizmo off; one master switch for them all.** Chosen.
+- **C. Everything off until switched on.** Rejected: new players would never find it, the reason D-010 rejected its own option C.
+
+**Decision.** Option B, in Tartarus mode. It appears when the canopy is closed (cockpit view) and is drawn before the cockpit model, so the frame covers it and it sits on the glass. The full-screen HUD view shows it only if `hud_flight_fullscreen` is set. Pale green for now; other colours may follow if it works well. The right-hand tape, when it comes, is range to the wall ahead. Classic Mode: all off. Stronger auto-level stays opt-in, as in D-010 (`al_strength` 0).
+
+**Consequences.**
+- `hud_uptick` now defaults to off. A value saved in `tartarus.cfg` still applies.
+- Pilots who fly in the full-screen HUD view see no aid by default.
+
+**Reversal conditions.** Playtest evidence that the flight HUD clutters the view, or that new players in the full-screen view lose track of up.

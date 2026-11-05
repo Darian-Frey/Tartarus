@@ -23,6 +23,17 @@
 #include "../orient_core.h"
 
 using tartarus::BallOffset;
+using tartarus::ClipLine;
+using tartarus::ComputeFlightMarker;
+using tartarus::FlightMarkerAlpha;
+using tartarus::SmoothVelocity;
+using tartarus::ComputeLadderBar;
+using tartarus::NoseHeading;
+using tartarus::Point2;
+using tartarus::ProjectDirection;
+using tartarus::ScreenRect;
+using tartarus::ViewCamera;
+using tartarus::ViewCameraScale;
 using tartarus::ComputeGizmo;
 using tartarus::ComputeUpTick;
 using tartarus::DiscAbove;
@@ -136,4 +147,160 @@ TEST(OrientCore, GizmoDrawsFarthestFirst) {
   const auto axes = ComputeGizmo(right, up, forward);
   EXPECT_GE(axes[0].depth, axes[1].depth);
   EXPECT_GE(axes[1].depth, axes[2].depth);
+}
+
+namespace {
+
+// A 1280x720 view, FOV zoom 0.73, turned by pitch (nose up) and roll (right).
+ViewCamera Camera(float pitch_deg = 0, float roll_deg = 0) {
+  const float p = pitch_deg * kPi / 180, r = roll_deg * kPi / 180;
+  const float f[3] = {0, std::sin(p), std::cos(p)};
+  const float u0[3] = {0, std::cos(p), -std::sin(p)};
+  const float r0[3] = {1, 0, 0};
+  ViewCamera c{};
+  for (int i = 0; i < 3; ++i) {
+    c.forward[i] = f[i];
+    c.right[i] = std::cos(r) * r0[i] - std::sin(r) * u0[i];
+    c.up[i] = std::sin(r) * r0[i] + std::cos(r) * u0[i];
+  }
+  c.cx = 640;
+  c.cy = 360;
+  ViewCameraScale(&c, 1280, 720, 0.73f);
+  return c;
+}
+
+constexpr ScreenRect kScreen{0, 0, 1280, 720};
+
+} // namespace
+
+TEST(OrientFlight, ScaleMatchesTheEngine) {
+  ViewCamera c{};
+  ViewCameraScale(&c, 1280, 720, 0.73f);
+  EXPECT_FLOAT_EQ(c.fx, c.fy); // square pixels
+  EXPECT_NEAR(c.fy, 360 / (0.73f * 0.75f), 1e-2f);
+}
+
+TEST(OrientFlight, ForwardProjectsToTheCentre) {
+  const auto c = Camera();
+  const float forward[3] = {0, 0, 1};
+  Point2 p;
+  ASSERT_TRUE(ProjectDirection(c, forward, &p));
+  EXPECT_FLOAT_EQ(p.x, 640);
+  EXPECT_FLOAT_EQ(p.y, 360);
+}
+
+TEST(OrientFlight, BehindIsRejected) {
+  const float back[3] = {0, 0, -1};
+  Point2 p;
+  EXPECT_FALSE(ProjectDirection(Camera(), back, &p));
+}
+
+TEST(OrientFlight, ClipKeepsTheInsidePart) {
+  Point2 a{-100, 360}, b{1400, 360};
+  ASSERT_TRUE(ClipLine(kScreen, &a, &b));
+  EXPECT_NEAR(a.x, 0, 0.01f);
+  EXPECT_NEAR(b.x, 1280, 0.01f);
+  Point2 c{-100, -100}, d{-50, 800};
+  EXPECT_FALSE(ClipLine(kScreen, &c, &d));
+}
+
+TEST(OrientFlight, HeadingHeldNearVertical) {
+  float x = 0, z = 1;
+  const float east[3] = {1, 0, 0};
+  NoseHeading(east, &x, &z);
+  EXPECT_FLOAT_EQ(x, 1);
+  const float up[3] = {0.01f, 1, 0};
+  NoseHeading(up, &x, &z);
+  EXPECT_FLOAT_EQ(x, 1); // unchanged
+}
+
+TEST(OrientFlight, LadderMarkAtTheNoseSitsInTheCentre) {
+  tartarus::LadderBar bar;
+  ASSERT_TRUE(ComputeLadderBar(Camera(20), 0, 1, 20, 3, 9, &bar));
+  EXPECT_NEAR((bar.inner_left.x + bar.inner_right.x) / 2, 640, 0.01f);
+  EXPECT_NEAR((bar.inner_left.y + bar.inner_right.y) / 2, 360, 2.0f); // the bar bows slightly
+  EXPECT_LT(bar.outer_left.x, bar.inner_left.x);
+  EXPECT_GT(bar.outer_right.x, bar.inner_right.x);
+}
+
+TEST(OrientFlight, MarkerSitsOnTheDirectionOfTravel) {
+  const auto c = Camera();
+  const float velocity[3] = {5, 0, 50};
+  tartarus::FlightMarker m;
+  ASSERT_TRUE(ComputeFlightMarker(c, velocity, kScreen, &m));
+  EXPECT_GT(m.position.x, 640); // sliding right
+  EXPECT_FALSE(m.reversed);
+  EXPECT_FALSE(m.clamped);
+}
+
+TEST(OrientFlight, MarkerFadesInWithSpeed) {
+  const float slow[3] = {3, 0, 0}, mid[3] = {9, 0, 0}, fast[3] = {12, 0, 0};
+  EXPECT_EQ(FlightMarkerAlpha(slow, 6), 0.0f);
+  EXPECT_GT(FlightMarkerAlpha(mid, 6), 0.0f);
+  EXPECT_LT(FlightMarkerAlpha(mid, 6), 1.0f);
+  EXPECT_FLOAT_EQ(FlightMarkerAlpha(fast, 6), 1.0f);
+}
+
+TEST(OrientFlight, MarkerNothingWhenStopped) {
+  const float velocity[3] = {0, 0, 0};
+  tartarus::FlightMarker m;
+  EXPECT_FALSE(ComputeFlightMarker(Camera(), velocity, kScreen, &m));
+}
+
+TEST(OrientFlight, SmoothingIgnoresAOneFrameJolt) {
+  float smoothed[3] = {0, 0, 30};
+  const float jolt[3] = {30, 0, 30};
+  SmoothVelocity(smoothed, jolt, 1.0f / 60, 0.2f);
+  EXPECT_LT(smoothed[0], 3.0f); // under a tenth of the jump
+}
+
+TEST(OrientFlight, SmoothingReachesTheTarget) {
+  float smoothed[3] = {0, 0, 0};
+  const float v[3] = {10, 0, 0};
+  for (int i = 0; i < 120; ++i)
+    SmoothVelocity(smoothed, v, 1.0f / 60, 0.2f);
+  EXPECT_NEAR(smoothed[0], 10.0f, 0.01f);
+}
+
+TEST(OrientFlight, SmoothingDoesNotDependOnFrameRate) {
+  float at30[3] = {0, 0, 0}, at120[3] = {0, 0, 0};
+  const float v[3] = {10, 0, 0};
+  for (int i = 0; i < 15; ++i)
+    SmoothVelocity(at30, v, 1.0f / 30, 0.2f);
+  for (int i = 0; i < 60; ++i)
+    SmoothVelocity(at120, v, 1.0f / 120, 0.2f);
+  EXPECT_NEAR(at30[0], at120[0], 0.001f);
+}
+
+TEST(OrientFlight, NoSmoothingFollowsAtOnce) {
+  float smoothed[3] = {0, 0, 0};
+  const float v[3] = {10, 0, 0};
+  SmoothVelocity(smoothed, v, 1.0f / 60, 0.0f);
+  EXPECT_FLOAT_EQ(smoothed[0], 10.0f);
+}
+
+TEST(OrientFlight, HorizonBarIsLevelWhenLevel) {
+  tartarus::LadderBar bar;
+  ASSERT_TRUE(ComputeLadderBar(Camera(), 0, 1, 0, 3, 20, &bar));
+  EXPECT_NEAR(bar.outer_left.y, 360, 0.01f);
+  EXPECT_NEAR(bar.outer_right.y, 360, 0.01f);
+  EXPECT_LT(bar.outer_left.x, 640);
+  EXPECT_GT(bar.outer_right.x, 640);
+}
+
+TEST(OrientFlight, MarkerReversedGoingBackwards) {
+  const float velocity[3] = {0, 0, -30};
+  tartarus::FlightMarker m;
+  ASSERT_TRUE(ComputeFlightMarker(Camera(), velocity, kScreen, &m));
+  EXPECT_TRUE(m.reversed);
+  EXPECT_FLOAT_EQ(m.position.x, 640);
+}
+
+TEST(OrientFlight, MarkerClampedToTheEdgeWhenSliding) {
+  const float velocity[3] = {30, 0, 0};
+  tartarus::FlightMarker m;
+  ASSERT_TRUE(ComputeFlightMarker(Camera(), velocity, kScreen, &m));
+  EXPECT_TRUE(m.clamped);
+  EXPECT_NEAR(m.position.x, 1280, 0.01f);
+  EXPECT_NEAR(m.position.y, 360, 0.01f);
 }
