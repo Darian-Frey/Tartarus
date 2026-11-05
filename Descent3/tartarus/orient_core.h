@@ -116,6 +116,20 @@ void HeadingLabel(int degrees, char *text, size_t size);
 /// Where the roll pointer sits, limited to the arc. *pinned is set if rolled past it.
 float RollPointer(float roll, float limit, bool *pinned);
 
+struct TapeMark {
+  float offset = 0; // -1 at the bottom of the tape, 1 at the top
+  int value = 0;
+};
+
+/// The marks on a vertical tape span either side of value, every step, none below zero.
+std::vector<TapeMark> TapeMarks(float value, float span, int step);
+
+/// Eases *value toward target, as SmoothVelocity().
+void SmoothValue(float *value, float target, float frame_time, float time_constant);
+
+/// Climb rate with its sign, and no sign at zero.
+void ClimbLabel(float climb, char *text, size_t size);
+
 struct FlightMarker {
   Point2 position;
   bool reversed = false; // moving backwards: this is the opposite of the direction of travel

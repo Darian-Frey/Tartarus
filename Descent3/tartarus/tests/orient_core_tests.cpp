@@ -23,6 +23,7 @@
 #include "../orient_core.h"
 
 using tartarus::BallOffset;
+using tartarus::ClimbLabel;
 using tartarus::ClipLine;
 using tartarus::ComputeFlightMarker;
 using tartarus::FlightMarkerAlpha;
@@ -36,6 +37,8 @@ using tartarus::NoseHeading;
 using tartarus::Point2;
 using tartarus::ProjectDirection;
 using tartarus::ScreenRect;
+using tartarus::SmoothValue;
+using tartarus::TapeMarks;
 using tartarus::ViewCamera;
 using tartarus::ViewCameraScale;
 using tartarus::ComputeGizmo;
@@ -355,4 +358,34 @@ TEST(OrientFlight, RollPointerPinsAtTheEndOfTheArc) {
   EXPECT_FALSE(pinned);
   EXPECT_FLOAT_EQ(RollPointer(-2.0f, 1.0f, &pinned), -1.0f);
   EXPECT_TRUE(pinned);
+}
+
+TEST(OrientFlight, TapeMarksCentreOnTheValue) {
+  const auto marks = TapeMarks(50, 40, 10);
+  ASSERT_EQ(marks.size(), 9u);
+  EXPECT_FLOAT_EQ(marks.front().offset, -1.0f);
+  EXPECT_FLOAT_EQ(marks.back().offset, 1.0f);
+  EXPECT_EQ(marks[4].value, 50);
+}
+
+TEST(OrientFlight, TapeStopsAtZero) {
+  for (const auto &mark : TapeMarks(5, 40, 10))
+    EXPECT_GE(mark.value, 0);
+}
+
+TEST(OrientFlight, SmoothValueReachesTheTarget) {
+  float value = 0;
+  for (int i = 0; i < 120; ++i)
+    SmoothValue(&value, 10, 1.0f / 60, 0.1f);
+  EXPECT_NEAR(value, 10.0f, 0.01f);
+}
+
+TEST(OrientFlight, ClimbLabels) {
+  char text[8];
+  ClimbLabel(12.4f, text, sizeof(text));
+  EXPECT_STREQ(text, "+12");
+  ClimbLabel(-7.6f, text, sizeof(text));
+  EXPECT_STREQ(text, "-8");
+  ClimbLabel(0.3f, text, sizeof(text));
+  EXPECT_STREQ(text, "0");
 }

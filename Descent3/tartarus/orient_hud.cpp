@@ -24,7 +24,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <utility>
 #include <vector>
 
 #include "3d.h"
@@ -32,6 +31,7 @@
 #include "classic.h"
 #include "cockpit.h"
 #include "cvar.h"
+#include "findintersection.h"
 #include "game.h"
 #include "gamefont.h"
 #include "gameloop.h"
@@ -65,6 +65,15 @@ Cvar *hud_flight_heading = nullptr;
 Cvar *hud_flight_heading_y = nullptr;
 Cvar *hud_flight_heading_width = nullptr;
 Cvar *hud_flight_heading_span = nullptr;
+Cvar *hud_flight_speed = nullptr;
+Cvar *hud_flight_range = nullptr;
+Cvar *hud_flight_range_max = nullptr;
+Cvar *hud_flight_range_smooth = nullptr;
+Cvar *hud_flight_range_every = nullptr;
+Cvar *hud_flight_climb = nullptr;
+Cvar *hud_flight_tape_x = nullptr;
+Cvar *hud_flight_tape_y = nullptr;
+Cvar *hud_flight_tape_height = nullptr;
 Cvar *hud_uptick = nullptr;
 Cvar *hud_uptick_len = nullptr;
 Cvar *hud_uptick_fade_deg = nullptr;
@@ -289,6 +298,38 @@ ViewCamera WorldCamera(const matrix &orient) {
 float g_heading_x = 0.0f, g_heading_z = 1.0f; // the nose's ground direction, held near vertical
 float g_velocity[3] = {};                     // smoothed, for the flight path marker
 
+float g_range = 0.0f;                         // smoothed, for the range tape
+
+// Text goes out once, after the shapes: every flush changes render state.
+struct HudText {
+  float x, y;
+  int align; // -1 left, 0 centre, 1 right
+  char text[16];
+};
+std::vector<HudText> g_text;
+
+void AddText(float x, float y, int align, const char *text) {
+  HudText item{x, y, align, ""};
+  snprintf(item.text, sizeof(item.text), "%s", text);
+  g_text.push_back(item);
+}
+
+void FlushText(float alpha) {
+  FlushShapes();
+  if (g_text.empty())
+    return;
+  grtext_SetFont(HUD_FONT);
+  grtext_SetColor(kFlight);
+  grtext_SetAlpha(static_cast<uint8_t>(alpha * 255.0f));
+  for (const HudText &item : g_text) {
+    const int width = grtext_GetTextLineWidth(item.text);
+    const int x = static_cast<int>(item.x) - (item.align == 0 ? width / 2 : item.align > 0 ? width : 0);
+    grtext_Printf(x, static_cast<int>(item.y), "%s", item.text);
+  }
+  grtext_Flush();
+  g_text.clear();
+}
+
 void DrawHorizon(const ViewCamera &camera, float half_width, float alpha) {
   LadderBar bar;
   if (!ComputeLadderBar(camera, g_heading_x, g_heading_z, 0.0f, 3.0f, hud_flight_horizon_deg->GetFloat(), &bar))
@@ -300,7 +341,6 @@ void DrawHorizon(const ViewCamera &camera, float half_width, float alpha) {
 void DrawLadder(const ViewCamera &camera, float half_width, float alpha) {
   const int step = std::max(5, hud_flight_ladder_step->GetInt());
   const float limit = hud_flight_ladder_limit->GetFloat() * Game_window_h;
-  std::vector<std::pair<Point2, int>> labels;
   for (int mark = -90 + step; mark < 90; mark += step) {
     if (mark == 0)
       continue;
@@ -321,24 +361,13 @@ void DrawLadder(const ViewCamera &camera, float half_width, float alpha) {
       Stroke(bar.inner_right, Lerp(bar.inner_right, bar.outer_right, 0.4f), half_width, alpha);
       Stroke(Lerp(bar.inner_right, bar.outer_right, 0.6f), bar.outer_right, half_width, alpha);
     }
-    labels.emplace_back(bar.outer_right, std::abs(mark));
+    char label[8];
+    snprintf(label, sizeof(label), "%d", std::abs(mark));
+    AddText(bar.outer_right.x + 4.0f, bar.outer_right.y - 6.0f, -1, label);
   }
-  FlushShapes(); // text goes on top
-  grtext_SetFont(HUD_FONT);
-  grtext_SetColor(kFlight);
-  grtext_SetAlpha(static_cast<uint8_t>(alpha * 255.0f));
-  for (const auto &[at, value] : labels) {
-    if (at.x > Game_window_x && at.x < Game_window_x + Game_window_w - 24 && at.y > Game_window_y &&
-        at.y < Game_window_y + Game_window_h - 16)
-      grtext_Printf(static_cast<int>(at.x) + 4, static_cast<int>(at.y) - 6, "%d", value);
-  }
-  grtext_Flush();
 }
 
 void DrawFlightMarker(const ViewCamera &camera, const ScreenRect &rect, float half_width, float alpha) {
-  const vector &v = Player_object->mtype.phys_info.velocity;
-  const float velocity[3] = {v.x(), v.y(), v.z()};
-  SmoothVelocity(g_velocity, velocity, Frametime, hud_flight_fpm_smooth->GetFloat());
   const float strength = FlightMarkerAlpha(g_velocity, hud_flight_fpm_speed->GetFloat());
   FlightMarker marker;
   if (strength <= 0.0f || !ComputeFlightMarker(camera, g_velocity, rect, &marker))
@@ -395,35 +424,107 @@ void DrawHeadingTape(float half_width, float alpha) {
   const float span = hud_flight_heading_span->GetFloat();
   Stroke({cx - half, y}, {cx + half, y}, half_width, alpha);
 
-  struct Label {
-    float x;
-    char text[8];
-  };
-  std::vector<Label> labels;
+  const float label_y = y - 6.0f * scale - grtext_GetTextHeight("0") - 1.0f;
   for (const HeadingMark &mark : HeadingMarks(heading, span, 5)) {
     const float x = cx + mark.offset * half;
     const bool major = mark.degrees % 10 == 0;
     Stroke({x, y}, {x, y - (major ? 6.0f : 3.0f) * scale}, half_width, alpha);
     if (major) {
-      Label label{x, ""};
-      HeadingLabel(mark.degrees, label.text, sizeof(label.text));
-      labels.push_back(label);
+      char label[8];
+      HeadingLabel(mark.degrees, label, sizeof(label));
+      AddText(x, label_y, 0, label);
     }
   }
   FillShape({{cx, y + 2.0f * scale}, {cx + 4.0f * scale, y + 8.0f * scale}, {cx - 4.0f * scale, y + 8.0f * scale}}, kFlight, alpha);
 
-  FlushShapes(); // text goes on top
-  grtext_SetFont(HUD_FONT);
-  grtext_SetColor(kFlight);
-  grtext_SetAlpha(static_cast<uint8_t>(alpha * 255.0f));
-  const int line = grtext_GetTextHeight("0");
-  for (const Label &label : labels)
-    grtext_Printf(static_cast<int>(label.x) - grtext_GetTextLineWidth(label.text) / 2,
-                  static_cast<int>(y - 6.0f * scale) - line - 1, "%s", label.text);
   char bearing[8];
   snprintf(bearing, sizeof(bearing), "%03d", static_cast<int>(heading + 0.5f) % 360);
-  grtext_Printf(static_cast<int>(cx) - grtext_GetTextLineWidth(bearing) / 2, static_cast<int>(y + 9.0f * scale), "%s", bearing);
-  grtext_Flush();
+  AddText(cx, y + 9.0f * scale, 0, bearing);
+}
+
+// A vertical tape. side is -1 on the left of the view, 1 on the right: ticks
+// and labels go outward, the reading sits in a box on the inner side.
+void DrawTape(float x, float side, float value, float span, int step, int label_step, const char *caption, const char *reading,
+              float half_width, float alpha) {
+  const float scale = Scale();
+  const float cy = Game_window_y + hud_flight_tape_y->GetFloat() * Game_window_h;
+  const float half = hud_flight_tape_height->GetFloat() * Game_window_h;
+  const float text_h = static_cast<float>(grtext_GetTextHeight("0"));
+  Stroke({x, cy - half}, {x, cy + half}, half_width, alpha);
+  for (const TapeMark &mark : TapeMarks(value, span, step)) {
+    const float y = cy - mark.offset * half;
+    const bool major = mark.value % label_step == 0;
+    Stroke({x, y}, {x + side * (major ? 7.0f : 4.0f) * scale, y}, half_width, alpha);
+    if (major) {
+      char label[8];
+      snprintf(label, sizeof(label), "%d", mark.value);
+      AddText(x + side * 9.0f * scale, y - text_h / 2.0f, side < 0 ? 1 : -1, label);
+    }
+  }
+  // The reading, in a box against the tape.
+  const float bw = 24.0f * scale, bh = text_h / 2.0f + 3.0f * scale;
+  const float near_x = x - side * 5.0f * scale, far_x = near_x - side * bw;
+  Stroke({near_x, cy - bh}, {far_x, cy - bh}, half_width, alpha);
+  Stroke({near_x, cy + bh}, {far_x, cy + bh}, half_width, alpha);
+  Stroke({far_x, cy - bh}, {far_x, cy + bh}, half_width, alpha);
+  Stroke({near_x, cy - bh}, {x, cy}, half_width, alpha);
+  Stroke({near_x, cy + bh}, {x, cy}, half_width, alpha);
+  AddText((near_x + far_x) / 2.0f, cy - text_h / 2.0f, 0, reading);
+  AddText(x, cy - half - text_h - 3.0f * scale, 0, caption);
+}
+
+// One ray along the nose: walls, terrain and closed doors, not robots. Negative if clear.
+float RangeAhead(const matrix &orient) {
+  const float limit = hud_flight_range_max->GetFloat();
+  vector start = Player_object->pos;
+  vector end = start + orient.fvec * limit;
+  fvi_query query{};
+  fvi_info hit{};
+  query.p0 = &start;
+  query.p1 = &end;
+  query.startroom = Player_object->roomnum;
+  query.rad = 0.0f;
+  query.thisobjnum = OBJNUM(Player_object);
+  query.ignore_obj_list = nullptr;
+  query.flags = FQ_CHECK_OBJS | FQ_ONLY_DOOR_OBJ | FQ_NO_RELINK;
+  if (fvi_FindIntersection(&query, &hit) == HIT_NONE)
+    return -1.0f;
+  const vector gap = hit.hit_pnt - start;
+  return std::sqrt(gap.x() * gap.x() + gap.y() * gap.y() + gap.z() * gap.z());
+}
+
+void DrawTapes(const matrix &orient, float half_width, float alpha) {
+  const float left = Game_window_x + hud_flight_tape_x->GetFloat() * Game_window_w;
+  const float right = Game_window_x + (1.0f - hud_flight_tape_x->GetFloat()) * Game_window_w;
+  const float text_h = static_cast<float>(grtext_GetTextHeight("0"));
+  char reading[16];
+  if (hud_flight_speed->GetBool()) {
+    const float speed = std::sqrt(g_velocity[0] * g_velocity[0] + g_velocity[1] * g_velocity[1] + g_velocity[2] * g_velocity[2]);
+    snprintf(reading, sizeof(reading), "%d", static_cast<int>(std::lround(speed)));
+    DrawTape(left, -1.0f, speed, 40.0f, 10, 20, "SPD", reading, half_width, alpha);
+  }
+  if (hud_flight_range->GetBool()) {
+    const float limit = hud_flight_range_max->GetFloat();
+    // The display is smoothed, so the ray need not run every frame.
+    static int frames_left = 0;
+    static float range = -1.0f;
+    if (--frames_left <= 0) {
+      range = RangeAhead(orient);
+      frames_left = hud_flight_range_every->GetInt();
+    }
+    SmoothValue(&g_range, range < 0.0f ? limit : range, Frametime, hud_flight_range_smooth->GetFloat());
+    if (range < 0.0f)
+      snprintf(reading, sizeof(reading), "---");
+    else
+      snprintf(reading, sizeof(reading), "%d", static_cast<int>(std::lround(g_range)));
+    DrawTape(right, 1.0f, g_range, 100.0f, 25, 50, "RNG", reading, half_width, alpha);
+  }
+  if (hud_flight_climb->GetBool()) {
+    ClimbLabel(g_velocity[1], reading, sizeof(reading));
+    const float y = Game_window_y + (hud_flight_tape_y->GetFloat() + hud_flight_tape_height->GetFloat()) * Game_window_h + 4.0f * Scale();
+    AddText(right, y, 0, reading);
+    AddText(right, y + text_h + 1.0f, 0, "VS");
+  }
 }
 
 void DrawFlightHud(const matrix &orient) {
@@ -433,6 +534,9 @@ void DrawFlightHud(const matrix &orient) {
   const float half_width = std::max(0.6f, 0.45f * Scale());
   const float alpha = hud_flight_alpha->GetFloat();
   NoseHeading(camera.forward, &g_heading_x, &g_heading_z);
+  const vector &v = Player_object->mtype.phys_info.velocity;
+  const float velocity[3] = {v.x(), v.y(), v.z()};
+  SmoothVelocity(g_velocity, velocity, Frametime, hud_flight_fpm_smooth->GetFloat());
   if (hud_flight_horizon->GetBool())
     DrawHorizon(camera, half_width, alpha);
   if (hud_flight_fpm->GetBool())
@@ -443,6 +547,9 @@ void DrawFlightHud(const matrix &orient) {
     DrawLadder(camera, half_width, alpha);
   if (hud_flight_heading->GetBool())
     DrawHeadingTape(half_width, alpha);
+  grtext_SetFont(HUD_FONT); // text heights above depend on it
+  DrawTapes(orient, half_width, alpha);
+  FlushText(alpha);
 }
 
 bool Flying() { return Flight_ContextActive() && Player_object != nullptr && Viewer_object == Player_object; }
@@ -470,6 +577,15 @@ void OrientHud_Init() {
   hud_flight_heading_y = cv.RegisterFloat("hud_flight_heading_y", 0.1f, 0.03f, 0.5f, "Heading tape height, 0 = top of the view", flags);
   hud_flight_heading_width = cv.RegisterFloat("hud_flight_heading_width", 0.2f, 0.05f, 0.45f, "Heading tape half-width, as a fraction of the view width", flags);
   hud_flight_heading_span = cv.RegisterFloat("hud_flight_heading_span", 30.0f, 10.0f, 90.0f, "Heading tape: degrees shown each side of the centre", flags);
+  hud_flight_speed = cv.RegisterBool("hud_flight_speed", true, "Flight HUD: speed tape", flags);
+  hud_flight_range = cv.RegisterBool("hud_flight_range", true, "Flight HUD: range to the wall ahead", flags);
+  hud_flight_range_max = cv.RegisterFloat("hud_flight_range_max", 400.0f, 100.0f, 2000.0f, "Range tape: furthest distance measured", flags);
+  hud_flight_range_smooth = cv.RegisterFloat("hud_flight_range_smooth", 0.1f, 0.0f, 1.0f, "Range tape: smoothing time in seconds", flags);
+  hud_flight_range_every = cv.RegisterInt("hud_flight_range_every", 4, 1, 30, "Range tape: frames between measurements", flags);
+  hud_flight_climb = cv.RegisterBool("hud_flight_climb", true, "Flight HUD: climb rate", flags);
+  hud_flight_tape_x = cv.RegisterFloat("hud_flight_tape_x", 0.17f, 0.03f, 0.4f, "Tapes: distance from the side of the view, as a fraction of its width", flags);
+  hud_flight_tape_y = cv.RegisterFloat("hud_flight_tape_y", 0.4f, 0.2f, 0.7f, "Tapes: centre height, 0 = top of the view", flags);
+  hud_flight_tape_height = cv.RegisterFloat("hud_flight_tape_height", 0.18f, 0.08f, 0.3f, "Tapes: half-height, as a fraction of the view height", flags);
   hud_uptick = cv.RegisterBool("hud_uptick", false, "Wedge on the reticle pointing to world up; fades out when upright", flags);
   hud_uptick_len = cv.RegisterFloat("hud_uptick_len", 14.0f, 4.0f, 40.0f, "Up-tick length, in pixels of a 480-line view", flags);
   hud_uptick_fade_deg = cv.RegisterFloat("hud_uptick_fade_deg", 8.0f, 0.0f, 45.0f,

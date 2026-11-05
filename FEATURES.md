@@ -210,13 +210,13 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Aircraft-style pitch/roll ball relative to the level's up vector (terrain gravity direction outdoors; world +Y indoors), positioned per HUD layout
 - `hud_attitude` cvar; off by default (D-017)
-**Status:** Done pending the owner's trial (Phase 3), 2026-11-04: in `orient_hud.cpp`, positioned by cvars rather than a layout file, on the deck's Gameplay page.
+**Status:** Done (Phase 3), 2026-11-04: in `orient_hud.cpp`, positioned by cvars rather than a layout file, on the deck's Gameplay page.
 
 ### F-042 Orientation gizmo
 **Priority:** Should
 **Acceptance:**
 - Corner 3-axis gizmo showing world axes relative to ship; `hud_gizmo` cvar; off by default (D-017)
-**Status:** Done pending the owner's trial (Phase 3), 2026-11-04: in `orient_hud.cpp`, mid-left by default rather than a corner, where the rear-view presets sit.
+**Status:** Done (Phase 3), 2026-11-04: in `orient_hud.cpp`, mid-left by default rather than a corner, where the rear-view presets sit.
 **Notes:** See also AV-009.
 
 ### F-043 Enhanced auto-level and snap-to-up
@@ -245,7 +245,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - In cockpit view, pale green symbols on the canopy glass, behind the cockpit frame: horizon and pitch ladder on the real world at any FOV, flight path marker, roll arc, heading tape (F-045), speed tape, range to the wall ahead, climb rate and status words
 - `hud_aids` master switch turns off every orientation aid; each element has its own switch; on by default with the canopy closed, optional in the full-screen HUD view (D-017)
 - All orientation aids within the AV-009 budget
-**Status:** In progress (Phase 3). Stage 1 done 2026-11-05: `hud_aids`, horizon, pitch ladder (dashed below the horizon) and flight path marker (crossed when moving backwards, dimmed at the edge when off screen), on the deck's Gameplay page. Stage 2 done 2026-11-05: roll arc and heading tape (F-045), with all shapes batched by colour, about 0.08 ms a frame. Next: the speed and wall-range tapes and climb rate, then status words after F-043.
+**Status:** In progress (Phase 3). Stage 1 done 2026-11-05: `hud_aids`, horizon, pitch ladder (dashed below the horizon) and flight path marker (crossed when moving backwards, dimmed at the edge when off screen), on the deck's Gameplay page. Stage 2 done 2026-11-05: roll arc and heading tape (F-045), with all shapes batched by colour, about 0.08 ms a frame. Stage 3 done 2026-11-05: speed tape, range to the wall ahead, climb rate, about 0.12 ms a frame on average with peaks of about 0.25 ms. Next: F-043, then status words.
 **Notes:** D-017. See also AV-009. One hook in `RenderHUDFrame()`.
 
 ---

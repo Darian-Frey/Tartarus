@@ -201,10 +201,30 @@ float RollPointer(float roll, float limit, bool *pinned) {
   return std::clamp(roll, -limit, limit);
 }
 
-void SmoothVelocity(float smoothed[3], const float velocity[3], float frame_time, float time_constant) {
+std::vector<TapeMark> TapeMarks(float value, float span, int step) {
+  std::vector<TapeMark> marks;
+  const int first = std::max(0, static_cast<int>(std::ceil((value - span) / step)) * step);
+  for (int mark = first; static_cast<float>(mark) <= value + span; mark += step)
+    marks.push_back({(static_cast<float>(mark) - value) / span, mark});
+  return marks;
+}
+
+void SmoothValue(float *value, float target, float frame_time, float time_constant) {
   const float blend = time_constant > 0.0f ? 1.0f - std::exp(-frame_time / time_constant) : 1.0f;
+  *value += (target - *value) * blend;
+}
+
+void ClimbLabel(float climb, char *text, size_t size) {
+  const int rounded = static_cast<int>(std::lround(climb));
+  if (rounded == 0)
+    std::snprintf(text, size, "0");
+  else
+    std::snprintf(text, size, "%+d", rounded);
+}
+
+void SmoothVelocity(float smoothed[3], const float velocity[3], float frame_time, float time_constant) {
   for (int i = 0; i < 3; ++i)
-    smoothed[i] += (velocity[i] - smoothed[i]) * blend;
+    SmoothValue(&smoothed[i], velocity[i], frame_time, time_constant);
 }
 
 float FlightMarkerAlpha(const float velocity[3], float min_speed) {
