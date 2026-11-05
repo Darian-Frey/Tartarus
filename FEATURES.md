@@ -248,6 +248,14 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Status:** In progress (Phase 3). Stage 1 done 2026-11-05: `hud_aids`, horizon, pitch ladder (dashed below the horizon) and flight path marker (crossed when moving backwards, dimmed at the edge when off screen), on the deck's Gameplay page. Stage 2 done 2026-11-05: roll arc and heading tape (F-045), with all shapes batched by colour, about 0.08 ms a frame. Stage 3 done 2026-11-05: speed tape, range to the wall ahead, climb rate, about 0.12 ms a frame on average with peaks of about 0.25 ms. Next: F-043, then status words.
 **Notes:** D-017. See also AV-009. One hook in `RenderHUDFrame()`.
 
+### F-047 Reticle styles
+**Priority:** Should
+**Acceptance:**
+- In Tartarus mode the targeting reticle is a choice of four drawn styles or stock, on the deck's Gameplay page; Classic Mode always has the stock reticle
+- Every style shows which primary guns and missile launchers exist and which are ready to fire, from upstream's slot masks
+**Status:** Done pending the owner's choice of default (Phase 3), 2026-11-05: Gunsight (default), Brackets, Chevrons, Cross and Stock; `hud_reticle`, `hud_reticle_size`, `hud_reticle_alpha`. Zoom and guided missile reticles stay stock.
+**Notes:** Requested by the owner while working on F-046. One hook in `RenderReticle()`.
+
 ---
 
 ### E. Automap

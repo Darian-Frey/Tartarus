@@ -2031,6 +2031,12 @@ void RenderReticle() {
 
   primary_index_last_frame = prim_wb_index;
 
+  // TARTARUS: F-047 drawn reticle in Tartarus mode, from the same slot masks
+  if (tartarus::OrientHud_RenderReticle(Game_window_x + cx * Hud_aspect_x, Game_window_y + cy * Hud_aspect_y, Ret_prim_mask,
+                                        reticle_mask(pobj, prim_wb, prim_wb_index), Ret_sec_mask,
+                                        reticle_mask(pobj, sec_wb, sec_wb_index)))
+    return;
+
   //	determine which primary batteries are open.
   draw_reticle_sub(cx, cy, rw, rh, reticle_mask(pobj, prim_wb, prim_wb_index), Ret_prim_mask, Ret_prim_wb);
   draw_reticle_sub(cx, cy, rw, rh, reticle_mask(pobj, sec_wb, sec_wb_index), Ret_sec_mask, Ret_sec_wb);

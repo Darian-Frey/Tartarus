@@ -31,6 +31,11 @@ void OrientHud_Init();
 /// Draws the aids. Called from RenderOverlays().
 void OrientHud_Render();
 
+/// Draws the reticle at cx, cy, from upstream's slot masks. False in Classic
+/// Mode or with the stock style: the caller draws the stock reticle.
+bool OrientHud_RenderReticle(float cx, float cy, unsigned primary_exists, unsigned primary_ready, unsigned secondary_exists,
+                             unsigned secondary_ready);
+
 /// Draws the flight HUD. Called from RenderHUDFrame() just before the cockpit
 /// model, which then covers it wherever the frame is: that puts it on the glass.
 void OrientHud_RenderCanopy();

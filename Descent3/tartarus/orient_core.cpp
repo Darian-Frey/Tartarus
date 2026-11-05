@@ -222,6 +222,64 @@ void ClimbLabel(float climb, char *text, size_t size) {
     std::snprintf(text, size, "%+d", rounded);
 }
 
+std::vector<ReticleLine> ReticleLines(int style) {
+  std::vector<ReticleLine> lines;
+  switch (style) {
+  case kReticleGunsight: { // four arcs, broken at the compass points
+    constexpr int kSteps = 6;
+    for (int quadrant = 0; quadrant < 4; ++quadrant) {
+      const float start = quadrant * kPi / 2.0f + 0.3f, end = (quadrant + 1) * kPi / 2.0f - 0.3f;
+      for (int i = 0; i < kSteps; ++i) {
+        const float a = start + (end - start) * i / kSteps, b = start + (end - start) * (i + 1) / kSteps;
+        lines.push_back({std::cos(a), std::sin(a), std::cos(b), std::sin(b)});
+      }
+    }
+    break;
+  }
+  case kReticleBrackets:
+    for (float sx : {-1.0f, 1.0f}) {
+      for (float sy : {-1.0f, 1.0f}) {
+        lines.push_back({sx * 0.8f, sy * 0.8f, sx * 0.4f, sy * 0.8f});
+        lines.push_back({sx * 0.8f, sy * 0.8f, sx * 0.8f, sy * 0.4f});
+      }
+    }
+    break;
+  case kReticleChevrons:
+    for (float side : {-1.0f, 1.0f}) {
+      lines.push_back({side * 1.0f, -0.35f, side * 0.55f, 0.0f});
+      lines.push_back({side * 1.0f, 0.35f, side * 0.55f, 0.0f});
+    }
+    lines.push_back({-0.35f, 1.0f, 0.0f, 0.55f});
+    lines.push_back({0.35f, 1.0f, 0.0f, 0.55f});
+    break;
+  case kReticleCross:
+    lines.push_back({-1.0f, 0.0f, -0.35f, 0.0f});
+    lines.push_back({0.35f, 0.0f, 1.0f, 0.0f});
+    lines.push_back({0.0f, -1.0f, 0.0f, -0.35f});
+    lines.push_back({0.0f, 0.35f, 0.0f, 1.0f});
+    break;
+  default:
+    break;
+  }
+  return lines;
+}
+
+bool ReticleHasDot(int style) { return style == kReticleGunsight || style == kReticleBrackets || style == kReticleChevrons; }
+
+ReticleBank DecodeReticleMask(unsigned exists_mask, unsigned ready_mask) {
+  ReticleBank bank;
+  struct Bit {
+    unsigned bit;
+    int slot;
+  };
+  for (const Bit &b : {Bit{0, kSlotCentre}, Bit{8, kSlotCentre}, Bit{1, kSlotRight1}, Bit{2, kSlotLeft1}, Bit{3, kSlotRight2},
+                       Bit{4, kSlotLeft2}}) {
+    bank.exists[b.slot] = bank.exists[b.slot] || ((exists_mask >> b.bit) & 1u);
+    bank.ready[b.slot] = bank.ready[b.slot] || ((ready_mask >> b.bit) & 1u);
+  }
+  return bank;
+}
+
 void SmoothVelocity(float smoothed[3], const float velocity[3], float frame_time, float time_constant) {
   for (int i = 0; i < 3; ++i)
     SmoothValue(&smoothed[i], velocity[i], frame_time, time_constant);

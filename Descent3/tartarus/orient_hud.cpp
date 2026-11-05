@@ -74,6 +74,9 @@ Cvar *hud_flight_climb = nullptr;
 Cvar *hud_flight_tape_x = nullptr;
 Cvar *hud_flight_tape_y = nullptr;
 Cvar *hud_flight_tape_height = nullptr;
+Cvar *hud_reticle = nullptr;
+Cvar *hud_reticle_size = nullptr;
+Cvar *hud_reticle_alpha = nullptr;
 Cvar *hud_uptick = nullptr;
 Cvar *hud_uptick_len = nullptr;
 Cvar *hud_uptick_fade_deg = nullptr;
@@ -552,6 +555,38 @@ void DrawFlightHud(const matrix &orient) {
   FlushText(alpha);
 }
 
+void ReticleBox(Point2 centre, float half_w, float half_h, ddgr_color colour, float alpha) {
+  FillShape({{centre.x - half_w, centre.y - half_h},
+             {centre.x + half_w, centre.y - half_h},
+             {centre.x + half_w, centre.y + half_h},
+             {centre.x - half_w, centre.y + half_h}},
+            colour, alpha);
+}
+
+// Primaries are bars either side, missiles are pips underneath. Bright is
+// ready to fire; dim is a slot that is not.
+void DrawReticleBanks(Point2 c, float radius, float unit, float alpha, const ReticleBank &primary, const ReticleBank &secondary) {
+  auto strength = [&](bool ready) { return ready ? alpha : alpha * 0.25f; };
+  const struct {
+    int slot;
+    float x;
+  } bars[] = {{kSlotLeft2, -1.75f}, {kSlotLeft1, -1.4f}, {kSlotRight1, 1.4f}, {kSlotRight2, 1.75f}};
+  for (const auto &bar : bars) {
+    if (primary.exists[bar.slot])
+      ReticleBox({c.x + bar.x * radius, c.y}, unit, 4.0f * unit, kFlight, strength(primary.ready[bar.slot]));
+  }
+  if (primary.exists[kSlotCentre])
+    ReticleBox({c.x, c.y - 1.4f * radius}, 3.0f * unit, unit, kFlight, strength(primary.ready[kSlotCentre]));
+  const struct {
+    int slot;
+    float x;
+  } pips[] = {{kSlotLeft2, -0.9f}, {kSlotLeft1, -0.45f}, {kSlotCentre, 0.0f}, {kSlotRight1, 0.45f}, {kSlotRight2, 0.9f}};
+  for (const auto &pip : pips) {
+    if (secondary.exists[pip.slot])
+      ReticleBox({c.x + pip.x * radius, c.y + 1.45f * radius}, 2.0f * unit, 2.0f * unit, kFlight, strength(secondary.ready[pip.slot]));
+  }
+}
+
 bool Flying() { return Flight_ContextActive() && Player_object != nullptr && Viewer_object == Player_object; }
 
 } // namespace
@@ -586,6 +621,10 @@ void OrientHud_Init() {
   hud_flight_tape_x = cv.RegisterFloat("hud_flight_tape_x", 0.17f, 0.03f, 0.4f, "Tapes: distance from the side of the view, as a fraction of its width", flags);
   hud_flight_tape_y = cv.RegisterFloat("hud_flight_tape_y", 0.4f, 0.2f, 0.7f, "Tapes: centre height, 0 = top of the view", flags);
   hud_flight_tape_height = cv.RegisterFloat("hud_flight_tape_height", 0.18f, 0.08f, 0.3f, "Tapes: half-height, as a fraction of the view height", flags);
+  hud_reticle = cv.RegisterInt("hud_reticle", kReticleGunsight, kReticleStock, kReticleStyles - 1,
+                               "Reticle: 0 stock, 1 gunsight, 2 brackets, 3 chevrons, 4 cross", flags);
+  hud_reticle_size = cv.RegisterFloat("hud_reticle_size", 1.0f, 0.5f, 2.0f, "Reticle size", flags);
+  hud_reticle_alpha = cv.RegisterFloat("hud_reticle_alpha", 0.9f, 0.3f, 1.0f, "Reticle brightness", flags);
   hud_uptick = cv.RegisterBool("hud_uptick", false, "Wedge on the reticle pointing to world up; fades out when upright", flags);
   hud_uptick_len = cv.RegisterFloat("hud_uptick_len", 14.0f, 4.0f, 40.0f, "Up-tick length, in pixels of a 480-line view", flags);
   hud_uptick_fade_deg = cv.RegisterFloat("hud_uptick_fade_deg", 8.0f, 0.0f, 45.0f,
@@ -599,6 +638,28 @@ void OrientHud_Init() {
   hud_gizmo_size = cv.RegisterFloat("hud_gizmo_size", 48.0f, 24.0f, 120.0f, "Gizmo size, in pixels of a 480-line view", flags);
   hud_gizmo_x = cv.RegisterFloat("hud_gizmo_x", 0.1f, 0.0f, 1.0f, "Gizmo centre, 0 = left edge, 1 = right edge", flags);
   hud_gizmo_y = cv.RegisterFloat("hud_gizmo_y", 0.5f, 0.0f, 1.0f, "Gizmo centre, 0 = top, 1 = bottom", flags);
+}
+
+bool OrientHud_RenderReticle(float cx, float cy, unsigned primary_exists, unsigned primary_ready, unsigned secondary_exists,
+                             unsigned secondary_ready) {
+  const int style = hud_reticle->GetInt();
+  if (IsClassic() || style <= kReticleStock || style >= kReticleStyles)
+    return false;
+  const float scale = Scale() * hud_reticle_size->GetFloat();
+  const float radius = 18.0f * scale;
+  const float alpha = hud_reticle_alpha->GetFloat();
+  const float half_width = std::max(0.6f, 0.5f * scale);
+  const float unit = std::max(1.0f, 0.75f * scale);
+  const Point2 c{cx, cy};
+  BeginShapes();
+  for (const ReticleLine &line : ReticleLines(style))
+    Stroke({c.x + line.x1 * radius, c.y + line.y1 * radius}, {c.x + line.x2 * radius, c.y + line.y2 * radius}, half_width, alpha);
+  if (ReticleHasDot(style))
+    ReticleBox(c, unit, unit, kFlight, alpha);
+  DrawReticleBanks(c, radius, unit, alpha, DecodeReticleMask(primary_exists, primary_ready),
+                   DecodeReticleMask(secondary_exists, secondary_ready));
+  EndShapes();
+  return true;
 }
 
 void OrientHud_RenderCanopy() {

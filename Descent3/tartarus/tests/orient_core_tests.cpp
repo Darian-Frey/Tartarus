@@ -24,6 +24,8 @@
 
 using tartarus::BallOffset;
 using tartarus::ClimbLabel;
+using tartarus::DecodeReticleMask;
+using tartarus::ReticleLines;
 using tartarus::ClipLine;
 using tartarus::ComputeFlightMarker;
 using tartarus::FlightMarkerAlpha;
@@ -388,4 +390,46 @@ TEST(OrientFlight, ClimbLabels) {
   EXPECT_STREQ(text, "-8");
   ClimbLabel(0.3f, text, sizeof(text));
   EXPECT_STREQ(text, "0");
+}
+
+TEST(OrientReticle, StockHasNoLines) { EXPECT_TRUE(ReticleLines(tartarus::kReticleStock).empty()); }
+
+TEST(OrientReticle, EveryStyleIsDrawnAndSymmetric) {
+  for (int style = tartarus::kReticleGunsight; style < tartarus::kReticleStyles; ++style) {
+    const auto lines = ReticleLines(style);
+    ASSERT_FALSE(lines.empty());
+    float sum_x = 0;
+    for (const auto &line : lines) {
+      sum_x += line.x1 + line.x2;
+      EXPECT_LE(std::fabs(line.x1), 1.01f);
+      EXPECT_LE(std::fabs(line.y1), 1.01f);
+    }
+    EXPECT_NEAR(sum_x, 0.0f, 1e-3f);
+  }
+}
+
+TEST(OrientReticle, MiddleStaysClearToAim) {
+  for (int style = tartarus::kReticleGunsight; style < tartarus::kReticleStyles; ++style) {
+    for (const auto &line : ReticleLines(style)) {
+      EXPECT_GE(std::hypot(line.x1, line.y1), 0.3f);
+      EXPECT_GE(std::hypot(line.x2, line.y2), 0.3f);
+    }
+  }
+}
+
+TEST(OrientReticle, GunpointBitsMapToSides) {
+  const auto bank = DecodeReticleMask((1u << 1) | (1u << 2) | (1u << 3) | (1u << 4), 1u << 2);
+  EXPECT_TRUE(bank.exists[tartarus::kSlotRight1]);
+  EXPECT_TRUE(bank.exists[tartarus::kSlotLeft1]);
+  EXPECT_TRUE(bank.exists[tartarus::kSlotRight2]);
+  EXPECT_TRUE(bank.exists[tartarus::kSlotLeft2]);
+  EXPECT_FALSE(bank.exists[tartarus::kSlotCentre]);
+  EXPECT_TRUE(bank.ready[tartarus::kSlotLeft1]);
+  EXPECT_FALSE(bank.ready[tartarus::kSlotRight1]);
+}
+
+TEST(OrientReticle, MassDriverBitIsTheCentre) {
+  const auto bank = DecodeReticleMask(1u << 8, 1u << 8);
+  EXPECT_TRUE(bank.exists[tartarus::kSlotCentre]);
+  EXPECT_TRUE(bank.ready[tartarus::kSlotCentre]);
 }

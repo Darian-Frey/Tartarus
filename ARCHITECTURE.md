@@ -133,6 +133,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/ctlconfig.cpp::CtlConfig` | `ControlsDeck_Run()` after `LoadControlConfig()` | deck bindings and weapon order (F-069, D-016) |
 | `Descent3/gamesequence.cpp::RunGameMenu` | `Deck_RunPendingControls()` before `OptionsMenu()` | Key bindings row of the in-level deck (F-069, D-016) |
 | `lib/renderer.h`, `renderer/HardwareOpenGL.cpp` | `rend_DrawTriangles2D()`, a new function | many flat triangles in one draw (F-046) |
+| `Descent3/hud.cpp::RenderReticle` | `OrientHud_RenderReticle()` before the stock drawing, with the slot masks | drawn reticle styles (F-047) |
 | `Descent3/hud.cpp::RenderHUDFrame` | `OrientHud_RenderCanopy()` before `RenderCockpit()` in cockpit view | flight HUD behind the cockpit frame (F-046, D-017) |
 | `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |
 | `Descent3/buddymenu.cpp::BuddyDisplay` | `BuddyDeck_Pick()` after the menu data arrives | deck Guide-Bot menu (F-069, D-016) |

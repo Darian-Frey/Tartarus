@@ -130,6 +130,31 @@ void SmoothValue(float *value, float target, float frame_time, float time_consta
 /// Climb rate with its sign, and no sign at zero.
 void ClimbLabel(float climb, char *text, size_t size);
 
+/// Reticle styles (F-047). Stock is upstream's bitmaps.
+enum ReticleStyle { kReticleStock, kReticleGunsight, kReticleBrackets, kReticleChevrons, kReticleCross, kReticleStyles };
+
+struct ReticleLine {
+  float x1, y1, x2, y2; // in reticle radii, y down
+};
+
+/// A style's lines. Empty for stock.
+std::vector<ReticleLine> ReticleLines(int style);
+
+/// True if the style has a dot at the centre.
+bool ReticleHasDot(int style);
+
+/// Weapon slots across the ship, from upstream's gunpoint bits.
+enum ReticleSlot { kSlotLeft2, kSlotLeft1, kSlotCentre, kSlotRight1, kSlotRight2, kReticleSlots };
+
+struct ReticleBank {
+  bool exists[kReticleSlots] = {};
+  bool ready[kReticleSlots] = {};
+};
+
+/// Decodes upstream's masks: gunpoint 0 and the mass driver's bit 8 are the
+/// centre, 1 and 3 the right, 2 and 4 the left (Ret_prim_wb in hud.cpp).
+ReticleBank DecodeReticleMask(unsigned exists_mask, unsigned ready_mask);
+
 struct FlightMarker {
   Point2 position;
   bool reversed = false; // moving backwards: this is the opposite of the direction of travel

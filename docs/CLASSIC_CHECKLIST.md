@@ -26,6 +26,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/ctlconfig.cpp` | `tartarus::ControlsDeck_Run` | gated: false in Classic Mode and multiplayer, stock controls screen (D-016) |
 | `Descent3/gamesequence.cpp` | `tartarus::Deck_RunPendingControls` | gated: false unless the deck asked, and the deck never opens in Classic Mode, so `OptionsMenu()` runs (D-016) |
 | `Descent3/hud.cpp` | `tartarus::OrientHud_RenderCanopy` | gated: returns at once in Classic Mode, so nothing is drawn on the canopy (F-046) |
+| `Descent3/hud.cpp` | `tartarus::OrientHud_RenderReticle` | gated: false in Classic Mode, so the stock reticle draws (F-047) |
 | `Descent3/help.cpp` | `tartarus::HelpDeck_Run` | gated: false in Classic Mode, stock Keys screen (D-016) |
 | `Descent3/buddymenu.cpp` | `tartarus::BuddyDeck_Pick`, `tartarus::kDeckStock` | gated: stock Guide-Bot menu in Classic Mode and multiplayer (D-016) |
 | `Descent3/pilot.cpp` | `tartarus::PilotDeck_Run` | gated: false in Classic Mode, stock Pilots screen (D-016) |
@@ -62,7 +63,7 @@ Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinem
 
 - [ ] Main menu: build string bottom right; menus otherwise stock (blurred side bars are expected, `r_bar_fill`).
 - [ ] Main menu, New Game, Pilots, key bindings, Save (F9), Load (Alt+F3), Keys (F1), Guide-Bot (F4) and the Quit and Abort boxes are the stock screens, not the deck (D-016).
-- [ ] Level 1: no virtual-joystick ring; the mouse turns the ship as stock (movement = rotation).
+- [ ] Level 1: stock reticle, even with `hud_reticle` set in `tartarus.cfg`; no virtual-joystick ring; the mouse turns the ship as stock (movement = rotation).
 - [ ] No CHEATS tag; Shift+F12 prints "Cheats are not available in Classic Mode"; `god`, `give all`, `timescale 0.5` refused in the console.
 - [ ] Console (backtick) opens; `version`, `where`, `help` work.
 - [ ] F2 and main menu Options open the stock Options menu, not the options deck (D-016). Video: FOV slider runs 72–90. Tartarus tab: only the Classic Mode explanation.
