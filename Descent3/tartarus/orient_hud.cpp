@@ -85,10 +85,12 @@ Cvar *hud_attitude_size = nullptr;
 Cvar *hud_attitude_range = nullptr;
 Cvar *hud_attitude_x = nullptr;
 Cvar *hud_attitude_y = nullptr;
+Cvar *hud_attitude_alpha = nullptr;
 Cvar *hud_gizmo = nullptr;
 Cvar *hud_gizmo_size = nullptr;
 Cvar *hud_gizmo_x = nullptr;
 Cvar *hud_gizmo_y = nullptr;
+Cvar *hud_gizmo_alpha = nullptr;
 
 const ddgr_color kFlight = GR_RGB(150, 255, 190); // pale green, like a collimated HUD
 const ddgr_color kTick = GR_RGB(255, 225, 120);
@@ -164,6 +166,19 @@ void FillShape(const std::vector<Point2> &shape, ddgr_color colour, float alpha)
     AddTriangle(shape[0], shape[i], shape[i + 1]);
 }
 
+void FillRing(Point2 centre, float inner, float outer, ddgr_color colour, float alpha) {
+  UseColour(colour, alpha);
+  for (int i = 0; i < kDiscSegments; ++i) {
+    const float a = 6.2831853f * i / kDiscSegments, b = 6.2831853f * (i + 1) / kDiscSegments;
+    const Point2 p0{centre.x + inner * std::cos(a), centre.y + inner * std::sin(a)};
+    const Point2 p1{centre.x + outer * std::cos(a), centre.y + outer * std::sin(a)};
+    const Point2 p2{centre.x + outer * std::cos(b), centre.y + outer * std::sin(b)};
+    const Point2 p3{centre.x + inner * std::cos(b), centre.y + inner * std::sin(b)};
+    AddTriangle(p0, p1, p2);
+    AddTriangle(p0, p2, p3);
+  }
+}
+
 float Scale() { return Game_window_h / 480.0f; }
 
 Point2 ScreenPosition(const Cvar *x, const Cvar *y) {
@@ -209,17 +224,17 @@ void DrawAttitude(const matrix &orient) {
     return out;
   };
 
-  const float rim = 2.0f * Scale();
-  std::vector<Point2> disc = DiscAbove(-2.0f, kDiscSegments);
-  FillShape(place(disc, radius + rim), GR_BLACK, 0.9f);
+  const float opacity = hud_attitude_alpha->GetFloat();
+  // A ring, not a disc behind the ball: a disc would darken it when see-through.
+  FillRing(centre, radius, radius + 2.0f * Scale(), GR_BLACK, opacity);
   const float horizon = BallOffset(0.0f, pitch, range);
-  FillShape(place(DiscAbove(horizon, kDiscSegments), radius), kSky, 0.9f);
-  FillShape(place(DiscBelow(horizon, kDiscSegments), radius), kGround, 0.9f);
+  FillShape(place(DiscAbove(horizon, kDiscSegments), radius), kSky, opacity * 0.9f);
+  FillShape(place(DiscBelow(horizon, kDiscSegments), radius), kGround, opacity * 0.9f);
 
   const float line = std::max(1.0f, 0.75f * Scale()) / radius;
   auto bar = [&](float y, float half_length, ddgr_color colour) {
     FillShape(place({{-half_length, y - line}, {half_length, y - line}, {half_length, y + line}, {-half_length, y + line}}, radius),
-              colour, 1.0f);
+              colour, opacity);
   };
   bar(horizon, std::sqrt(std::max(0.0f, 1.0f - horizon * horizon)), kLadder);
   for (int mark = -80; mark <= 80; mark += 10) {
@@ -230,11 +245,11 @@ void DrawAttitude(const matrix &orient) {
   // The fixed aircraft mark.
   const float wing = radius * 0.5f, thick = std::max(1.0f, Scale());
   FillShape({{centre.x - wing, centre.y - thick}, {centre.x - wing * 0.3f, centre.y - thick},
-             {centre.x - wing * 0.3f, centre.y + thick}, {centre.x - wing, centre.y + thick}}, kTick, 1.0f);
+             {centre.x - wing * 0.3f, centre.y + thick}, {centre.x - wing, centre.y + thick}}, kTick, opacity);
   FillShape({{centre.x + wing * 0.3f, centre.y - thick}, {centre.x + wing, centre.y - thick},
-             {centre.x + wing, centre.y + thick}, {centre.x + wing * 0.3f, centre.y + thick}}, kTick, 1.0f);
+             {centre.x + wing, centre.y + thick}, {centre.x + wing * 0.3f, centre.y + thick}}, kTick, opacity);
   FillShape({{centre.x - 2 * thick, centre.y - 2 * thick}, {centre.x + 2 * thick, centre.y - 2 * thick},
-             {centre.x + 2 * thick, centre.y + 2 * thick}, {centre.x - 2 * thick, centre.y + 2 * thick}}, kTick, 1.0f);
+             {centre.x + 2 * thick, centre.y + 2 * thick}, {centre.x - 2 * thick, centre.y + 2 * thick}}, kTick, opacity);
 }
 
 void DrawGizmo(const matrix &orient) {
@@ -247,7 +262,8 @@ void DrawGizmo(const matrix &orient) {
   std::vector<Point2> back;
   for (const Point2 &p : DiscAbove(-2.0f, kDiscSegments))
     back.push_back({centre.x + p.x * radius * 1.15f, centre.y + p.y * radius * 1.15f});
-  FillShape(back, GR_BLACK, 0.45f);
+  const float opacity = hud_gizmo_alpha->GetFloat();
+  FillShape(back, GR_BLACK, opacity * 0.45f);
 
   for (const GizmoAxis &axis : ComputeGizmo(right, up, forward)) {
     const float length = std::sqrt(axis.x * axis.x + axis.y * axis.y);
@@ -257,14 +273,14 @@ void DrawGizmo(const matrix &orient) {
     const bool world_up = axis.axis == 1;
     const float half = (world_up ? 1.5f : 1.0f) * Scale();
     const float reach = length * radius;
-    const float alpha = world_up ? 1.0f : (axis.depth > 0.0f ? 0.55f : 0.85f);
+    const float alpha = opacity * (world_up ? 1.0f : (axis.depth > 0.0f ? 0.55f : 0.85f));
     FillShape({{centre.x + dir_y * half, centre.y - dir_x * half},
                {centre.x + dir_x * reach + dir_y * half, centre.y + dir_y * reach - dir_x * half},
                {centre.x + dir_x * reach - dir_y * half, centre.y + dir_y * reach + dir_x * half},
                {centre.x - dir_y * half, centre.y + dir_x * half}},
               kAxisColour[axis.axis], alpha);
     if (world_up)
-      FillShape(Wedge(centre, dir_x, dir_y, reach - 2.0f * half, 3.0f * half, reach + 3.0f * half), kAxisColour[1], 1.0f);
+      FillShape(Wedge(centre, dir_x, dir_y, reach - 2.0f * half, 3.0f * half, reach + 3.0f * half), kAxisColour[1], opacity);
   }
 }
 
@@ -634,6 +650,8 @@ void OrientHud_Init() {
   hud_attitude_range = cv.RegisterFloat("hud_attitude_range", 45.0f, 20.0f, 90.0f, "Attitude ball: degrees of pitch from the centre to the edge", flags);
   hud_attitude_x = cv.RegisterFloat("hud_attitude_x", 0.9f, 0.0f, 1.0f, "Attitude ball centre, 0 = left edge, 1 = right edge", flags);
   hud_attitude_y = cv.RegisterFloat("hud_attitude_y", 0.5f, 0.0f, 1.0f, "Attitude ball centre, 0 = top, 1 = bottom", flags);
+  hud_attitude_alpha = cv.RegisterFloat("hud_attitude_alpha", 1.0f, 0.1f, 1.0f, "Attitude ball opacity: lower is more see-through", flags);
+  hud_gizmo_alpha = cv.RegisterFloat("hud_gizmo_alpha", 1.0f, 0.1f, 1.0f, "Gizmo opacity: lower is more see-through", flags);
   hud_gizmo = cv.RegisterBool("hud_gizmo", false, "Axis gizmo: world axes as the ship sees them, world up in white", flags);
   hud_gizmo_size = cv.RegisterFloat("hud_gizmo_size", 48.0f, 24.0f, 120.0f, "Gizmo size, in pixels of a 480-line view", flags);
   hud_gizmo_x = cv.RegisterFloat("hud_gizmo_x", 0.1f, 0.0f, 1.0f, "Gizmo centre, 0 = left edge, 1 = right edge", flags);
