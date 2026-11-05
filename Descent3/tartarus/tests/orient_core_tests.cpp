@@ -23,7 +23,11 @@
 #include "../orient_core.h"
 
 using tartarus::BallOffset;
+using tartarus::BankCommand;
 using tartarus::ClimbLabel;
+using tartarus::LevelRate;
+using tartarus::NearestUpright;
+using tartarus::WrapDegrees;
 using tartarus::DecodeReticleMask;
 using tartarus::ReticleLines;
 using tartarus::ClipLine;
@@ -433,3 +437,37 @@ TEST(OrientReticle, MassDriverBitIsTheCentre) {
   EXPECT_TRUE(bank.exists[tartarus::kSlotCentre]);
   EXPECT_TRUE(bank.ready[tartarus::kSlotCentre]);
 }
+
+TEST(OrientLevel, WrapKeepsTheShortWay) {
+  EXPECT_FLOAT_EQ(WrapDegrees(190), -170.0f);
+  EXPECT_FLOAT_EQ(WrapDegrees(-190), 170.0f);
+  EXPECT_FLOAT_EQ(WrapDegrees(30), 30.0f);
+}
+
+TEST(OrientLevel, NearestOfFourUprights) {
+  EXPECT_FLOAT_EQ(NearestUpright(30), 0.0f);
+  EXPECT_FLOAT_EQ(NearestUpright(50), 90.0f);
+  EXPECT_FLOAT_EQ(NearestUpright(-100), -90.0f);
+  EXPECT_FLOAT_EQ(std::fabs(NearestUpright(170)), 180.0f);
+}
+
+TEST(OrientLevel, RateFollowsTheErrorUpToTheLimit) {
+  EXPECT_FLOAT_EQ(LevelRate(9, 0.1f, 180), 90.0f);
+  EXPECT_FLOAT_EQ(LevelRate(90, 0.1f, 180), 180.0f);
+  EXPECT_FLOAT_EQ(LevelRate(-90, 0.1f, 180), -180.0f);
+}
+
+TEST(OrientLevel, RolledRightCommandsBankLeft) {
+  // Rolled right is a negative roll; the bank-left key is positive.
+  EXPECT_GT(BankCommand(-45, 12000, 120), 0.0f);
+  EXPECT_LT(BankCommand(45, 12000, 120), 0.0f);
+}
+
+TEST(OrientLevel, CommandIsLimitedToFullBank) {
+  EXPECT_FLOAT_EQ(BankCommand(-100000, 12000, 120), 1.0f);
+  EXPECT_FLOAT_EQ(BankCommand(100000, 12000, 120), -1.0f);
+}
+
+TEST(OrientLevel, NoRateNoCommand) { EXPECT_EQ(BankCommand(0, 12000, 120), 0.0f); }
+
+TEST(OrientLevel, NoDragIsSafe) { EXPECT_EQ(BankCommand(45, 12000, 0), 0.0f); }

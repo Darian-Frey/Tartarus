@@ -280,6 +280,27 @@ ReticleBank DecodeReticleMask(unsigned exists_mask, unsigned ready_mask) {
   return bank;
 }
 
+float WrapDegrees(float degrees) {
+  degrees = std::fmod(degrees + 180.0f, 360.0f);
+  if (degrees < 0.0f)
+    degrees += 360.0f;
+  return degrees - 180.0f;
+}
+
+float NearestUpright(float roll_deg) { return std::round(roll_deg / 90.0f) * 90.0f; }
+
+float LevelRate(float error_deg, float time_constant, float limit) {
+  return std::clamp(error_deg / time_constant, -limit, limit);
+}
+
+float BankCommand(float rate_deg, float full_rotthrust, float rotdrag) {
+  if (full_rotthrust <= 0.0f || rotdrag <= 0.0f)
+    return 0.0f;
+  const float top_rate = full_rotthrust / rotdrag * 360.0f / 65536.0f;
+  // Roll is negative when rolled right, and needs bank left, which is positive.
+  return std::clamp(-rate_deg / top_rate, -1.0f, 1.0f);
+}
+
 void SmoothVelocity(float smoothed[3], const float velocity[3], float frame_time, float time_constant) {
   for (int i = 0; i < 3; ++i)
     SmoothValue(&smoothed[i], velocity[i], frame_time, time_constant);

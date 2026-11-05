@@ -103,6 +103,8 @@ bool Reserved(int key) {
 
 } // namespace
 
+std::optional<int> Binds_ParseKey(const std::string &text) { return Table().ParseKey(text); }
+
 void Binds_Init() {
   ConsoleCore &con = Console();
   con.AddCommand({"bind", "bind [key [\"command\"]]",

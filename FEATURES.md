@@ -224,8 +224,8 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - `al_strength` (0–1) and `al_delay` cvars extend upstream's autolevel slider; `al_hold` key rolls to upright while held; `al_snap` key single-tap rolls to nearest upright over `al_snap_time`
 - Never fights active roll input: any roll input cancels an in-progress snap
-**Status:** Not started (Phase 3)
-**Notes:** Builds on `physics/physics.cpp` autolevel code. AV-011. See also D-010.
+**Status:** Done (Phase 3), 2026-11-05, accepted by the owner: `level_assist.cpp`, as bank input in the controls stage, so `physics/physics.cpp` needed no change. In a scripted test a snap took a 17° roll to within 3° in 0.35 s, hold settled at 0.4° with no overshoot, a tap while rolling did nothing, and `-classic` ignored the keys. Keys are console settings (`al_hold_key`, `al_snap_key`), not in the stock bindings screen, which cannot take new functions without changing pilot files (AV-003).
+**Notes:** Works alongside `physics/physics.cpp` autolevel code rather than changing it. AV-011. See also D-010.
 
 ### F-044 Environmental up cues
 **Priority:** Could

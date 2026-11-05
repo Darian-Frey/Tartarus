@@ -41,6 +41,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/GameLoop.cpp` | `tartarus::RenderOverlays` | gated: no stick indicator, no CHEATS tag; the console draws when opened |
 | `Descent3/Controls.cpp` | `tartarus::MouseFlight_Apply`, `tartarus::MouseFlight_ReservesButton` | gated: return at once; flare on the middle button works as stock |
 | `Descent3/TelCom.cpp`, `Descent3/TelComGoals.cpp` | `tartarus::kUiMouseScale` | active (compat): BUG-006 TelCom pointer speed |
+| `Descent3/Controls.cpp` | `tartarus::Level_Apply` | gated: returns at once in Classic Mode, so no bank input is added (F-043) |
 | `Descent3/SmallViews.cpp` | `tartarus::SmallViews_Adjust` | gated: upstream rectangle untouched |
 | `Descent3/gamesequence.cpp` | `tartarus::SkipBriefing` | tooling: only with `-skipbriefing` |
 | `Descent3/gamecinematics.cpp` | `tartarus::SkipCinematics` | tooling: only with `-skipcinematics` |

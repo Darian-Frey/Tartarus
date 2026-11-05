@@ -34,6 +34,7 @@ list(APPEND HEADERS
   tartarus/graphics.h
   tartarus/mouse_compat.h
   tartarus/mouse_flight.h
+  tartarus/level_assist.h
   tartarus/mouse_flight_core.h
   tartarus/orient_core.h
   tartarus/orient_hud.h
@@ -65,6 +66,7 @@ list(APPEND CPPS
   tartarus/display_prefs.cpp
   tartarus/graphics.cpp
   tartarus/mouse_flight.cpp
+  tartarus/level_assist.cpp
   tartarus/mouse_flight_core.cpp
   tartarus/orient_core.cpp
   tartarus/orient_hud.cpp

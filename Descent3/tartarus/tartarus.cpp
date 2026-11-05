@@ -35,6 +35,7 @@
 #include "display.h"
 #include "graphics.h"
 #include "mouse_flight.h"
+#include "level_assist.h"
 #include "orient_hud.h"
 #include "raw_mouse.h"
 #include "small_views.h"
@@ -85,6 +86,7 @@ void Tartarus_Init() {
   RawMouse_Init();
   SmallViews_Init();
   OrientHud_Init();
+  Level_Init();
   Deck_Init();
 }
 
@@ -118,7 +120,8 @@ void UpdatePause() {
 } // namespace
 
 bool HandleKey(int key) {
-  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Binds_HandleKey(key);
+  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) ||
+                    Binds_HandleKey(key);
   UpdatePause();
   return used;
 }

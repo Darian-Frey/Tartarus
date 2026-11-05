@@ -267,7 +267,7 @@ Keys held: `conv_to_shields`, `conv_to_energy`. Per frame: `amt = conv_rate * Fr
 
 All three are on the deck's Gameplay page.
 
-**Auto-level extensions** (`al_`): `al_strength 0.0–1.0` (default 0: stock auto-level, which is itself on at the upstream level 2 by default; raising it is opt-in, D-010, and 0 must behave exactly as upstream, AV-011), `al_delay 0.4` s after last roll input before leveling resumes, `al_hold` key: roll rate toward upright `al_hold_rate 180` °/s, `al_snap` key: roll to nearest of the four uprights over `al_snap_time 0.35` s with ease-out; any roll input cancels.
+**Auto-level extensions** (`al_`, F-043): these add bank input after all other controls, as if the pilot pressed the bank keys, so `physics/physics.cpp` and stock auto-level are untouched (stock is itself on at level 2 by default). Any roll input wins and cancels a snap. `al_strength 0.0–1.0` (default 0, opt-in, D-017) adds extra levelling `al_delay 0.4` s after the last roll input. Hold (`al_hold_key x`): rolls to upright while held, at up to `al_hold_rate 180` °/s. Snap (`al_snap_key z`): a tap rolls to the nearest of the four uprights in about `al_snap_time 0.35` s, easing out; a tap just after letting go of a bank key waits up to 0.15 s for the input to end. Neither acts when the nose is nearly straight up or down, where roll has no meaning. The correction is never quicker than a 0.2 s time constant: the controls run about 20 times a second, and faster overshoots (AV-011).
 
 Budget: all orientation HUD items together ≤ 0.2 ms/frame at 1080p (ROADMAP Phase 3 acceptance). Measured at 1280x720 on Intel UHD, CPU time: up-tick, ball and gizmo together average 0.05 ms, worst 0.19 ms (2026-11-04); the whole flight HUD averages about 0.12 ms, with peaks of about 0.25 ms, a little over budget on the worst frames (2026-11-05); the text is the likely next saving. Shapes are batched into one draw per colour with `rend_DrawTriangles2D`, so the cost hardly depends on resolution.
 
@@ -303,8 +303,8 @@ Visited set: room index added on entry; persisted in the save sidecar `AMAP` rec
 | Cloak | C |
 | Repulsor | V |
 | Convert → shields / → energy | [ / ] |
-| Auto-level hold | Left Alt |
-| Snap to up | Z |
+| Auto-level hold | X (`al_hold_key`; Left Alt is stock Toggle Slide) |
+| Snap to up | Z (`al_snap_key`) |
 | Quicksave / quickload | F5 / F9 |
 | Mouse recentre (F-067) | Middle mouse button (`m_vj_recentre_button`); also `m_recentre` |
 

@@ -155,6 +155,19 @@ struct ReticleBank {
 /// centre, 1 and 3 the right, 2 and 4 the left (Ret_prim_wb in hud.cpp).
 ReticleBank DecodeReticleMask(unsigned exists_mask, unsigned ready_mask);
 
+/// An angle wrapped to -180 to 180.
+float WrapDegrees(float degrees);
+
+/// The nearest of the four uprights (F-043): 0, 90, 180 or -90, as a roll in degrees.
+float NearestUpright(float roll_deg);
+
+/// Roll rate toward upright for an error in degrees: error / time_constant, limited.
+float LevelRate(float error_deg, float time_constant, float limit);
+
+/// That rate as bank input: positive rolls left, as the bank-left key. Full
+/// thrust against the ship's drag gives its top rate, in 65536ths of a turn.
+float BankCommand(float rate_deg, float full_rotthrust, float rotdrag);
+
 struct FlightMarker {
   Point2 position;
   bool reversed = false; // moving backwards: this is the opposite of the direction of travel

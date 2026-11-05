@@ -24,10 +24,16 @@
 
 #pragma once
 
+#include <optional>
+#include <string>
+
 namespace tartarus {
 
 /// Registers bind/unbind and runs binds.cfg. Called from Tartarus_Init()
 /// after the console exists.
+/// A key name such as "x" or "kp7" as an engine key code.
+std::optional<int> Binds_ParseKey(const std::string &text);
+
 void Binds_Init();
 
 /// Offer a key after the console and cheat menu. True if a binding ran.

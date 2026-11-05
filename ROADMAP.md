@@ -67,7 +67,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [x] `orient_hud.cpp`: up-tick, attitude ball, gizmo; drawn from `RenderOverlays()`, so no HUD item registration in `hud.cpp` — 2026-11-04
 - [ ] Flight HUD on the canopy (F-046, D-017): master switch, horizon, ladder and flight path marker, roll arc and heading tape (F-045), speed, wall range and climb rate (done 2026-11-05); status words
 - [x] Reticle styles (F-047): four drawn styles with loaded-weapon indicators; stock kept for Classic Mode — 2026-11-05
-- [ ] Auto-level extensions in `physics/physics.cpp` behind cvars; hold and snap keys in controls config
+- [x] Auto-level hold and snap keys and `al_strength` (F-043), as bank input in `level_assist.cpp`; `physics/physics.cpp` needed no change — 2026-11-05
 - [ ] Automap: visited/seen colouring, filters, 2D mode, orientation glyph in `TelComAutoMap.cpp`
 - [ ] Playtest notes on defaults (D-010) recorded in DECISIONS if defaults change
 **Acceptance:** A new player test (someone unfamiliar with Descent) can complete level 2 without asking which way is up; the orientation aids cost < 0.2 ms/frame at 1080p.
