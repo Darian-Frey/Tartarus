@@ -116,6 +116,8 @@ const std::vector<DeckPageDef> &DefaultDeckPages() {
         {"hud_flight_climb", "Flight HUD climb rate"},
         {"hud_flight_status", "Flight HUD status words"},
         {"hud_flight_alpha", "Flight HUD brightness", 0.05},
+        {"map_scan", "Automap laser scanner"},
+        {"map_scan_range", "Scanner range", 50},
         {"al_strength", "Extra auto-level", 0.1},
         {"al_hold_rate", "Auto-level hold speed", 30},
         {"al_snap_time", "Snap to up time", 0.05},

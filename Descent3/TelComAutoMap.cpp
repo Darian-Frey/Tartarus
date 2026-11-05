@@ -177,6 +177,7 @@
 #include "player.h"
 #include "marker.h"
 #include "hlsoundlib.h"
+#include "tartarus/map_scan.h" // TARTARUS: F-050
 
 // Variables needed for automap
 static vector AM_view_pos = {0, 0, 0};
@@ -201,7 +202,10 @@ static void TCAMCallback(void);
 static uint8_t *Small_faces[MAX_ROOMS];
 
 // clears out the list of visible rooms that we've seen
-void AutomapClearVisMap() { memset(AutomapVisMap, 0, MAX_ROOMS); }
+void AutomapClearVisMap() {
+  memset(AutomapVisMap, 0, MAX_ROOMS);
+  tartarus::MapScan_Reset(); // TARTARUS: F-050 a new level starts with nothing scanned
+}
 
 void ClassifyAMFaces() {
   int i = 0;
@@ -529,9 +533,10 @@ void TCAMRenderRoom(int roomnum) {
         int g = (texel >> 5) & 0x1f;
         int b = (texel) & 0x1f;
 
-        p->p3_r = lm_red[r];
-        p->p3_g = lm_green[g];
-        p->p3_b = lm_blue[b];
+        const float scan = tartarus::MapScan_Brightness(roomnum, i); // TARTARUS: F-050 1 in Classic Mode
+        p->p3_r = lm_red[r] * scan;
+        p->p3_g = lm_green[g] * scan;
+        p->p3_b = lm_blue[b] * scan;
         p->p3_a = 1.0;
         p->p3_flags |= PF_RGBA;
       }

@@ -35,11 +35,13 @@ list(APPEND HEADERS
   tartarus/mouse_compat.h
   tartarus/mouse_flight.h
   tartarus/level_assist.h
+  tartarus/map_scan.h
   tartarus/mouse_flight_core.h
   tartarus/orient_core.h
   tartarus/orient_hud.h
   tartarus/options_tartarus.h
   tartarus/raw_mouse.h
+  tartarus/scan_core.h
   tartarus/small_view_layout.h
   tartarus/small_views.h
   tartarus/tartarus.h
@@ -67,12 +69,14 @@ list(APPEND CPPS
   tartarus/graphics.cpp
   tartarus/mouse_flight.cpp
   tartarus/level_assist.cpp
+  tartarus/map_scan.cpp
   tartarus/mouse_flight_core.cpp
   tartarus/orient_core.cpp
   tartarus/orient_hud.cpp
   tartarus/options_tartarus.cpp
   tartarus/raw_mouse.cpp
   tartarus/raw_mouse_core.cpp
+  tartarus/scan_core.cpp
   tartarus/small_view_layout.cpp
   tartarus/small_views.cpp
   tartarus/tartarus.cpp

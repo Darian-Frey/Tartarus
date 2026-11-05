@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 3)
+- Automap laser scanner, prototype (F-050): the ship scans surfaces within 200 units as it flies, and the map shows scanned surfaces brightly and others dimly. `map_scan`, `map_scan_range`, `map_scan_rays`, `map_scan_dim`, `map_scan_status`. Scans are not saved yet. 8 unit tests — 2026-11-05.
 - Flight HUD, fourth stage (F-046): status words either side of the heading tape, shown only while active: SLIDE, BANK, HOLD, SNAP, BOOST, LIGHT; `hud_flight_status`. 3 unit tests — 2026-11-05.
 - Hold and snap to upright (F-043): hold X to roll upright, tap Z to roll to the nearest upright, and `al_strength` for extra auto-level (off by default). Any roll input cancels. Keys and speeds are settings; speeds and strength are on the deck's Gameplay page. Stock physics is unchanged. 7 unit tests — 2026-11-05.
 - Attitude ball and gizmo opacity (F-041, F-042): `hud_attitude_alpha` and `hud_gizmo_alpha`, also on the deck's Gameplay page — 2026-11-05.

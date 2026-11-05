@@ -40,6 +40,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/GameLoop.cpp` | `tartarus::PausedFrame` | active: only does anything while the console holds the pause (`con_pause`, a dev-tool convenience that changes no gameplay); the cheat menu cannot open in Classic Mode |
 | `Descent3/GameLoop.cpp` | `tartarus::RenderOverlays` | gated: no stick indicator, no CHEATS tag; the console draws when opened |
 | `Descent3/Controls.cpp` | `tartarus::MouseFlight_Apply`, `tartarus::MouseFlight_ReservesButton` | gated: return at once; flare on the middle button works as stock |
+| `Descent3/TelComAutoMap.cpp` | `tartarus::MapScan_Reset`, `tartarus::MapScan_Brightness` | gated: the reset only clears a side table, and brightness is exactly 1 in Classic Mode, so the map draws as stock (F-050) |
 | `Descent3/TelCom.cpp`, `Descent3/TelComGoals.cpp` | `tartarus::kUiMouseScale` | active (compat): BUG-006 TelCom pointer speed |
 | `Descent3/Controls.cpp` | `tartarus::Level_Apply` | gated: returns at once in Classic Mode, so no bank input is added (F-043) |
 | `Descent3/SmallViews.cpp` | `tartarus::SmallViews_Adjust` | gated: upstream rectangle untouched |

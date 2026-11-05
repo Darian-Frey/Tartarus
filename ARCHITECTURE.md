@@ -63,6 +63,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **level_assist.cpp.** Hold and snap to upright and extra auto-level (F-043). It adds bank input after all other controls, so stock physics is untouched and any roll input simply wins. The snap tap arrives through `HandleKey()`, because the controls run too seldom to see a quick press.
 
+**scan_core.cpp / map_scan.cpp.** The automap's laser scanner (F-050). `scan_core.cpp` (pure, unit-tested) keeps a side table of scanned surfaces per room, so no upstream struct changes; `map_scan.cpp` fires a few rays a frame from `Frame()` and rests when a pass finds nothing new.
+
 **deck_core.cpp / deck.cpp.** The options deck (F-069, D-016). `deck_core.cpp` (pure, unit-tested) builds pages from cvar metadata plus a curated table, and computes each row's text and next value. `deck.cpp` draws it as an overlay with `rend_FillRect`, `rend_DrawLine` and scaled `grtext` in a 1280x720 layout, takes F2 in `HandleKey()` (no upstream hook for the in-level deck), runs its own loop over the menu scene from the main menu (`Deck_RunFromMenu()`, one hook in `menu.cpp`), handles keys and the mouse, and applies changes through the cvars; pausing comes from `UpdatePause()`. Classic Mode and multiplayer never reach it. `Deck_RunList()` is the reusable list screen for the other menus, with `Deck_Confirm()`, `Deck_Message()` and `Deck_RunText()`; `MainDeck_Run()` is the main menu, `deck_save.cpp` the Save and Load screens, `deck_controls.cpp` the bindings and weapon order, and `deck_screens.cpp` the rest; each stock screen asks there first and runs itself on `kDeckStock`. While one runs, `Display_NativeMenu()` switches the menu frame to the chosen resolution (about 35 ms) and back, because stock screens draw at fixed 640x480 coordinates.
 
 **binds_core.cpp / binds.cpp.** Console key bindings (F-010). `binds_core.cpp` (pure, unit-tested) parses key names with `ctrl+`/`alt+`/`shift+`, keeps the table and writes `binds.cfg`; the engine key codes are passed in by `binds.cpp`, which registers `bind`/`unbind`, runs `binds.cfg` at start-up and, third in `HandleKey()` after the console and cheat menu, runs a bound line in a level.
@@ -136,6 +138,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/gamesequence.cpp::RunGameMenu` | `Deck_RunPendingControls()` before `OptionsMenu()` | Key bindings row of the in-level deck (F-069, D-016) |
 | `lib/renderer.h`, `renderer/HardwareOpenGL.cpp` | `rend_DrawTriangles2D()`, a new function | many flat triangles in one draw (F-046) |
 | `Descent3/Controls.cpp` | `Level_Apply()` after `MouseFlight_Apply()` | hold and snap as bank input (F-043) |
+| `Descent3/TelComAutoMap.cpp` | `MapScan_Reset()` in `AutomapClearVisMap()`, `MapScan_Brightness()` on each lit surface in `TCAMRenderRoom()` | laser scanner on the map (F-050) |
 | `Descent3/hud.cpp::RenderReticle` | `OrientHud_RenderReticle()` before the stock drawing, with the slot masks | drawn reticle styles (F-047) |
 | `Descent3/hud.cpp::RenderHUDFrame` | `OrientHud_RenderCanopy()` before `RenderCockpit()` in cockpit view | flight HUD behind the cockpit frame (F-046, D-017) |
 | `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |

@@ -285,7 +285,9 @@ Budget: all orientation HUD items together ≤ 0.2 ms/frame at 1080p (ROADMAP Ph
 | `map_2d` | 0 | top-down projection with depth shading |
 | `map_reanchor_time` | 1.0 | s the enlarged up-tick shows after closing the map |
 
-Visited set: room index added on entry; persisted in the save sidecar `AMAP` record as a bitset.
+**Laser scanner** (owner's design, 2026-11-05; replaces the visited set; `map_scan 1`): the ship builds the map as it flies. Each frame up to `map_scan_rays 6` rays go from the ship toward the centres of surfaces within `map_scan_range 200` that face it, in the current room and rooms up to two portals away; a surface a ray reaches is scanned. When a whole pass finds nothing new the scanner rests until the ship has moved 8 units, so it costs nothing at rest and about 0.05–0.09 ms a frame while working. Surfaces the stock game has shown but the scanner has not reached draw at `map_scan_dim 0.15` brightness, which also covers map pickups and level scripts that reveal rooms. Single player, indoors, Tartarus mode; multiplayer and Classic Mode keep the stock map. `map_scan_status` prints progress.
+
+Still planned: saving scans in a `.amap` file beside each save, as upstream's `.cnt`, so the save format does not change (the sidecar this section first proposed was never built); the wireframe look and new-surface flash; a full-resolution map screen.
 
 ---
 
