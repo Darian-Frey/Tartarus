@@ -149,6 +149,7 @@
 #include "ship.h"
 #include "render.h"
 #include "renderer.h"
+#include "tartarus/map_scan.h" // TARTARUS: F-050
 
 #define CHEATSPOT 14
 bool IsCheater = false;
@@ -459,8 +460,10 @@ void DemoCheats(int key) {
     AddHUDMessage(TXT_FULLMAP);
 
     for (int i = 0; i < MAX_ROOMS; i++) {
-      if (!(Rooms[i].flags & RF_SECRET))
+      if (!(Rooms[i].flags & RF_SECRET)) {
         AutomapVisMap[i] = 1;
+        tartarus::MapScan_RevealRoom(i); // TARTARUS: F-050 the cheat fills in the scanner map
+      }
     }
 
     if (snd_cheat != -1)

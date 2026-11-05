@@ -1087,6 +1087,7 @@
 #include "args.h"
 #include "tartarus/tartarus.h" // TARTARUS: -skipbriefing
 #include "tartarus/deck.h" // TARTARUS: D-016
+#include "tartarus/map_scan.h" // TARTARUS: F-050
 
 //	Variables
 tGameState Game_state = GAMESTATE_IDLE;      // current game state.
@@ -2035,6 +2036,8 @@ void RunGameMenu() {
     } break;
     case GAME_TELCOM_AUTOMAP: {
       // #ifndef DEMO
+      if (tartarus::MapScan_RunMap()) // TARTARUS: F-050 full-resolution map in Tartarus mode
+        break;
       DoWaitPopup(true, TXT_TELCOMLOAD);
       ui_ShowCursor();
       TelComShow(TS_MAP);

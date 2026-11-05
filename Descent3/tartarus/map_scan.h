@@ -39,6 +39,10 @@ void MapScan_Reset();
 /// Fires this frame's rays. Called from Frame().
 void MapScan_Frame();
 
+/// Counts a whole room as scanned: map pickups, level scripts and cheats that
+/// reveal the map would otherwise show nothing.
+void MapScan_RevealRoom(int room);
+
 /// Saves the scan beside a saved game, as upstream's .cnt, so the save format
 /// is untouched (AV-003). In Classic Mode it removes any old file instead, which
 /// would otherwise be paired with the wrong save.
@@ -57,6 +61,19 @@ bool MapScan_DrawFace(int room, int face, g3Point *points, const vector &eye);
 
 /// Draws the kept edges, after every surface is in the depth buffer.
 void MapScan_FinishRooms();
+
+/// Runs the map on its own full-resolution deck screen. False in Classic Mode
+/// and multiplayer, where the caller opens it in TelCom.
+bool MapScan_RunMap();
+
+/// True if the scanner map draws the ship, in place of the stock model.
+bool MapScan_DrawsShip();
+
+/// True if openings to unknown rooms stay blank, rather than the stock pulse.
+bool MapScan_HidesOpenings();
+
+/// How far behind the ship the map opens: stock, or further for the scanner map.
+float MapScan_CameraBack(float stock);
 
 /// The map's background: black for a scan display, otherwise the stock colour.
 ddgr_color MapScan_Background(ddgr_color stock);

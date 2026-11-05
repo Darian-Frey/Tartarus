@@ -25,6 +25,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/gamesave.cpp` | `tartarus::SaveDeck_Run`, `tartarus::SaveDeck_PickLoad`, `tartarus::SaveDeck_SlotPath`, `tartarus::kSaveDeckStock` | gated: both report Classic Mode at once, so the stock Save and Load dialogs run (D-016) |
 | `Descent3/newui.cpp` | `tartarus::Deck_MessageBox`, `tartarus::Deck_EditBox`, `tartarus::kDeckStock` | gated: report stock in Classic Mode and multiplayer (D-016) |
 | `Descent3/ctlconfig.cpp` | `tartarus::ControlsDeck_Run` | gated: false in Classic Mode and multiplayer, stock controls screen (D-016) |
+| `Descent3/gamesequence.cpp` | `tartarus::MapScan_RunMap` | gated: false in Classic Mode and multiplayer, so the map opens in TelCom (F-050) |
 | `Descent3/gamesequence.cpp` | `tartarus::Deck_RunPendingControls` | gated: false unless the deck asked, and the deck never opens in Classic Mode, so `OptionsMenu()` runs (D-016) |
 | `Descent3/hud.cpp` | `tartarus::OrientHud_RenderCanopy` | gated: returns at once in Classic Mode, so nothing is drawn on the canopy (F-046) |
 | `Descent3/hud.cpp` | `tartarus::OrientHud_RenderReticle` | gated: false in Classic Mode, so the stock reticle draws (F-047) |
@@ -41,7 +42,9 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/GameLoop.cpp` | `tartarus::PausedFrame` | active: only does anything while the console holds the pause (`con_pause`, a dev-tool convenience that changes no gameplay); the cheat menu cannot open in Classic Mode |
 | `Descent3/GameLoop.cpp` | `tartarus::RenderOverlays` | gated: no stick indicator, no CHEATS tag; the console draws when opened |
 | `Descent3/Controls.cpp` | `tartarus::MouseFlight_Apply`, `tartarus::MouseFlight_ReservesButton` | gated: return at once; flare on the middle button works as stock |
-| `Descent3/TelComAutoMap.cpp` | `tartarus::MapScan_Reset`, `tartarus::MapScan_MapOpened`, `tartarus::MapScan_DrawFace`, `tartarus::MapScan_FinishRooms`, `tartarus::MapScan_Background` | gated: the first two only touch a side table, `DrawFace` returns false and `Background` returns the stock colour in Classic Mode so the map draws as stock, and `FinishRooms` then has nothing to draw (F-050) |
+| `Descent3/multisafe.cpp`, `Descent3/GameCheat.cpp` | `tartarus::MapScan_RevealRoom` | gated in effect: it only fills a side table that Classic Mode never reads (F-050) |
+| `Descent3/TelComAutoMap.h` | (inline: declarations for the deck map) | tooling: only `map_scan.cpp` uses them, and that is gated (F-050) |
+| `Descent3/TelComAutoMap.cpp` | `tartarus::MapScan_Reset`, `tartarus::MapScan_MapOpened`, `tartarus::MapScan_DrawFace`, `tartarus::MapScan_FinishRooms`, `tartarus::MapScan_Background`, `tartarus::MapScan_CameraBack`, `tartarus::MapScan_DrawsShip`, `tartarus::MapScan_HidesOpenings` | gated: the first two only touch a side table; in Classic Mode `DrawFace`, `DrawsShip` and `HidesOpenings` return false and `Background` and `CameraBack` return the stock value, so the map draws as stock, and `FinishRooms` has nothing to draw (F-050) |
 | `Descent3/TelCom.cpp`, `Descent3/TelComGoals.cpp` | `tartarus::kUiMouseScale` | active (compat): BUG-006 TelCom pointer speed |
 | `Descent3/Controls.cpp` | `tartarus::Level_Apply` | gated: returns at once in Classic Mode, so no bank input is added (F-043) |
 | `Descent3/SmallViews.cpp` | `tartarus::SmallViews_Adjust` | gated: upstream rectangle untouched |
@@ -71,6 +74,7 @@ Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinem
 - [ ] Console (backtick) opens; `version`, `where`, `help` work.
 - [ ] F2 and main menu Options open the stock Options menu, not the options deck (D-016). Video: FOV slider runs 72–90. Tartarus tab: only the Classic Mode explanation.
 - [ ] F3 HUD view, Shift+F1: the small view sits in the stock bottom-left square.
+- [ ] Tab opens the stock map in TelCom, shaded, with the stock ship model (F-050).
 - [ ] Middle mouse button fires a flare; right button fires a secondary (BUG-007).
 - [ ] Round trip, in a separate launch **without** `-classic` (that flag makes `classic 0` do nothing): `classic 1`, `classic 0`, `classic 1` in a level; afterwards no ring, stock mouse, F2 opens the stock Options menu, cheats refused.
 

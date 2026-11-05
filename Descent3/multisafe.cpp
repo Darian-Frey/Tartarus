@@ -671,6 +671,7 @@
 #include "osiris_predefs.h"
 #include "viseffect.h"
 #include "levelgoal.h"
+#include "tartarus/map_scan.h" // TARTARUS: F-050
 
 /*
         The following functions have been added or modified by Matt and/or someone else other than Jason,
@@ -2740,8 +2741,10 @@ bool HandleCommonPowerups(char *pname, msafe_struct *mstruct, uint8_t *pickup) {
       AddFilteredHUDMessage(TXT_FULLMAP);
 
       for (int i = 0; i < MAX_ROOMS; i++) {
-        if (!(Rooms[i].flags & RF_SECRET))
+        if (!(Rooms[i].flags & RF_SECRET)) {
           AutomapVisMap[i] = 1;
+          tartarus::MapScan_RevealRoom(i); // TARTARUS: F-050 a map pickup fills in the scanner map
+        }
       }
     }
 

@@ -21,6 +21,7 @@
 #include "map_scan.h"
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iterator>
 #include <string>
@@ -28,8 +29,11 @@
 #include <vector>
 
 #include "3d.h"
+#include "TelComAutoMap.h"
 #include "classic.h"
 #include "console.h"
+#include "controls.h"
+#include "deck.h"
 #include "cvar.h"
 #include "findintersection.h"
 #include "grdefs.h"
@@ -39,9 +43,12 @@
 #include "gamesequence.h"
 #include "mouse_flight.h"
 #include "object.h"
+#include "player.h"
 #include "room.h"
 #include "scan_core.h"
 #include "ddio.h"
+
+extern bool Skip_render_game_frame; // GameLoop.cpp
 
 namespace tartarus {
 
@@ -52,6 +59,7 @@ Cvar *map_scan_range = nullptr;
 Cvar *map_scan_rays = nullptr;
 Cvar *map_scan_dim = nullptr;
 Cvar *map_scan_flash = nullptr;
+Cvar *map_scan_camera = nullptr;
 
 constexpr int kChecksPerFrame = 400; // cheap range and facing tests, to find the next ray
 constexpr int kRoomDepth = 2;        // rooms through this many portals; tunnels are many small rooms
@@ -65,6 +73,8 @@ size_t g_room_cursor = 0;
 int g_face_cursor = 0;
 bool g_found_this_pass = false;
 float g_flash_start = -100.0f;
+float g_map_time = 0.0f;
+vector g_eye{};
 
 std::vector<float> g_line_xyz, g_line_rgba; // edges kept until every surface is drawn
 bool g_idle = false;   // a whole pass found nothing new: wait for the ship to move
@@ -129,6 +139,55 @@ bool RayReaches(vector *start, const vector &centre, const vector &normal) {
   return fvi_FindIntersection(&query, &hit) == HIT_NONE;
 }
 
+// An arrow along the ship's nose, with a stalk toward its top.
+void DrawShipMarker() {
+  const object &ship = *Player_object;
+  const matrix &o = ship.orient;
+  // A steady size on screen, however far back the camera is.
+  const vector gap = ship.pos - g_eye;
+  const float size = std::max(8.0f, std::sqrt(gap.x() * gap.x() + gap.y() * gap.y() + gap.z() * gap.z()) * 0.05f);
+  const vector nose = ship.pos + o.fvec * (size * 1.6f);
+  const vector tail = ship.pos - o.fvec * size;
+  const vector left = tail - o.rvec * size, right = tail + o.rvec * size;
+  const vector top = ship.pos + o.uvec * (size * 1.4f);
+  // A wedge with a raised spine, so it reads from any side.
+  const vector lines[] = {nose, left, left, right, right, nose, nose, top, left, top, right, top};
+  std::vector<float> xyz, rgba;
+  for (const vector &v : lines) {
+    xyz.insert(xyz.end(), {v.x(), v.y(), v.z()});
+    rgba.insert(rgba.end(), {1.0f, 0.85f, 0.4f, 1.0f});
+  }
+  rend_DrawLines3D(xyz.data(), rgba.data(), static_cast<int>(xyz.size() / 3));
+}
+
+bool MapFrame(int left, int top, int right, int bottom) {
+  const float now = timer_GetTime();
+  const float frametime = std::clamp(now - g_map_time, 0.001f, 0.1f);
+  g_map_time = now;
+  return TCAMDeckFrame(left, top, right, bottom, frametime);
+}
+
+void MapKey(int key) {
+  switch (key & 0xFF) {
+  case KEY_F1:
+    AM_terrain = !AM_terrain;
+    break;
+  case KEY_F2:
+    AM_center_on_player = 1;
+    break;
+  case KEY_F3:
+    AM_realign = 1;
+    break;
+  default:
+    if ((key & 0xFF) >= KEY_1 && (key & 0xFF) <= KEY_8) {
+      const int index = (key & 0xFF) - KEY_1;
+      if (index < Players[Player_num].num_markers)
+        AM_current_marker = index;
+    }
+    break;
+  }
+}
+
 } // namespace
 
 void MapScan_Init() {
@@ -137,8 +196,9 @@ void MapScan_Init() {
   map_scan = cv.RegisterBool("map_scan", true, "Laser scanner builds the automap as you fly", flags);
   map_scan_range = cv.RegisterFloat("map_scan_range", 200.0f, 50.0f, 1000.0f, "Scanner range", flags);
   map_scan_rays = cv.RegisterInt("map_scan_rays", 6, 1, 64, "Scanner rays a frame: more fills the map faster and costs more", flags);
-  map_scan_dim = cv.RegisterFloat("map_scan_dim", 0.2f, 0.0f, 1.0f, "Automap brightness of surfaces seen but not scanned", flags);
+  map_scan_dim = cv.RegisterFloat("map_scan_dim", 0.0f, 0.0f, 1.0f, "Automap brightness of surfaces not scanned; 0 leaves them blank", flags);
   map_scan_flash = cv.RegisterFloat("map_scan_flash", 2.5f, 0.1f, 10.0f, "Seconds new surfaces flash when the map opens", flags);
+  map_scan_camera = cv.RegisterFloat("map_scan_camera", 60.0f, 10.0f, 300.0f, "How far behind the ship the map opens", flags);
   Console().AddCommand({"map_scan_status", "map_scan_status", "Show how many surfaces the scanner has reached", CMD_NONE,
                         [](const CommandArgs &, ConsoleCore &c) {
                           int total = 0;
@@ -204,6 +264,13 @@ void MapScan_Frame() {
   }
 }
 
+void MapScan_RevealRoom(int room_index) {
+  if (room_index < 0 || room_index > Highest_room_index || !Rooms[room_index].used)
+    return;
+  for (int i = 0; i < Rooms[room_index].num_faces; ++i)
+    g_table.Mark(room_index, i);
+}
+
 void MapScan_Save(const std::filesystem::path &save_path) {
   const std::filesystem::path path = ScanPath(save_path);
   if (!Active()) {
@@ -237,8 +304,11 @@ bool MapScan_DrawFace(int room_index, int face_index, g3Point *points, const vec
   const room &rp = Rooms[room_index];
   if (!Active() || (rp.flags & RF_EXTERNAL))
     return false;
+  g_eye = eye;
   const face &fp = rp.faces[face_index];
   const bool scanned = g_table.IsScanned(room_index, face_index);
+  if (!scanned && map_scan_dim->GetFloat() <= 0.0f)
+    return true; // nothing known here: blank
 
   // Near-black, so nearer walls hide further ones.
   g3Point buffer[MAX_VERTS_PER_FACE];
@@ -272,11 +342,42 @@ bool MapScan_DrawFace(int room_index, int face_index, g3Point *points, const vec
 }
 
 void MapScan_FinishRooms() {
-  if (g_line_xyz.empty())
-    return;
-  rend_DrawLines3D(g_line_xyz.data(), g_line_rgba.data(), static_cast<int>(g_line_xyz.size() / 3));
-  g_line_xyz.clear();
-  g_line_rgba.clear();
+  if (!g_line_xyz.empty()) {
+    rend_DrawLines3D(g_line_xyz.data(), g_line_rgba.data(), static_cast<int>(g_line_xyz.size() / 3));
+    g_line_xyz.clear();
+    g_line_rgba.clear();
+  }
+  if (MapScan_DrawsShip()) {
+    rend_SetZBufferState(0); // always visible, even through walls
+    DrawShipMarker();
+    rend_SetZBufferState(1);
+  }
+}
+
+bool MapScan_DrawsShip() { return Active() && Player_object != nullptr; }
+
+bool MapScan_HidesOpenings() { return Active() && map_scan_dim->GetFloat() <= 0.0f; }
+
+float MapScan_CameraBack(float stock) { return Active() ? map_scan_camera->GetFloat() : stock; }
+
+bool MapScan_RunMap() {
+  if (!Active())
+    return false;
+  const int old_mode = GetScreenMode();
+  Skip_render_game_frame = true;
+  SetScreenMode(SM_MENU);
+  ResumeControls();
+  TCAMDeckBegin();
+  g_map_time = timer_GetTime();
+  Deck_RunView("Automap", "F1 TERRAIN   F2 CENTRE ON SHIP   F3 LEVEL THE VIEW   1-8 MARKERS   ESC CLOSE", MapFrame, MapKey);
+  TCAMDeckEnd();
+  SuspendControls();
+  ddio_KeyFlush();
+  SetScreenMode(old_mode);
+  rend_SetZBufferState(1);
+  rend_SetWrapType(WT_WRAP);
+  Skip_render_game_frame = false;
+  return true;
 }
 
 ddgr_color MapScan_Background(ddgr_color stock) { return Active() ? GR_BLACK : stock; }

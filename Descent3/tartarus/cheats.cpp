@@ -23,6 +23,7 @@
 // every frame instead of refilled once (SPEC.md §4).
 
 #include "cheats.h"
+#include "map_scan.h"
 
 #include <algorithm>
 #include <cmath>
@@ -237,8 +238,10 @@ void KillAllRobots() {
 
 void RevealAutomap() {
   for (int i = 0; i < MAX_ROOMS; i++) {
-    if (!(Rooms[i].flags & RF_SECRET))
+    if (!(Rooms[i].flags & RF_SECRET)) {
       AutomapVisMap[i] = 1;
+      MapScan_RevealRoom(i);
+    }
   }
 }
 

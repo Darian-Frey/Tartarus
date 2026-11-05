@@ -706,6 +706,39 @@ void Deck_RunPoll(const DeckListSpec &spec, bool (*poll)(int key, void *data), v
   ui_Flush();
 }
 
+void Deck_RunView(const std::string &title, const std::string &footer, bool (*frame)(int left, int top, int right, int bottom),
+                  void (*key)(int key)) {
+  NativeFrame native;
+  ui_HideCursor();
+  ddio_KeyFlush();
+  bool done = false;
+  while (!done) {
+    Descent->defer();
+    const Theme &t = kThemes[std::clamp(ui_phosphor->GetInt(), 0, 3)];
+    const Casing &c = kCasings[std::clamp(ui_casing->GetInt(), 0, 1)];
+    StartFrame(0, 0, Max_window_w, Max_window_h, false);
+    rend_FillRect(GR_BLACK, 0, 0, Max_window_w, Max_window_h);
+    EndFrame();
+    BeginLayout();
+    DrawCasing(c, t);
+    Fill(GR_BLACK, kCx, kCy, kCx + kCw, kCy + kCh); // also clears the depth for the picture
+    Text(24, kCy + kCh + 26, c.ink, 15.0f, footer);
+    EndLayout();
+    done = frame(X(kCx), Y(kCy), X(kCx + kCw), Y(kCy + kCh));
+    BeginLayout();
+    Text(kCx + 14, kCy + 10, t.ph, 22.0f, title);
+    EndLayout();
+    rend_Flip();
+    int pressed;
+    while ((pressed = ddio_KeyInKey()) != 0)
+      key(pressed);
+    if (Multi_bail_ui_menu)
+      done = true;
+  }
+  ui_ShowCursor();
+  ui_Flush();
+}
+
 bool Deck_Ready() { return ui_phosphor != nullptr && ui_casing != nullptr; }
 
 bool Deck_RunText(const std::string &title, const std::string &prompt, std::string *text, size_t max_len,

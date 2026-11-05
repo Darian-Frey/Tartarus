@@ -254,7 +254,8 @@ void TCAMCenterOnPlayer() {
 
   matrix newmat;
   angvec heading;
-  AM_view_pos = Viewer_object->pos - (Viewer_object->orient.fvec * 10);
+  // TARTARUS: F-050 further back with the scanner map, to open on the surroundings
+  AM_view_pos = Viewer_object->pos - (Viewer_object->orient.fvec * tartarus::MapScan_CameraBack(10));
   vm_ExtractAnglesFromMatrix(&heading, &Player_object->orient);
 
   vm_AnglesToMatrix(&newmat, 0, heading.h(), 0);
@@ -511,7 +512,9 @@ void TCAMRenderRoom(int roomnum) {
         continue;
     }
 
-    // TARTARUS: F-050 scanner look in Tartarus mode; portals to unseen rooms stay stock
+    // TARTARUS: F-050 scanner look in Tartarus mode; what it has not reached stays blank
+    if ((black_face || wacky_face) && tartarus::MapScan_HidesOpenings())
+      continue;
     if (!black_face && !wacky_face && tartarus::MapScan_DrawFace(roomnum, i, AM_rotated_points, AM_view_pos))
       continue;
 
@@ -695,7 +698,8 @@ void TCAMDrawObjects() {
   } else {
     object *obj = &Objects[Players[Player_num].objnum];
 
-    if (AM_ship_model_handle != -1 && drawit)
+    // TARTARUS: F-050 the scanner map draws its own marker
+    if (AM_ship_model_handle != -1 && drawit && !tartarus::MapScan_DrawsShip())
       DrawPolygonModel(&obj->pos, &obj->orient, AM_ship_model_handle, nullptr, 0, 1, 1, 1);
   }
 
@@ -794,9 +798,9 @@ void TCAMDrawMenu() {
 }
 
 // The callback function that the telcom calls every frame
-void TCAMCallback(void) {
-  StartFrame(Telcom_system.Monitor_coords[MONITOR_MAIN].left, Telcom_system.Monitor_coords[MONITOR_MAIN].top,
-             Telcom_system.Monitor_coords[MONITOR_MAIN].right, Telcom_system.Monitor_coords[MONITOR_MAIN].bottom);
+// TARTARUS: F-050 split from TCAMCallback so the deck can draw the map into its own rectangle
+static void TCAMRenderView(int left, int top, int right, int bottom) {
+  StartFrame(left, top, right, bottom);
 
   // Start a 3d frame
   g3_StartFrame(&AM_view_pos, &AM_view_orient, Render_zoom);
@@ -836,10 +840,52 @@ void TCAMCallback(void) {
 
   TCAMDrawObjects();
   EndFrame();
+}
+
+void TCAMCallback(void) {
+  TCAMRenderView(Telcom_system.Monitor_coords[MONITOR_MAIN].left, Telcom_system.Monitor_coords[MONITOR_MAIN].top,
+                 Telcom_system.Monitor_coords[MONITOR_MAIN].right, Telcom_system.Monitor_coords[MONITOR_MAIN].bottom);
 
   rend_SetFiltering(0);
 
   TCAMDrawMenu();
 
   TCAMReadControls();
+}
+
+// TARTARUS: F-050 the map without TelCom, for the deck's full-resolution screen
+void TCAMDeckBegin() {
+  if (!AM_rotated_points)
+    AM_rotated_points = mem_rmalloc<g3Point>(MAX_VERTS_PER_ROOM);
+  AM_current_marker = -1;
+  tartarus::MapScan_MapOpened();
+  ClassifyAMFaces();
+  AM_ship_model_handle = LoadPolyModel("automapship.oof", 0);
+  TCAMCenterOnPlayer();
+  if (OBJECT_OUTSIDE(Viewer_object))
+    AM_terrain = 1;
+  ct_packet drained; // the key that opened the map must not close it
+  Controller->get_packet(ctfAUTOMAP_KEY, &drained);
+}
+
+bool TCAMDeckFrame(int left, int top, int right, int bottom, float frametime) {
+  last_frametime = frametime;
+  Sound_system.BeginSoundFrame(true);
+  TCAMRenderView(left, top, right, bottom);
+  rend_SetFiltering(0);
+  TCAMReadControls();
+  ct_packet automap_key;
+  Controller->get_packet(ctfAUTOMAP_KEY, &automap_key);
+  Sound_system.EndSoundFrame();
+  return KEY_STATE(KEY_ESC) || automap_key.value > 0.0f;
+}
+
+void TCAMDeckEnd() {
+  FreeAMFaces();
+  if (AM_ship_model_handle != -1)
+    FreePolyModel(AM_ship_model_handle);
+  if (AM_rotated_points) {
+    mem_free(AM_rotated_points);
+    AM_rotated_points = nullptr;
+  }
 }
