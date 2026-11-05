@@ -625,6 +625,9 @@ void TCAMReadControls() {
 
 // Renders the low-res terrain for the automap
 void TCAMRenderTerrain() {
+  if (tartarus::MapScan_DrawTerrain(AM_view_pos)) // TARTARUS: F-050 a wire grid in the scanner look
+    return;
+
   int nt;
   int render_width, render_height;
   float w2, h2;
@@ -709,7 +712,8 @@ void TCAMDrawObjects() {
   for (i = 0; i <= Highest_object_index; i++) {
     object *obj = &Objects[i];
 
-    if (obj->type == OBJ_MARKER && obj->parent_handle == Player_object->handle) {
+    // TARTARUS: F-050 the scanner map draws its own markers
+    if (obj->type == OBJ_MARKER && obj->parent_handle == Player_object->handle && !tartarus::MapScan_DrawsShip()) {
       float size = 2.5 + (norm * 2.5);
       float r = 1.0;
       float g = 0;
@@ -828,7 +832,7 @@ static void TCAMRenderView(int left, int top, int right, int bottom) {
   for (int i = 0; i < Num_AM_rooms; i++) {
     TCAMRenderRoom(AM_room_list[i]);
   }
-  tartarus::MapScan_FinishRooms(); // TARTARUS: F-050 edges go on after every surface
+  tartarus::MapScan_FinishRooms(AM_view_orient); // TARTARUS: F-050 edges and symbols go on after every surface
 
   // Render terrain
   if (AM_terrain)

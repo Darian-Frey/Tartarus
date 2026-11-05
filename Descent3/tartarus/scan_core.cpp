@@ -20,6 +20,11 @@
 
 #include "scan_core.h"
 
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <string>
+
 namespace tartarus {
 
 void ScanTable::Clear() {
@@ -145,6 +150,63 @@ bool ScanTable::IsNew(int room, int face) const {
   const uint16_t generation = Get(room, face);
   return generation != 0 && generation == new_generation_;
 }
+
+std::vector<SymbolLine> MapSymbolLines(int symbol) {
+  std::vector<SymbolLine> lines;
+  auto polygon = [&](int sides, float start, float radius) {
+    for (int i = 0; i < sides; ++i) {
+      const float a = start + 6.2831853f * i / sides, b = start + 6.2831853f * (i + 1) / sides;
+      lines.push_back({radius * std::cos(a), radius * std::sin(a), radius * std::cos(b), radius * std::sin(b)});
+    }
+  };
+  switch (symbol) {
+  case kSymbolKey:
+    polygon(4, 0.0f, 1.0f); // a diamond
+    break;
+  case kSymbolDoor:
+  case kSymbolLockedDoor:
+    polygon(4, 0.7853982f, 1.1f); // a square
+    if (symbol == kSymbolLockedDoor) {
+      lines.push_back({-0.78f, -0.78f, 0.78f, 0.78f});
+      lines.push_back({-0.78f, 0.78f, 0.78f, -0.78f});
+    }
+    break;
+  case kSymbolGoal:
+    polygon(3, 1.5707963f, 1.2f); // two triangles make a star
+    polygon(3, -1.5707963f, 1.2f);
+    break;
+  case kSymbolPowerup:
+    lines.push_back({-0.6f, 0.0f, 0.6f, 0.0f});
+    lines.push_back({0.0f, -0.6f, 0.0f, 0.6f});
+    break;
+  case kSymbolMarker:
+    lines.push_back({-0.8f, -0.8f, 0.8f, 0.8f});
+    lines.push_back({-0.8f, 0.8f, 0.8f, -0.8f});
+    break;
+  case kSymbolRing:
+    polygon(12, 0.0f, 1.6f);
+    break;
+  default:
+    break;
+  }
+  return lines;
+}
+
+namespace {
+
+bool NameHas(const char *name, const char *word) {
+  if (name == nullptr)
+    return false;
+  std::string lower(name);
+  std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+  return lower.find(word) != std::string::npos;
+}
+
+} // namespace
+
+bool IsKeyName(const char *name) { return NameHas(name, "key"); }
+
+bool IsHiddenName(const char *name) { return NameHas(name, "invisible"); }
 
 bool FaceInReach(const float centre[3], const float normal[3], const float from[3], float range) {
   const float dx = centre[0] - from[0], dy = centre[1] - from[1], dz = centre[2] - from[2];

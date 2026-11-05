@@ -21,6 +21,9 @@
 #include "../scan_core.h"
 
 using tartarus::FaceInReach;
+using tartarus::IsHiddenName;
+using tartarus::IsKeyName;
+using tartarus::MapSymbolLines;
 using tartarus::ScanTable;
 
 TEST(ScanCore, NothingScannedAtFirst) {
@@ -151,4 +154,26 @@ TEST(ScanSave, LoadedSurfacesAreNotNew) {
   u.Mark(1, 2);
   u.OpenMap();
   EXPECT_TRUE(u.IsNew(1, 2));
+}
+
+TEST(ScanSymbols, EverySymbolHasLines) {
+  for (int symbol = 0; symbol < tartarus::kMapSymbols; ++symbol)
+    EXPECT_FALSE(MapSymbolLines(symbol).empty());
+}
+
+TEST(ScanSymbols, LockedDoorIsADoorWithACross) {
+  EXPECT_EQ(MapSymbolLines(tartarus::kSymbolLockedDoor).size(), MapSymbolLines(tartarus::kSymbolDoor).size() + 2);
+}
+
+TEST(ScanSymbols, KeysAreKnownByName) {
+  EXPECT_TRUE(IsKeyName("Key 1"));
+  EXPECT_TRUE(IsKeyName("RedKEY"));
+  EXPECT_FALSE(IsKeyName("Shield"));
+  EXPECT_FALSE(IsKeyName(nullptr));
+}
+
+TEST(ScanSymbols, HiddenTriggersAreKnownByName) {
+  EXPECT_TRUE(IsHiddenName("Invisiblepowerup"));
+  EXPECT_FALSE(IsHiddenName("Concussion"));
+  EXPECT_FALSE(IsHiddenName(nullptr));
 }

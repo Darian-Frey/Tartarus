@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 3)
+- Automap symbols and filters (F-050): keys, doors (red when locked), goals and powerups show where you have scanned, each switchable with F5 to F8 on the map or `map_show_*`; powerups are off by default. Markers are thin symbols and terrain is a wire grid. 4 unit tests — 2026-11-05.
 - Automap compass and closing cue (F-050, F-051): a heading tape on the map, and the roll arc and heading tape stand out for a moment after closing it; `map_reanchor_time`. 2 unit tests — 2026-11-05.
 - Automap: whatever the scanner has not reached is now blank, including openings to unknown rooms (F-050); `map_scan_dim` above 0 brings back dim edges — 2026-11-05.
 - Full-resolution automap (F-050): in Tartarus mode the map opens in the deck casing at your resolution instead of inside TelCom, with sharp lines and an amber ship marker in place of the stock model. It shows the level name and the chosen marker's message. Classic Mode and multiplayer keep TelCom — 2026-11-05.

@@ -56,6 +56,22 @@ private:
   uint16_t new_generation_ = 0;
 };
 
+/// Map symbols. Lines are in symbol radii, x right, y up.
+enum MapSymbol { kSymbolKey, kSymbolDoor, kSymbolLockedDoor, kSymbolGoal, kSymbolPowerup, kSymbolMarker, kSymbolRing, kMapSymbols };
+
+struct SymbolLine {
+  float x1, y1, x2, y2;
+};
+
+std::vector<SymbolLine> MapSymbolLines(int symbol);
+
+/// True if an object's name says it is a key: keys have no flag of their own.
+bool IsKeyName(const char *name);
+
+/// True for objects levels use as hidden triggers, such as "Invisiblepowerup",
+/// which the map must not give away.
+bool IsHiddenName(const char *name);
+
 /// Whether a surface can be scanned from a point: within range, and facing it.
 bool FaceInReach(const float centre[3], const float normal[3], const float from[3], float range);
 

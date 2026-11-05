@@ -278,16 +278,16 @@ Budget: all orientation HUD items together ≤ 0.2 ms/frame at 1080p (ROADMAP Ph
 
 | Cvar | Default | Meaning |
 |---|---|---|
-| `map_visited_colour` | `0.2 0.8 1.0` | rooms the player has entered |
-| `map_seen_colour` | `0.4 0.4 0.5` | rooms revealed but not entered |
-| `map_show_terrain` | 1 | |
-| `map_filter` | `all` | comma list: `goals,keys,doors,powerups,robots` |
+| `map_show_keys`, `map_show_doors`, `map_show_goals` | 1 | symbols on the map; F5, F6, F7 on the map screen |
+| `map_show_powerups` | 0 | powerup symbols; F8 |
 | `map_2d` | 0 | top-down projection with depth shading |
 | `map_reanchor_time` | 1.0 | s the roll arc and heading tape stand out after closing the map |
 
 **Laser scanner** (owner's design, 2026-11-05; replaces the visited set; `map_scan 1`): the ship builds the map as it flies. Each frame up to `map_scan_rays 6` rays go from the ship toward the centres of surfaces within `map_scan_range 200` that face it, in the current room and rooms up to two portals away; a surface a ray reaches is scanned. When a whole pass finds nothing new the scanner rests until the ship has moved 8 units, so it costs nothing at rest and about 0.05–0.09 ms a frame while working. The map is a pale green wireframe on black: scanned surfaces have bright edges and a faint fill, and everything the scanner has not reached is blank (owner, 2026-11-05). The full-map powerup and the map cheats count every non-secret room as scanned. Setting `map_scan_dim` above its default of 0 shows surfaces the stock game has seen as dim edges, and openings to unknown rooms with the stock pulse. Surfaces scanned since the map last opened flash brighter for `map_scan_flash 2.5` s when it opens. Single player, indoors, Tartarus mode; multiplayer and Classic Mode keep the stock map. `map_scan_status` prints progress.
 
 Saving: the scan goes in a `.amap` file beside each save, as upstream's `.cnt`, so the save format does not change (the sidecar this section first proposed was never built). It is a bitset per room, stamped with a fingerprint of the level; a damaged or mismatched file is ignored. Loading always replaces the scan, with nothing if there is no file, as saves from before the scanner have. A save in Classic Mode removes any old `.amap` beside it.
+
+**Symbols:** small line shapes that face the camera at a steady size on screen, drawn through walls, only where the scanner has been: keys a yellow diamond, doors an amber square (red with a cross if locked), goals a cyan star, powerups a small blue plus, your markers a magenta cross with a cyan ring when chosen. Robots are never shown, which keeps the tension of not knowing what is ahead. Keys are recognised by "key" in the object's name, as they have no flag of their own; objects with "invisible" in the name are hidden triggers and are left out. Terrain (F1) is a wire grid around the camera, not scanned, and outdoor buildings are dim wireframe with it.
 
 **Map screen:** in Tartarus mode single player the automap key opens the map in the deck casing at the chosen resolution, not in TelCom. F1 terrain, F2 centre on ship, F3 level the view, 1-8 markers, Escape or the automap key closes. The level name shows top left, with the chosen marker and its message under it. It opens `map_scan_camera 60` units behind the ship. The stock ship model is replaced by an amber wedge with a raised spine, a steady size on screen and visible through walls. Opening the map from TelCom's own menu still uses the TelCom screen, with the scanner look. A compass tape on the map follows the camera. Closing the map makes the roll arc and heading tape thicker and brighter, fading over `map_reanchor_time 1` s, to get your bearings; this replaces the enlarged up-tick first planned, as that is now off by default (D-017).
 

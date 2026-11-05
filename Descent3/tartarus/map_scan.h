@@ -59,8 +59,13 @@ void MapScan_MapOpened();
 /// Classic Mode and multiplayer, and outdoors, where the caller draws it stock.
 bool MapScan_DrawFace(int room, int face, g3Point *points, const vector &eye);
 
-/// Draws the kept edges, after every surface is in the depth buffer.
-void MapScan_FinishRooms();
+/// Draws the kept edges, after every surface is in the depth buffer, then the
+/// ship and the symbols, which face the camera.
+void MapScan_FinishRooms(const matrix &view);
+
+/// Draws the terrain as a wire grid. False in Classic Mode and multiplayer,
+/// where the caller draws it stock.
+bool MapScan_DrawTerrain(const vector &eye);
 
 /// Runs the map on its own full-resolution deck screen. False in Classic Mode
 /// and multiplayer, where the caller opens it in TelCom.
