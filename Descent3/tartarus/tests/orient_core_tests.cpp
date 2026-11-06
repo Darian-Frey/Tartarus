@@ -72,8 +72,11 @@ tartarus::UpTick Rolled(float degrees, float fade = 8.0f) {
 TEST(OrientCore, HiddenWhenUpright) { EXPECT_EQ(Rolled(0).alpha, 0.0f); }
 
 TEST(OrientCore, HiddenInsideTheFadeAngle) {
-  EXPECT_EQ(Rolled(8).alpha, 0.0f);
-  EXPECT_EQ(Rolled(-8).alpha, 0.0f);
+  EXPECT_EQ(Rolled(7.9f).alpha, 0.0f);
+  EXPECT_EQ(Rolled(-7.9f).alpha, 0.0f);
+  // Exactly on the angle, rounding can land either side of it, and differs between maths libraries.
+  EXPECT_NEAR(Rolled(8).alpha, 0.0f, 1e-6f);
+  EXPECT_NEAR(Rolled(-8).alpha, 0.0f, 1e-6f);
 }
 
 TEST(OrientCore, FullBeyondThreeTimesTheFadeAngle) {
