@@ -3,6 +3,7 @@
 # profile. The real profile is only read. Usage:
 #   tools/run_probe.sh <work-dir> <probe.py> [extra game args...]
 # Extra tartarus.cfg lines come from $CFG (newline-separated); MENU=1 stays at the main menu.
+# RES_W and RES_H set the resolution, in hex as the registry holds it (default 500 and 2D0, 1280x720).
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 work=$1; probe=$(realpath "$2"); shift 2
@@ -13,8 +14,8 @@ cp -r "$src" "$work/xdg/Outrage Entertainment/"
 p="$work/xdg/Outrage Entertainment/Descent 3"
 rm -rf "$p/savegame"/*
 sed -i 's/"SND_mastervol"="[0-9.]*"/"SND_mastervol"="0.000000"/; s/"MUS_mastervol"="[0-9.]*"/"MUS_mastervol"="0.000000"/;
-        s/"RS_fullscreen"=dword:[0-9A-Fa-f]*/"RS_fullscreen"=dword:0/; s/"RS_width"=dword:[0-9A-Fa-f]*/"RS_width"=dword:500/;
-        s/"RS_height"=dword:[0-9A-Fa-f]*/"RS_height"=dword:2D0/' "$p/.Descent3Registry"
+        s/"RS_fullscreen"=dword:[0-9A-Fa-f]*/"RS_fullscreen"=dword:0/; s/"RS_width"=dword:[0-9A-Fa-f]*/"RS_width"=dword:'"${RES_W:-500}"'/;
+        s/"RS_height"=dword:[0-9A-Fa-f]*/"RS_height"=dword:'"${RES_H:-2D0}"'/' "$p/.Descent3Registry"
 printf 'set classic 0\n' > "$p/tartarus.cfg"
 [ -n "$CFG" ] && printf '%s\n' "$CFG" >> "$p/tartarus.cfg"
 level="-mission d3 -loadlevel 1"

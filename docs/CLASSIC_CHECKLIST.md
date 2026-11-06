@@ -69,12 +69,13 @@ Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinem
 
 - [ ] Main menu: build string bottom right; menus otherwise stock (blurred side bars are expected, `r_bar_fill`).
 - [ ] Main menu, New Game, Pilots, key bindings, Save (F9), Load (Alt+F3), Keys (F1), Guide-Bot (F4) and the Quit and Abort boxes are the stock screens, not the deck (D-016).
-- [ ] Level 1: stock reticle, even with `hud_reticle` set in `tartarus.cfg`; no virtual-joystick ring; the mouse turns the ship as stock (movement = rotation).
+- [ ] Level 1: stock reticle and no flight HUD, wedge, ball or gizmo, even with `hud_reticle`, `hud_flight_fullscreen`, `hud_uptick`, `hud_attitude` and `hud_gizmo` set in `tartarus.cfg`; no virtual-joystick ring; the mouse turns the ship as stock (movement = rotation).
 - [ ] No CHEATS tag; Shift+F12 prints "Cheats are not available in Classic Mode"; `god`, `give all`, `timescale 0.5` refused in the console.
 - [ ] Console (backtick) opens; `version`, `where`, `help` work.
 - [ ] F2 and main menu Options open the stock Options menu, not the options deck (D-016). Video: FOV slider runs 72–90. Tartarus tab: only the Classic Mode explanation.
 - [ ] F3 HUD view, Shift+F1: the small view sits in the stock bottom-left square.
 - [ ] Tab opens the stock map in TelCom, shaded, with the stock ship model (F-050).
+- [ ] Z and X do nothing: a roll levels at the stock rate (F-043).
 - [ ] Middle mouse button fires a flare; right button fires a secondary (BUG-007).
 - [ ] Round trip, in a separate launch **without** `-classic` (that flag makes `classic 0` do nothing): `classic 1`, `classic 0`, `classic 1` in a level; afterwards no ring, stock mouse, F2 opens the stock Options menu, cheats refused.
 
@@ -82,5 +83,6 @@ Launch with `-classic` (scripted runs: silent profile, `-skipbriefing -skipcinem
 
 | Date | Build | Result |
 |---|---|---|
+| 2026-11-06 | `414a55d5` | Pass (scripted, three runs, every Tartarus aid forced on in `tartarus.cfg`): stock reticle, no flight HUD, wedge, ball, gizmo or ring; stock mouse turned the ship (heading 359.7 to 24.4); bank after a roll and a Z tap 344.3, the same as stock; no CHEATS tag; Shift+F12, `god`, `give all` and `timescale 0.5` refused; console works; FOV 72 and the Classic text on the Tartarus tab; stock small view in the HUD view and Shift+F1 cycles it; middle button flare, right button secondary (7 to 6); stock main menu, New Game, Load, Pilots, Quit, Abort, Keys, Guide-Bot, Save, key bindings and TelCom automap. Round trip from Tartarus mode: the flight HUD and ring go, F2 and Tab open the stock screens, `god` is refused. Closes the gap in the 2026-11-04 run. |
 | 2026-11-04 | `65dd4ab1` + Key bindings row | Pass (scripted): no ring, stock mouse turned the ship (heading 359.7 to 26.3), no CHEATS tag, Shift+F12 and `god`, `give all`, `timescale 0.5` refused, console works, stock Options with FOV 72 and the Classic text on the Tartarus tab, stock small view, middle button flare and right button secondary (count 7 to 6), and stock main menu, New Game, Pilots, Save, Load, Keys, Guide-Bot, Quit, Abort and key bindings. Round trip tested from Tartarus mode. Not observed: the small view after Shift+F1 in the HUD view (the shot was in the cockpit view). The 2026-11-02 round trip may have run under `-classic` and so proved nothing; it is superseded by this one. |
 | 2026-11-02 | `648ace30` + F-062 | Pass (scripted, `-classic`): no stick ring, stock mouse turned the ship, no CHEATS tag, Shift+F12 refused, console works, FOV 72, Tartarus tab shows only the Classic text, stock small view, `classic 0`/`1` round trip clean. Fixed on the way: cheat commands in Classic said "unlock it first" instead of the Classic refusal; the tab's Classic text overflowed. Not covered by the script: middle/right buttons (checked by hand for BUG-007 the same day). |
