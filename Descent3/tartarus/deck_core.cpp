@@ -90,7 +90,7 @@ const std::vector<DeckPageDef> &DefaultDeckPages() {
         {"m_accel", "Desktop acceleration"},
         {"m_vj_curve", "Response curve", 0.1},
         {"m_vj_deadzone", "Dead zone", 0.01},
-        {"m_vj_radius", "Full-turn travel", 0.02},
+        {"m_vj_travel", "Full-turn travel", 20},
         {"m_vj_recentre_button", "Recentre button", 0,
          {{"NONE", "0"}, {"LEFT", "1"}, {"RIGHT", "2"}, {"MIDDLE", "3"}, {"BUTTON 4", "4"}, {"BUTTON 5", "5"}}}},
        {"m_"},

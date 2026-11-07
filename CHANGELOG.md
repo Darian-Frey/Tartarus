@@ -3,6 +3,8 @@
 Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-, AV-, BUG- and IMP- IDs for traceability. Upstream Descent 3 changes arrive via merges and are summarised, not re-listed; see upstream's CHANGELOG for detail.
 
 ## [Unreleased]
+### Changed (Phase 2)
+- Virtual-joystick mouse (F-067): full-turn travel is now `m_vj_travel`, in mouse counts, so the stick feels the same at any window size; it replaces `m_vj_radius`, a share of the window height. New defaults are the owner's settings, as the old ones flew badly: auto-centring on, centre speed 2.0, speed 0.75 and inverted pitch (mouse forward climbs) — 2026-11-07.
 ### Added (Phase 3)
 - Automap symbols and filters (F-050): keys, doors (red when locked), goals and powerups show where you have scanned, each switchable with F5 to F8 on the map or `map_show_*`; powerups are off by default. Markers are thin symbols and terrain is a wire grid. 4 unit tests — 2026-11-05.
 - Automap compass and closing cue (F-050, F-051): a heading tape on the map, and the roll arc and heading tape stand out for a moment after closing it; `map_reanchor_time`. 2 unit tests — 2026-11-05.

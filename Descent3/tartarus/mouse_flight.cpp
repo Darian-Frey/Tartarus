@@ -54,7 +54,7 @@ VirtualJoystick g_vj;
 
 Cvar *m_mode = nullptr;
 Cvar *m_vj_deadzone = nullptr;
-Cvar *m_vj_radius = nullptr;
+Cvar *m_vj_travel = nullptr;
 Cvar *m_vj_curve = nullptr;
 Cvar *m_vj_centre_rate = nullptr;
 Cvar *m_vj_sensitivity = nullptr;
@@ -89,11 +89,6 @@ bool StickContext() {
   return true;
 }
 
-float RadiusCounts() {
-  const int h = Game_window_h > 0 ? Game_window_h : 480;
-  return m_vj_radius->GetFloat() * static_cast<float>(h);
-}
-
 void Filter(int *dx, int *dy, unsigned btnmask) {
   if (!MouseFlight_Active()) {
     RawMouse_ScaleCounts(dx, dy); // stock mouse paths: m_sensitivity (F-062)
@@ -109,7 +104,8 @@ void Filter(int *dx, int *dy, unsigned btnmask) {
   if (button > 0 && (pressed & (1u << (button - 1))))
     g_vj.Reset();
   else
-    g_vj.AddDelta(static_cast<float>(*dx), static_cast<float>(*dy), RadiusCounts(), m_vj_sensitivity->GetFloat());
+    g_vj.AddDelta(static_cast<float>(*dx), static_cast<float>(*dy), m_vj_travel->GetFloat(),
+                  m_vj_sensitivity->GetFloat());
   *dx = 0; // upstream must not also turn the ship
   *dy = 0;
 }
@@ -119,24 +115,26 @@ void Filter(int *dx, int *dy, unsigned btnmask) {
 void MouseFlight_Init() {
   CvarRegistry &cv = Cvars();
   const uint32_t locked = CVAR_ARCHIVE | CVAR_CLASSIC_LOCKED;
-  m_mode = cv.RegisterInt("m_mode", kModeVirtualJoystick, 0, 2,
+  m_mode = cv.RegisterInt("m_mode", kModeVirtualJoystickCentring, 0, 2,
                           "Mouse flight: 0 classic (movement = rotation), 1 virtual joystick, 2 virtual joystick "
                           "with auto-centring",
                           locked);
   m_vj_deadzone = cv.RegisterFloat("m_vj_deadzone", 0.04f, 0.0f, 0.5f,
                                    "Virtual joystick: dead zone as a fraction of the full-rate radius", locked);
-  m_vj_radius = cv.RegisterFloat("m_vj_radius", 0.20f, 0.02f, 1.0f,
-                                 "Virtual joystick: mouse travel for full turn rate, as a fraction of screen height",
-                                 locked);
+  // In counts, not a share of the window: counts do not change with the window, so neither does the feel.
+  m_vj_travel = cv.RegisterFloat("m_vj_travel", 216.0f, 20.0f, 2000.0f,
+                                 "Virtual joystick: mouse travel for full turn rate, in mouse counts", locked);
   m_vj_curve = cv.RegisterFloat("m_vj_curve", 1.8f, 0.5f, 4.0f,
                                 "Virtual joystick: response exponent (1 = linear, higher = finer near centre)", locked);
-  m_vj_centre_rate = cv.RegisterFloat("m_vj_centre_rate", 1.5f, 0.0f, 20.0f,
+  m_vj_centre_rate = cv.RegisterFloat("m_vj_centre_rate", 2.0f, 0.0f, 20.0f,
                                       "Virtual joystick: auto-centring speed per second (m_mode 2 only)", locked);
   m_vj_sensitivity =
-      cv.RegisterFloat("m_vj_sensitivity", 1.0f, 0.05f, 10.0f, "Virtual joystick: mouse counts scale", locked);
+      cv.RegisterFloat("m_vj_sensitivity", 0.75f, 0.05f, 10.0f, "Virtual joystick: mouse counts scale", locked);
   m_vj_roll_x = cv.RegisterBool("m_vj_roll_x", false, "Virtual joystick: mouse X rolls instead of turning", locked);
-  m_vj_invert_y = cv.RegisterBool("m_vj_invert_y", false,
-                                  "Virtual joystick: invert pitch (0 = push forward to dive, as a joystick)", locked);
+  m_vj_invert_y = cv.RegisterBool("m_vj_invert_y", true,
+                                  "Virtual joystick: invert pitch (1 = mouse forward climbs, as most mouse games; 0 = "
+                                  "push forward to dive, as a joystick)",
+                                  locked);
   m_vj_indicator =
       cv.RegisterBool("m_vj_indicator", true, "Virtual joystick: draw the offset indicator and dead-zone ring", locked);
   m_vj_recentre_button = cv.RegisterInt("m_vj_recentre_button", 3, 0, 8,
@@ -252,7 +250,7 @@ void MouseFlight_Render() {
 
   const int cx = Game_window_x + Game_window_w / 2;
   const int cy = Game_window_y + Game_window_h / 2;
-  // Drawn at a fixed size so it stays readable whatever m_vj_radius is.
+  // Drawn at a fixed size so it stays readable whatever m_vj_travel is.
   const float r = std::max(24.0f, Game_window_h * 0.12f);
   const float dz_r = std::max(2.0f, r * m_vj_deadzone->GetFloat());
   const int dot_x = cx + static_cast<int>(std::lround(g_vj.X() * r));

@@ -97,7 +97,7 @@ void TartarusOptionsSheet::Setup(newuiMenu *menu) {
   mode_ = sheet_->AddFirstLongRadioButton("Classic");
   sheet_->AddLongRadioButton("Virtual joystick");
   sheet_->AddLongRadioButton("Joystick, auto-centre");
-  *mode_ = std::clamp(CvarInt("m_mode", 1), 0, 2);
+  *mode_ = std::clamp(CvarInt("m_mode", 2), 0, 2);
 
   tSliderSettings slider{};
   slider.type = SLIDER_UNITS_FLOAT;
@@ -105,18 +105,18 @@ void TartarusOptionsSheet::Setup(newuiMenu *menu) {
   slider.max_val.f = kSensMax;
   sheet_->NewGroup("Sensitivity", 0, 48);
   sensitivity_ = sheet_->AddSlider(
-      "Speed", kSensSteps, SliderPos(CvarFloat("m_vj_sensitivity", 1.0f), kSensMin, kSensMax, kSensSteps), &slider);
+      "Speed", kSensSteps, SliderPos(CvarFloat("m_vj_sensitivity", 0.75f), kSensMin, kSensMax, kSensSteps), &slider);
   slider.min_val.f = kCentreMin;
   slider.max_val.f = kCentreMax;
   centre_rate_ = sheet_->AddSlider("Centre speed", kCentreSteps,
-                                   SliderPos(CvarFloat("m_vj_centre_rate", 1.5f), kCentreMin, kCentreMax, kCentreSteps),
+                                   SliderPos(CvarFloat("m_vj_centre_rate", 2.0f), kCentreMin, kCentreMax, kCentreSteps),
                                    &slider);
 
   sheet_->NewGroup(nullptr, 0, 123); // checkboxes; no heading, to fit the mirror group
   invert_y_ = sheet_->AddLongCheckBox("Invert pitch");
   indicator_ = sheet_->AddLongCheckBox("Show indicator");
   roll_x_ = sheet_->AddLongCheckBox("Left/right rolls");
-  *invert_y_ = CvarBool("m_vj_invert_y", false);
+  *invert_y_ = CvarBool("m_vj_invert_y", true);
   *indicator_ = CvarBool("m_vj_indicator", true);
   *roll_x_ = CvarBool("m_vj_roll_x", false);
 

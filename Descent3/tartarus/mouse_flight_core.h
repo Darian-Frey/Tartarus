@@ -31,7 +31,7 @@ float VjCurve(float v, float deadzone, float curve);
 class VirtualJoystick {
 public:
   /// Mouse counts since the last call. `radius_counts` is the full-rate
-  /// radius in counts (m_vj_radius * screen height); the offset vector is
+  /// radius in counts (m_vj_travel); the offset vector is
   /// clamped to length 1.
   void AddDelta(float dx, float dy, float radius_counts, float sensitivity);
 
