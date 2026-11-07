@@ -31,14 +31,20 @@
 #include "difficulty.h"
 #include "game.h"
 #include "gamesequence.h"
+#include "levelgoal.h"
+#include "object.h"
+#include "player.h"
 #include "Mission.h"
 #include "newui.h"
 #include "pilot.h"
 #include "stringtable.h"
 
+extern int Times_game_restored; // screens.cpp, with the stock review
+
 // Not declared in pilot.h.
 bool PltDelete(pilot *Pilot);
 bool PltSelectShip(pilot *Pilot);
+bool PltCopyKeyConfig(pilot *src, pilot *dest);
 void PilotCopyDefaultControls(pilot *Pilot);
 
 namespace tartarus {
@@ -190,8 +196,47 @@ void UsePilot(const std::string &filename) {
     PltWriteFile(&Current_pilot); // it had to be fixed
 }
 
-enum PilotRow { kUse, kDifficulty, kProfanity, kTaunts, kShip, kKeyboard, kController, kStock, kDelete };
+enum PilotRow { kUse, kDifficulty, kProfanity, kTaunts, kShip, kKeyboard, kController, kCopy, kStock, kDelete };
 enum class PilotResult { Back, Chosen, Deleted, Stock };
+
+// Copy controls, as the stock button: another pilot's (or a preset's) bindings,
+// sensitivities, key ramping, devices and mouse control style. Saved at once.
+void CopyControlsInto(pilot *work) {
+  PltClearList();
+  const std::vector<std::string> others = PltGetPilots(work->get_filename(), 1); // pilots, then presets
+  PltClearList(); // the caller lists pilots again itself
+  if (others.empty()) {
+    Deck_Message(TXT_PLTERROR, TXT_NOPILOTSTOCOPY);
+    return;
+  }
+  DeckListSpec spec;
+  spec.title = TXT_CPYKEYCONF;
+  std::vector<std::string> names;
+  for (const std::string &file : others) {
+    pilot entry;
+    entry.set_filename(file);
+    PltReadFile(&entry);
+    char name[PILOT_STRING_SIZE] = "";
+    entry.get_name(name);
+    names.emplace_back(name);
+    const bool preset = file.size() > 4 && stricmp(file.c_str() + file.size() - 4, ".pld") == 0;
+    spec.items.push_back({name, preset ? "PRESET" : "", "Copy this pilot's controls."});
+  }
+  const int pick = Deck_RunList(spec);
+  if (pick < 0)
+    return;
+  char target[PILOT_STRING_SIZE] = "";
+  work->get_name(target);
+  const std::string question = "Replace " + std::string(target) + "'s bindings and control settings with " +
+                               names[static_cast<size_t>(pick)] + "'s?";
+  if (!Deck_Confirm(TXT_CPYKEYCONF, question))
+    return;
+  pilot source;
+  source.set_filename(others[static_cast<size_t>(pick)]);
+  PltReadFile(&source); // reads the controls without applying them, as the stock screen
+  if (PltCopyKeyConfig(&source, work))
+    PltWriteFile(work);
+}
 
 // One pilot's page. Saves every change straight away, as the stock screen does
 // when the selection moves.
@@ -217,10 +262,11 @@ PilotResult PilotPage(const std::string &filename) {
         {"Difficulty", DifficultyName(difficulty), "Enter steps through the levels."},
         {"Profanity filter", profanity ? "[ON]" : "[OFF]", "Filters multiplayer chat."},
         {"Audio taunts", taunts ? "[ON]" : "[OFF]", "Plays other pilots' taunts in multiplayer."},
-        {"Ship and logo", "", "Opens the stock ship configuration."},
-        {"Keyboard", "", "Opens the stock key bindings."},
-        {"Controller", "", "Opens the stock controller bindings."},
-        {"Stock pilot screen", "", "Pilot picture, copying controls and the rest of the stock settings."},
+        {"Ship and logo", "", "Opens the stock ship configuration, used in multiplayer."},
+        {"Keyboard", "", "This pilot's key bindings."},
+        {"Controller", "", "This pilot's joystick and mouse bindings."},
+        {"Copy controls", "", "Replaces this pilot's bindings and control settings with another pilot's."},
+        {"Stock pilot screen", "", "Pilot picture and the rest of the stock settings."},
         {"Delete pilot", "", "Deletes this pilot after asking."},
     };
     selected = Deck_RunList(spec);
@@ -254,6 +300,9 @@ PilotResult PilotPage(const std::string &filename) {
       CtlConfig(selected == kKeyboard ? CTLCONFIG_KEYBOARD : CTLCONFIG_CONTROLLER);
       PltWriteFile(&Current_pilot, false);
       PltReadFile(&work, true, true);
+      break;
+    case kCopy:
+      CopyControlsInto(&work);
       break;
     case kStock:
       return PilotResult::Stock;
@@ -357,6 +406,65 @@ bool PilotDeck_Run() {
   Default_pilot = Current_pilot.get_filename();
   PltClearList();
   Current_pilot.get_difficulty(&ingame_difficulty);
+  return true;
+}
+
+bool ResultsDeck_Run(bool success) {
+  if (!Deck_Available())
+    return false;
+  const player &pl = Players[Player_num];
+  const char *difficulty[] = {TXT_TRAINEE, TXT_ROOKIE, TXT_HOTSHOT, TXT_ACE, TXT_INSANE};
+  uint8_t dif = 0;
+  Current_pilot.get_difficulty(&dif);
+  const int seconds = static_cast<int>(pl.time_level);
+  char time[16];
+  snprintf(time, sizeof(time), "%d:%02d", seconds / 60, seconds % 60);
+
+  DeckListSpec spec;
+  spec.title = TXT_PLRTITLE;
+  spec.info = {Level_info.name, success ? TXT_PLR_MSN_SUCCESS : TXT_PLR_MSN_FAILED};
+  spec.compact = true;
+  spec.footer = "ENTER CONTINUE";
+  // Some stock labels end in a colon and some do not: none do here.
+  auto row = [&spec](std::string label, const std::string &value) {
+    while (!label.empty() && (label.back() == ':' || label.back() == ' '))
+      label.pop_back();
+    spec.items.push_back({label, value, ""});
+  };
+  row(TXT_PLTDIFFICULT, difficulty[std::min<int>(dif, 4)]);
+  row(TXT_SCORE, std::to_string(pl.score));
+  row(TXT_PLRTIME, time);
+  row(TXT_PLRENEMIESKILL, std::to_string(pl.num_kills_level));
+  if (pl.friendly_kills_level)
+    row(TXT_PLRFRIENDSKILL, std::to_string(pl.friendly_kills_level));
+  row(TXT_PLRSHIELD, std::to_string(static_cast<int>(Objects[pl.objnum].shields + 0.5f)));
+  row(TXT_PLRENERGY, std::to_string(static_cast<int>(pl.energy + 0.5f)));
+  row(TXT_NUMDEATHS, std::to_string(pl.num_deaths_level));
+  row(TXT_PLRSAVERESRAT, std::to_string(Times_game_restored));
+  // Objectives, as the stock review lists them: the ones TelCom shows.
+  bool heading = false;
+  for (int j = 0; j < Level_goals.GetNumGoals(); ++j) {
+    int status = 0;
+    if (!Level_goals.GoalStatus(j, LO_GET_SPECIFIED, &status) || !(status & LGF_ENABLED) ||
+        !(status & LGF_TELCOM_LISTS))
+      continue;
+    if (!heading) {
+      spec.items.push_back({std::string("- ") + TXT_OBJECTIVES1 + " -", "", "", 0, false});
+      heading = true;
+    }
+    char name[64];
+    Level_goals.GoalGetName(j, name, sizeof(name));
+    row(name, (status & LGF_COMPLETED) ? TXT_COMPLETED : TXT_NOTCOMPLETEDYET);
+  }
+
+  // As the stock review: the menu screen mode, and nothing held from the level counts.
+  const int old_mode = GetScreenMode();
+  SetScreenMode(SM_MENU);
+  SetUICallback(nullptr);
+  ddio_KeyFlush();
+  ddio_MouseQueueFlush();
+  Deck_RunList(spec);
+  SetScreenMode(old_mode);
   return true;
 }
 

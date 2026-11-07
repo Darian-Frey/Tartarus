@@ -64,6 +64,7 @@ struct DeckListSpec {
   int close_key = 0;                 // a second key that cancels, such as the one that opened the screen
   void (*background)() = nullptr;    // draws behind the deck; default: the menu art or the stock UI frame
   void (*preview)(int row, int x1, int y1, int x2, int y2) = nullptr; // draws a 4:3 picture in the readout panel
+  int *adjust = nullptr;             // if set, Left/Right also choose a row and store -1 or 1 here (0 for Enter)
 };
 
 /// The deck's reusable list screen, in its own loop: keyboard and mouse.

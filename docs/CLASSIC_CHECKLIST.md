@@ -30,6 +30,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/hud.cpp` | `tartarus::OrientHud_RenderCanopy` | gated: returns at once in Classic Mode, so nothing is drawn on the canopy (F-046) |
 | `Descent3/hud.cpp` | `tartarus::OrientHud_RenderReticle` | gated: false in Classic Mode, so the stock reticle draws (F-047) |
 | `Descent3/help.cpp` | `tartarus::HelpDeck_Run` | gated: false in Classic Mode, stock Keys screen (D-016) |
+| `Descent3/screens.cpp` | `tartarus::ResultsDeck_Run` | gated: false in Classic Mode and multiplayer, stock review (D-016) |
 | `Descent3/buddymenu.cpp` | `tartarus::BuddyDeck_Pick`, `tartarus::kDeckStock` | gated: stock Guide-Bot menu in Classic Mode and multiplayer (D-016) |
 | `Descent3/pilot.cpp` | `tartarus::PilotDeck_Run` | gated: false in Classic Mode, stock Pilots screen (D-016) |
 | `Descent3/menu.cpp` | `tartarus::MissionDeck_Pick`, `tartarus::LevelDeck_Pick`, `tartarus::kDeckStock` | gated: stock New Game and level warp in Classic Mode (D-016) |

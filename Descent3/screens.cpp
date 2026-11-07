@@ -205,6 +205,7 @@
 #include "pilot.h"
 #include "pserror.h"
 #include "joystick.h"
+#include "tartarus/deck_screens.h" // TARTARUS: D-016
 
 #define LVLRES_FADEIN_TIME 0.50f
 #define TEXT_REDRAW_COUNT 6.0f
@@ -286,6 +287,10 @@ bool PostLevelResults(bool success) {
   PLR_success = success;
 
   if (Dedicated_server)
+    return true;
+
+  // TARTARUS: D-016 deck results screen in Tartarus mode
+  if (tartarus::ResultsDeck_Run(success))
     return true;
 
   paint_in_sound_id = FindSoundName("PPR paint in");

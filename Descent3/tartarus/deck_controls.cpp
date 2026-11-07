@@ -20,11 +20,16 @@
 
 #include "deck_controls.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <functional>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "CtlCfgElem.h"
+#include "D3ForceFeedback.h"
 #include "controls.h"
 #include "ctlconfig.h"
 #include "ddio.h"
@@ -32,9 +37,13 @@
 #include "deck_screens.h"
 #include "descent.h"
 #include "mmItem.h"
+#include "forcefeedback.h"
 #include "newui.h"
+#include "pilot.h"
 #include "stringtable.h"
 #include "weapon.h"
+
+extern float Key_ramp_speed; // Controls.cpp
 
 namespace tartarus {
 
@@ -222,6 +231,146 @@ void FunctionPage(const std::string &title, int16_t fn) {
 }
 
 // Bindings for the keyboard or the joystick and mouse. Returns the next page.
+// The Adjust settings screens, in place of the stock key_settings_dialog() and
+// joystick_settings_dialog(): the same settings, changed on a copy and kept only
+// on Accept, as the stock OK and Cancel.
+struct Setting {
+  std::string label;
+  std::function<std::string()> value; // empty for a heading
+  std::function<void(int)> change;    // -1 or 1 from Left/Right; 0 from Enter or a click, which wraps
+  std::string help;
+};
+
+/// True if the player chose Accept.
+bool RunSettings(const std::string &title, const std::vector<Setting> &rows) {
+  int selected = 1; // the first setting, past any heading
+  while (selected <= static_cast<int>(rows.size()) && !rows[static_cast<size_t>(selected - 1)].change)
+    ++selected;
+  for (;;) {
+    DeckListSpec spec;
+    spec.title = title;
+    spec.compact = true;
+    spec.selected = selected;
+    spec.footer = "LEFT/RIGHT CHANGE  ESC CANCEL";
+    int dir = 0;
+    spec.adjust = &dir;
+    spec.items.push_back({"Accept", "", "Keeps these settings. Escape leaves them as they were."});
+    for (const Setting &row : rows) {
+      DeckListItem item;
+      item.label = row.change ? row.label : "- " + row.label + " -";
+      item.value = row.value ? row.value() : "";
+      item.help = row.help;
+      item.enabled = static_cast<bool>(row.change);
+      spec.items.push_back(item);
+    }
+    selected = Deck_RunList(spec);
+    if (selected < 0)
+      return false;
+    if (selected == 0) {
+      if (dir == 0)
+        return true;
+      continue;
+    }
+    rows[static_cast<size_t>(selected - 1)].change(dir);
+  }
+}
+
+/// A value on a grid of step from 0 to max: Left/Right stop at the ends, Enter wraps.
+float Step(float value, int dir, float max, float step) {
+  const int top = static_cast<int>(std::lround(max / step));
+  int n = static_cast<int>(std::lround(value / step));
+  n = dir == 0 ? (n >= top ? 0 : n + 1) : std::clamp(n + dir, 0, top);
+  return n * step;
+}
+
+std::string Fixed(float value, const char *unit = "") {
+  char text[32];
+  std::snprintf(text, sizeof(text), "%.2f%s", value, unit);
+  return text;
+}
+
+Setting Toggle(const std::string &label, bool *on, const std::string &help) {
+  return {label, [on] { return std::string(*on ? "ON" : "OFF"); }, [on](int) { *on = !*on; }, help};
+}
+
+Setting Heading(const std::string &label) { return {label, nullptr, nullptr, ""}; }
+
+void KeySettingsPage() {
+  float ramp = Key_ramp_speed;
+  const std::vector<Setting> rows = {
+      {"Key ramping time", [&ramp] { return Fixed(ramp, " s"); },
+       [&ramp](int dir) { ramp = Step(ramp, dir, 1.0f, 0.05f); },
+       "How long a turn key takes to reach full speed. 0 turns at full speed at once."}};
+  if (RunSettings("Keyboard settings", rows))
+    Key_ramp_speed = ramp;
+}
+
+void JoystickSettingsPage() {
+  const char axis_name[N_JOY_AXIS] = {'X', 'Y', 'Z', 'R', 'U', 'V'};
+  float joy[N_JOY_AXIS], mouse[N_MOUSE_AXIS];
+  for (int i = 0; i < N_JOY_AXIS; ++i)
+    joy[i] = Controller->get_axis_sensitivity(ctAxis, i + 1);
+  for (int i = 0; i < N_MOUSE_AXIS; ++i)
+    mouse[i] = Controller->get_axis_sensitivity(ctMouseAxis, i + 1);
+  bool joy_on = (Current_pilot.read_controller & READF_JOY) != 0;
+  bool mouse_on = (Current_pilot.read_controller & READF_MOUSE) != 0;
+  bool mouselook = Current_pilot.mouselook_control;
+  bool ff_found = false;
+  ddio_ff_GetInfo(&ff_found, nullptr);
+  const bool ff_centre_supported = ff_found && ddio_ffjoy_SupportAutoCenter(kJoy1);
+  bool ff_on = ff_found && ForceIsEnabled();
+  bool ff_centre = ff_centre_supported && ForceIsAutoCenter();
+  float ff_gain = ff_found ? ForceGetGain() : 0.0f;
+
+  const std::string mouse_note = " Only for the Classic mouse mode: the virtual joystick has its own settings on the "
+                                 "options deck's Controls page.";
+  auto axis = [&](float *value, char name, float max, const std::string &help) {
+    char label[32];
+    std::snprintf(label, sizeof(label), TXT_CONTAXIS, name);
+    return Setting{label, [value] { return Fixed(*value); },
+                   [value, max](int dir) { *value = Step(*value, dir, max, 0.05f); }, help};
+  };
+  std::vector<Setting> rows;
+  rows.push_back(Heading(TXT_SENSITIVITY));
+  for (int i = 0; i < N_JOY_AXIS; ++i)
+    rows.push_back(axis(&joy[i], axis_name[i], JOY_AXIS_SENS_RANGE, "Joystick axis sensitivity, 0 to 4; 1 is normal."));
+  rows.push_back(Heading(TXT_MSESENS));
+  for (int i = 0; i < N_MOUSE_AXIS; ++i)
+    rows.push_back(axis(&mouse[i], axis_name[i], MSE_AXIS_SENS_RANGE,
+                        "Mouse axis sensitivity, 0 to 4; 1 is normal." + mouse_note));
+  rows.push_back(Heading(TXT_CONTROL_TOGGLES));
+  rows.push_back(Toggle(TXT_JOYENABLED, &joy_on, "Read the joystick."));
+  rows.push_back(Toggle(TXT_CFG_MOUSEENABLED, &mouse_on, "Read the mouse."));
+  rows.push_back({TXT_MOUSECONTROL,
+                  [&mouselook] { return std::string(mouselook ? TXT_MOUSELOOK : TXT_MOUSEFLIGHTSIM); },
+                  [&mouselook](int) { mouselook = !mouselook; },
+                  "Flight sim: the mouse turns the ship like a joystick axis. Mouselook: it aims the ship directly." +
+                      mouse_note});
+  if (ff_found) {
+    rows.push_back(Heading(TXT_TITLE_FORCEFEEDBACK));
+    rows.push_back(Toggle(TXT_CFG_FFENABLED, &ff_on, "Force feedback effects on the joystick."));
+    if (ff_centre_supported)
+      rows.push_back(Toggle(TXT_CFG_FFAUTOCENTER, &ff_centre, "The joystick pulls itself back to centre."));
+    rows.push_back({TXT_CFG_FORCEGAIN,
+                    [&ff_gain] { return std::to_string(static_cast<int>(std::lround(ff_gain * 100.0f))) + "%"; },
+                    [&ff_gain](int dir) { ff_gain = Step(ff_gain, dir, 1.0f, 0.05f); }, "Strength of the effects."});
+  }
+  if (!RunSettings(TXT_JOYMOUSESETTINGS, rows))
+    return;
+  for (int i = 0; i < N_JOY_AXIS; ++i)
+    Controller->set_axis_sensitivity(ctAxis, i + 1, joy[i]);
+  for (int i = 0; i < N_MOUSE_AXIS; ++i)
+    Controller->set_axis_sensitivity(ctMouseAxis, i + 1, mouse[i]);
+  Current_pilot.read_controller = (joy_on ? READF_JOY : 0) | (mouse_on ? READF_MOUSE : 0);
+  Current_pilot.mouselook_control = mouselook;
+  if (ff_found) {
+    ff_on ? ForceEnable() : ForceDisable();
+    if (ff_centre_supported)
+      ff_centre ? ForceEnableAutoCenter() : ForceDisableAutoCenter();
+    ForceSetGain(ff_gain); // 0 to 1; the stock slider gets this wrong (BUG-014)
+  }
+}
+
 Page BindingsPage(Table *table, Page other) {
   enum Top { kReset, kAdjust, kRestore, kOther, kWeapons, kFirst };
   const char *other_name = table->keyboard ? "Joystick and mouse" : "Keyboard";
@@ -232,7 +381,9 @@ Page BindingsPage(Table *table, Page other) {
     spec.compact = true;
     spec.selected = selected;
     spec.items = {{TXT_RESETTODEFAULT, "", "Every binding on this page goes back to its default."},
-                  {TXT_ADJUSTSETTINGS, "", "Opens the stock settings."},
+                  {TXT_ADJUSTSETTINGS, "",
+                   table->keyboard ? "Key ramping time."
+                                   : "Axis sensitivity, which devices to read, and the mouse control style."},
                   {TXT_REVERTCONTROLS, "", "Undoes everything since you opened this screen."},
                   {other_name, "", "Go to this page."},
                   {"Weapon order", "", "Go to this page."}};
@@ -261,9 +412,9 @@ Page BindingsPage(Table *table, Page other) {
       break;
     case kAdjust:
       if (table->keyboard)
-        key_settings_dialog();
+        KeySettingsPage();
       else
-        joystick_settings_dialog();
+        JoystickSettingsPage();
       break;
     case kRestore:
       for (Binding &b : table->saved)

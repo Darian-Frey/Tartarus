@@ -618,6 +618,8 @@ int Deck_RunList(const DeckListSpec &spec) {
   ddio_MouseBtnDownCount(0);
   ui_HideCursor();
   ddio_KeyFlush();
+  if (spec.adjust != nullptr)
+    *spec.adjust = 0;
   while (result == -2) {
     Descent->defer();
     DrawBackground(spec);
@@ -655,6 +657,11 @@ int Deck_RunList(const DeckListSpec &spec) {
       } else if ((code == KEY_ENTER || code == KEY_PADENTER || code == KEY_SPACEBAR) && n > 0) {
         if (spec.items[static_cast<size_t>(sel)].enabled)
           result = sel;
+      } else if ((code == KEY_LEFT || code == KEY_RIGHT) && spec.adjust != nullptr && n > 0) {
+        if (spec.items[static_cast<size_t>(sel)].enabled) {
+          *spec.adjust = code == KEY_LEFT ? -1 : 1;
+          result = sel;
+        }
       } else if (code == KEY_ESC) {
         if (spec.allow_cancel)
           result = -1;

@@ -3,6 +3,8 @@
 Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-, AV-, BUG- and IMP- IDs for traceability. Upstream Descent 3 changes arrive via merges and are summarised, not re-listed; see upstream's CHANGELOG for detail.
 
 ## [Unreleased]
+### Added (Phase 2)
+- Deck end-of-level review and Adjust settings screens (F-069, D-016): the Pilot Performance Review after each level, and the keyboard and joystick-mouse settings behind Adjust settings, now use the deck in Tartarus mode, and the deck's pilot page has Copy controls; Classic Mode and multiplayer keep the stock screens, and the multiplayer customisation screens (ship, logo, taunts, pilot picture) stay stock. The deck's force gain setting goes from 0 to 100% (the stock slider sets full gain at almost every position, BUG-014) — 2026-11-07.
 ### Changed (Phase 2)
 - Virtual-joystick mouse (F-067): full-turn travel is now `m_vj_travel`, in mouse counts, so the stick feels the same at any window size; it replaces `m_vj_radius`, a share of the window height. New defaults are the owner's settings, as the old ones flew badly: auto-centring on, centre speed 2.0, speed 0.75 and inverted pitch (mouse forward climbs) — 2026-11-07.
 ### Added (Phase 3)

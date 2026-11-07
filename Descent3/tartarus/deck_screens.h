@@ -17,7 +17,8 @@
  */
 
 // Deck versions of the small stock screens (F-069, D-016): message and edit
-// boxes, the Keys help, the Guide-Bot menu, New Game, level warp and Pilots.
+// boxes, the Keys help, the Guide-Bot menu, New Game, level warp, Pilots and
+// the end-of-level review.
 // Each hook asks here first; kDeckStock means run the stock screen, which is
 // always the answer in Classic Mode and in multiplayer.
 
@@ -57,5 +58,8 @@ int LevelDeck_Pick(newuiListBox *list, int levels, const char *mission);
 
 /// PilotSelect(): runs the whole screen. False: run stock.
 bool PilotDeck_Run();
+
+/// PostLevelResults() in single player: the Pilot Performance Review. False: run stock.
+bool ResultsDeck_Run(bool success);
 
 } // namespace tartarus

@@ -22,6 +22,14 @@ Severity vocabulary: low | medium | high.
 **Description.** Linux Mint's Cinnamon binds Alt+F2 to its Run dialog (`org.cinnamon.desktop.keybindings.wm panel-run-dialog`), so the desktop takes the key before the game sees it. Other desktops bind it too. The game's handler looks correct, and the options deck only takes unmodified F2. Not yet confirmed by observing the Run dialog. F9 (quick save) is not affected.
 **Fix.** Pending the owner's choice: save and load entries in the options deck, a console command for `bind`, or changing the desktop shortcut. F9 opens the deck Save screen on the first save of a session (F-069).
 
+### BUG-014: (upstream) The stock Force Gain slider sets full gain at almost every position
+**Status:** open
+**Severity:** low
+**Found:** 2026-11-07 (reading `joystick_settings_dialog()` while building the deck version)
+**Location:** `Descent3/ctlconfig.cpp` `joystick_settings_dialog()`
+**Description.** The slider has 50 steps and starts at `ForceGetGain() * 50`, but OK sets `ForceSetGain(position * 0.5f)`, and `ForceSetGain()` clamps to 0–1. So any position from 2 up sets full gain, and the slider's position does not match the gain it set. Found by reading the code; this machine has no force-feedback joystick, so not observed.
+**Fix.** Not changed in the stock dialog (Rule 8). The deck's Joystick-Mouse settings screen sets the gain from 0 to 1 directly. The stock fix is `position / 50.0f`; a candidate upstream PR.
+
 ## Fixed
 
 ### BUG-013: No screenshot on the deck Load screen
