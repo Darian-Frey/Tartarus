@@ -374,3 +374,22 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - Pilots who fly in the full-screen HUD view see no aid by default.
 
 **Reversal conditions.** Playtest evidence that the flight HUD clutters the view, or that new players in the full-screen view lose track of up.
+
+### D-018 Gameplay screenshots are allowed in the docs
+**Decided:** 2026-11-14
+**Recorded:** 2026-11-14
+**Status:** Accepted
+**Authors:** Shane Hartley (owner's call, 2026-11-14)
+**Related:** AV-005
+
+**Context.** The README's first screenshots (2026-11-04 and 2026-11-05) were taken on plain or black backgrounds so that no game artwork appeared, a cautious reading of AV-005. AV-005 is about game data files (HOGs, missions, textures, tables) in the repository, not pictures of the running game. Upstream's own README opens with a gameplay screenshot.
+
+**Options.**
+- **A. Keep pictures free of game artwork.** Rejected: the features are hard to judge without the game behind them.
+- **B. Allow screenshots of the game running with Tartarus's features.** Chosen.
+
+**Decision.** Option B. Screenshots taken from the running game may go in the docs. No game data file, extracted texture, model or sound ever goes in the repository (AV-005 unchanged). Images are kept small: resized to 1280 pixels wide, with photographic shots as JPEG.
+
+**Consequences.**
+- The README pictures were retaken in the game on 2026-11-14.
+

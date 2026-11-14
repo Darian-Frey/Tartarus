@@ -1,6 +1,6 @@
 > **Status:** Active
 > **Provenance:** Shane Hartley (project owner, design); Claude (initial documentation scaffolding, 2026-11-01)
-> **Last reviewed:** 2026-11-04
+> **Last reviewed:** 2026-11-14
 > **Why this status:** In development. Upstream is merged and the game plays from a Steam install; Phases 0 and 1 of ROADMAP.md are closed apart from listed deferrals, and Phase 2 (controls and display) is under way.
 
 # Tartarus — a tactical Descent 3 for Linux
@@ -23,13 +23,15 @@ The deck covers the whole game in Tartarus mode: the main menu, saving and loadi
 
 ![The keyboard bindings on the deck](docs/images/deck-keyboard.png)
 
+At the end of each level the Pilot Performance Review comes up on the deck too.
+
+![The end-of-level review on the deck](docs/images/deck-results.png)
+
 ## Flight HUD
 
 In cockpit view a pale green head-up display sits on the canopy, behind the cockpit frame, so it looks as if it is on the glass. Everything lines up with the real world at any field of view.
 
-![The flight HUD, shown here on a plain background](docs/images/flight-hud.png)
-
-*Shown on a plain background so the picture contains no game artwork.*
+![The flight HUD in a climbing roll](docs/images/flight-hud.jpg)
 
 - **Horizon and pitch ladder** tilt and move with the ship, so you can always see which way is up.
 - **Flight path marker** shows where the ship is actually going, which in a craft that slides sideways is often not where the nose points. A cross through it means you are moving backwards.
@@ -49,7 +51,7 @@ Hold **X** to roll upright, or tap **Z** to roll to the nearest upright. Any rol
 
 A choice of four drawn reticles: Gunsight, Brackets, Chevrons and Cross. The stock reticle is still available. In all of them, the bars at the sides show your primary guns and the pips underneath show your missile launchers, placed by side, and bright means ready to fire.
 
-![The four reticle styles](docs/images/reticles.png)
+![The four reticle styles: Gunsight, Brackets, Chevrons and Cross](docs/images/reticles.png)
 
 ## The automap
 

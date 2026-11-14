@@ -40,8 +40,8 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 **Severity:** Critical
 **Description.** A HOG, mission, movie, extracted texture or table file lands in git, infringing Outrage/Interplay rights and poisoning every clone.
 **Detection.** Pre-commit hook rejecting `CLAUDE.local.md`, `*.hog`, `*.mn3`, `*.d3l`, `*.gam`, `*.mve`, `*.ogv`, `*.oof`, `*.ogf`, `*.pld` and any file > 5 MB outside `third_party/`; `.gitignore` for the same; CI runs the same check. Exempt: upstream's own tracked, GPL-released files in `scripts/data/demohog/`, `scripts/data/fullhog/` (HogMaker inputs for `d3-linux.hog`) and `cfile/tests/TestDir/` (test fixture); the hook must allow these paths, and merges from `upstream` that touch only them.
-**Related decisions.** D-003, D-007.
-**History.** —
+**Related decisions.** D-003, D-007, D-018.
+**History.** 2026-11-14: screenshots of the running game in the docs are not game data (D-018).
 
 ### AV-012 GPL compliance of binary releases
 **Severity:** Major
