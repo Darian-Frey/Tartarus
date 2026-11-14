@@ -59,6 +59,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Proposal.** Remove the alpha calls and pick a dimmer colour, or draw the ring with a small alpha-capable helper.
 **Trade-offs.** None of note.
 
+### IMP-011: Rebuild the Guide-Bot's route planning between the terrain and the mines
+**Status:** suggested (nice to have, if a rebuild proves possible; the owner's call, 2026-11-14)
+**Found:** 2026-11-14 (F-072, the owner's report on level 2 and the owner's save)
+**Location:** `Descent3/aipath.cpp` (`AIPathAllocPath()`, `AIGenerateBOAPath()`, `AIGenerateBNodePath()`), `Descent3/BOA.cpp`, `Descent3/AIGoal.cpp` (re-planning); related to F-072, BUG-015, BUG-016
+**Effort:** large
+**Description.** On level 2 the Guide-Bot, out on the surface with a target in the mines, tries to fly through the ground. On the owner's save the route the stock planner builds starts in R248, about 270 units underground, with no leg on the surface: BOA's first step from the terrain is R248, which has no opening to the outside (BUG-015). The planner also has no terrain leg at all: when both ends are outside it flies straight, over hills or not. A Tartarus patch was tried and backed out: picking the nearest real mine entrance (the opening from a mine room into an outdoor building) and climbing above the ground to reach it. It found ten entrances but judged none reachable from the bot's resting spot on the ground, and finding out why was turning into a rebuild of the planner piece by piece.
+**Proposal.** A Tartarus route planner for the Guide-Bot only, in Tartarus mode: a graph of mine rooms (through their openings) and outdoor building entrances, joined over the terrain by legs checked against the ground height map (climb, cross, descend), searched with A*; stock robots and Classic Mode keep the stock planner. `r_showpath`, `pathdump` and `roominfo` are the tools for it.
+**Trade-offs.** A second planner to keep beside the stock one; level designers' static paths and BNode data are only partly reusable; needs testing across many levels.
+
 ### IMP-010: 2D top-down automap mode
 **Status:** suggested (nice to have; moved out of F-050 by the owner, 2026-11-05)
 **Found:** 2026-11-05 (planning the last stage of F-050)

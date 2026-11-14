@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <vector>
 
 #include "AIMain.h"
@@ -32,6 +33,7 @@
 #include "console.h"
 #include "cvar.h"
 #include "debug_core.h"
+#include "findintersection.h"
 #include "game.h"
 #include "gamefont.h"
 #include "gameloop.h"
@@ -43,6 +45,7 @@
 #include "objinfo.h"
 #include "player.h"
 #include "renderer.h"
+#include "room.h"
 #include "terrain.h"
 #include "weapon.h"
 
@@ -72,6 +75,7 @@ const ddgr_color kLabel = GR_RGB(235, 235, 235);
 const ddgr_color kPathInside = GR_RGB(255, 80, 255);  // a leg between two rooms of the mine
 const ddgr_color kPathOutside = GR_RGB(255, 150, 40); // a leg that touches the terrain
 const ddgr_color kPathNext = GR_RGB(255, 255, 255);   // from the Guide-Bot to its next node
+const ddgr_color kPathBlocked = GR_RGB(255, 40, 40);  // a leg that runs into a wall or the ground
 
 void ToArray(const vector &v, float out[3]) {
   out[0] = v.x();
@@ -200,6 +204,20 @@ std::vector<PathNode> RouteOf(const object &bot, int *current) {
   return nodes;
 }
 
+/// True if a straight flight from a (in room) to b hits a wall, the terrain or a closed door.
+bool LegBlocked(vector a, int room, vector b) {
+  fvi_query query{};
+  fvi_info hit{};
+  query.p0 = &a;
+  query.p1 = &b;
+  query.startroom = room;
+  query.rad = 0.0f;
+  query.thisobjnum = -1;
+  query.ignore_obj_list = nullptr;
+  query.flags = FQ_CHECK_OBJS | FQ_ONLY_DOOR_OBJ | FQ_NO_RELINK;
+  return fvi_FindIntersection(&query, &hit) != HIT_NONE;
+}
+
 void RoomLabel(int room, char *text, size_t size) {
   if (ROOMNUM_OUTSIDE(room))
     std::snprintf(text, size, "T%d", TERRAIN_REGION(room)); // terrain, by region
@@ -218,12 +236,14 @@ void DrawRoute(const ViewCamera &camera, const float eye[3]) {
     ToArray(nodes[i].pos, a);
     ToArray(nodes[i + 1].pos, b);
     const bool outside = ROOMNUM_OUTSIDE(nodes[i].room) || ROOMNUM_OUTSIDE(nodes[i + 1].room);
-    WorldLine(camera, eye, a, b, outside ? kPathOutside : kPathInside);
+    const bool blocked = LegBlocked(nodes[i].pos, nodes[i].room, nodes[i + 1].pos);
+    WorldLine(camera, eye, a, b, blocked ? kPathBlocked : outside ? kPathOutside : kPathInside);
   }
   if (current >= 0) {
+    const PathNode &next = nodes[static_cast<size_t>(current)];
     ToArray(bot->pos, a);
-    ToArray(nodes[static_cast<size_t>(current)].pos, b);
-    WorldLine(camera, eye, a, b, kPathNext);
+    ToArray(next.pos, b);
+    WorldLine(camera, eye, a, b, LegBlocked(bot->pos, bot->roomnum, next.pos) ? kPathBlocked : kPathNext);
   }
   const bool labels = r_showpath->GetInt() >= 2;
   if (labels) {
@@ -263,16 +283,62 @@ void DumpRoute(ConsoleCore &c) {
   const std::vector<PathNode> nodes = RouteOf(*bot, &current);
   char line[160], room[24];
   RoomLabel(bot->roomnum, room, sizeof(room));
-  std::snprintf(line, sizeof(line), "Guide-Bot in %s at %.0f %.0f %.0f; %d nodes, next %d", room, bot->pos.x(),
-                bot->pos.y(), bot->pos.z(), static_cast<int>(nodes.size()), current);
+  const bool to_next_blocked =
+      current >= 0 && LegBlocked(bot->pos, bot->roomnum, nodes[static_cast<size_t>(current)].pos);
+  std::snprintf(line, sizeof(line), "Guide-Bot in %s at %.0f %.0f %.0f; %d nodes, next %d%s", room, bot->pos.x(),
+                bot->pos.y(), bot->pos.z(), static_cast<int>(nodes.size()), current,
+                to_next_blocked ? "; BLOCKED from here to next" : "");
   c.Print(line);
   LOG_INFO << "[tartarus] pathdump: " << line;
-  for (size_t i = 0; i < nodes.size(); ++i) {
-    RoomLabel(nodes[i].room, room, sizeof(room));
-    std::snprintf(line, sizeof(line), "%2d %-6s %.0f %.0f %.0f", static_cast<int>(i), room, nodes[i].pos.x(),
-                  nodes[i].pos.y(), nodes[i].pos.z());
+  if (ROOMNUM_OUTSIDE(bot->roomnum) && current >= 0) {
+    // Over the terrain: how high the ground is under the bot and under its next node.
+    vector under_bot = bot->pos, under_next = nodes[static_cast<size_t>(current)].pos;
+    std::snprintf(line, sizeof(line), "ground under the Guide-Bot %.0f, under its next node %.0f",
+                  GetTerrainGroundPoint(&under_bot), GetTerrainGroundPoint(&under_next));
     c.Print(line);
     LOG_INFO << "[tartarus] pathdump: " << line;
+  }
+  for (size_t i = 0; i < nodes.size(); ++i) {
+    RoomLabel(nodes[i].room, room, sizeof(room));
+    const bool blocked = i + 1 < nodes.size() && LegBlocked(nodes[i].pos, nodes[i].room, nodes[i + 1].pos);
+    std::snprintf(line, sizeof(line), "%2d %-6s %.0f %.0f %.0f%s", static_cast<int>(i), room, nodes[i].pos.x(),
+                  nodes[i].pos.y(), nodes[i].pos.z(), blocked ? "  BLOCKED to next" : "");
+    c.Print(line);
+    LOG_INFO << "[tartarus] pathdump: " << line;
+  }
+}
+
+/// roominfo <room>: a room's openings, for working out routes (F-072).
+void RoomInfo(const CommandArgs &a, ConsoleCore &c) {
+  if (GetFunctionMode() != GAME_MODE || a.size() < 2) {
+    c.Print("usage: roominfo <room>, in a level");
+    return;
+  }
+  const int r = std::atoi(a[1].c_str());
+  if (r < 0 || r > Highest_room_index || !Rooms[r].used) {
+    c.Print("roominfo: no such room");
+    return;
+  }
+  const room &rm = Rooms[r];
+  char line[200];
+  std::snprintf(line, sizeof(line), "R%d%s: %d openings, path point %.0f %.0f %.0f", r,
+                (rm.flags & RF_EXTERNAL) ? " (external)" : "", rm.num_portals, rm.path_pnt.x(), rm.path_pnt.y(),
+                rm.path_pnt.z());
+  c.Print(line);
+  LOG_INFO << "[tartarus] roominfo: " << line;
+  for (int i = 0; i < rm.num_portals; ++i) {
+    const portal &p = rm.portals[i];
+    vector pnt = p.path_pnt;
+    const bool to_external = p.croom >= 0 && (Rooms[p.croom].flags & RF_EXTERNAL);
+    char where[64] = "";
+    const int cell = GetTerrainCellFromPos(&pnt);
+    if (cell >= 0)
+      std::snprintf(where, sizeof(where), ", over terrain region %d, ground %.0f", TERRAIN_REGION(cell),
+                    GetTerrainGroundPoint(&pnt));
+    std::snprintf(line, sizeof(line), "  %d -> R%d%s at %.0f %.0f %.0f%s", i, p.croom,
+                  to_external ? " (external)" : "", pnt.x(), pnt.y(), pnt.z(), where);
+    c.Print(line);
+    LOG_INFO << "[tartarus] roominfo: " << line;
   }
 }
 
@@ -364,6 +430,8 @@ void DebugDraw_Init() {
                               CVAR_CHEAT);
   Console().AddCommand({"pathdump", "pathdump", "List the Guide-Bot's planned route (also logged)", CMD_NONE,
                         [](const CommandArgs &, ConsoleCore &c) { DumpRoute(c); }});
+  Console().AddCommand({"roominfo", "roominfo <room>", "List a room's openings: where each leads (also logged)",
+                        CMD_NONE, [](const CommandArgs &a, ConsoleCore &c) { RoomInfo(a, c); }});
   for (Cvar *c : {r_showaxes, r_showobjinfo, r_showcollide, r_showpath})
     c->AddChangeCallback([](const Cvar &) { UpdateAny(); });
   UpdateAny();

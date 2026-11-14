@@ -30,6 +30,22 @@ Severity vocabulary: low | medium | high.
 **Description.** The slider has 50 steps and starts at `ForceGetGain() * 50`, but OK sets `ForceSetGain(position * 0.5f)`, and `ForceSetGain()` clamps to 0–1. So any position from 2 up sets full gain, and the slider's position does not match the gain it set. Found by reading the code; this machine has no force-feedback joystick, so not observed.
 **Fix.** Not changed in the stock dialog (Rule 8). The deck's Joystick-Mouse settings screen sets the gain from 0 to 1 directly. The stock fix is `position / 50.0f`; a candidate upstream PR.
 
+### BUG-015: (upstream) A route from the terrain into the mines can start underground
+**Status:** open
+**Severity:** medium
+**Found:** 2026-11-14 (F-072, the owner's level-2 save, with `pathdump` and `roominfo`)
+**Location:** `Descent3/aipath.cpp` `AIGenerateBOAPath()` (and the first step of `AIGenerateBNodePath()`), `Descent3/BOA.cpp`
+**Description.** With the Guide-Bot on the terrain (region 1) and its target in R206, BOA's next room from the terrain is R248, whose two openings both lead underground (to R199 and R249). `AIGenerateBOAPath()` looks for the opening to the outside, finds none, and only asserts (`ASSERT(i < num_portals)`, compiled out in Release); `pos` keeps a leftover value and the route starts about 270 units below the ground. The Guide-Bot then flies straight at it, into the ground. Seen as the owner's report: "it tries to guide me through a wall".
+**Fix.** Not fixed: part of IMP-011. A candidate upstream PR once the BOA side is understood.
+
+### BUG-016: (upstream) The re-planning check reads the wrong path slot
+**Status:** open
+**Severity:** low
+**Found:** 2026-11-14 (reading `AIGoal.cpp` for F-072)
+**Location:** `Descent3/AIGoal.cpp`, the path update before `AIPathAllocPath()` (both the object and the position goal branches)
+**Description.** The check that skips re-planning when the route still ends at the goal indexes `AIDynamicPath[ai_info->path.num_paths - 1]` and `AIDynamicPath[ai_info->path.cur_path]`, which are positions in the robot's own list of joined paths, instead of `AIDynamicPath[ai_info->path.path_id[...]]`, the slots that hold them. It reads another robot's route, so a robot can keep a stale route or re-plan when it need not. Found by reading; not shown to cause a visible problem yet.
+**Fix.** Not fixed (Rule 8): `path_id[...]` in both places. A candidate upstream PR; part of IMP-011.
+
 ## Fixed
 
 ### BUG-013: No screenshot on the deck Load screen
