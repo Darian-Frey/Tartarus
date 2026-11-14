@@ -98,7 +98,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - `r_showaxes 1` draws world X/Y/Z at the player; `r_showobjinfo 1` labels nearby objects with type/id/handle; `r_showcollide 1` draws collision spheres
 - Zero cost when off (no per-frame work)
-**Status:** Deferred (2026-11-02, owner): to just before the Phase 4 weapons work, where it is needed
+**Status:** Done (Phase 4), 2026-11-14. `debugdraw.cpp` and `debug_core.cpp` (7 unit tests), drawn from `RenderOverlays()`. The cvars are cheats unlocked by HOURGLASS and mark the pilot a cheater, because labels and spheres show robots through walls; refused in Classic Mode and multiplayer. Checked in a scripted run in level 1: refused while locked; after `cheat hourglass` the axes, spheres and labels line up with the world in cockpit and external views (a Light Security Flyer labelled through the wall at 248 units); nothing drawn with `classic 1` or all three off. Deferred from Phase 1 on 2026-11-02 by the owner
 **Notes:** See also AV-009.
 
 ---

@@ -3,6 +3,8 @@
 Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-, AV-, BUG- and IMP- IDs for traceability. Upstream Descent 3 changes arrive via merges and are summarised, not re-listed; see upstream's CHANGELOG for detail.
 
 ## [Unreleased]
+### Added (Phase 4)
+- Debug overlays (F-013): `r_showaxes` (world axes at the ship), `r_showobjinfo` (labels on nearby objects: type, name, number, handle, distance) and `r_showcollide` (collision spheres). Console cheats unlocked by HOURGLASS; they mark the pilot a cheater and are refused in Classic Mode and multiplayer — 2026-11-14.
 ### Added (Phase 2)
 - Deck end-of-level review and Adjust settings screens (F-069, D-016): the Pilot Performance Review after each level, and the keyboard and joystick-mouse settings behind Adjust settings, now use the deck in Tartarus mode, and the deck's pilot page has Copy controls; Classic Mode and multiplayer keep the stock screens, and the multiplayer customisation screens (ship, logo, taunts, pilot picture) stay stock. The deck's force gain setting goes from 0 to 100% (the stock slider sets full gain at almost every position, BUG-014) — 2026-11-07.
 ### Changed (Phase 2)

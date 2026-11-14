@@ -25,6 +25,7 @@
 #include "binds.h"
 #include "cheats.h"
 #include "ddio.h"
+#include "debugdraw.h"
 #include "deck.h"
 #include "descent.h"
 #include "game.h"
@@ -56,13 +57,7 @@ void Tartarus_Init() {
 
   CvarPolicy policy;
   policy.is_classic = [] { return IsClassic(); };
-  policy.cheat_allowed = [](const Cvar &) {
-#if defined(_DEBUG)
-    return true; // Debug builds treat every cheat as unlocked (SPEC.md §4)
-#else
-    return false; // no CHEAT-flagged cvars exist yet; map each to its cheat row (F-012) when one does
-#endif
-  };
+  policy.cheat_allowed = [](const Cvar &cv) { return Cheats_AllowsCvar(cv.Name()); };
   policy.log = [](const std::string &msg) { LOG_WARNING << "[tartarus] " << msg; };
   policy.config_path = cf_GetWritableBaseDirectory() / "tartarus.cfg";
   Cvars().SetPolicy(policy);
@@ -89,6 +84,7 @@ void Tartarus_Init() {
   OrientHud_Init();
   Level_Init();
   MapScan_Init();
+  DebugDraw_Init();
   Deck_Init();
 }
 
@@ -151,6 +147,7 @@ void Frame() {
 float TimeScale() { return Cheats_TimeScale(); }
 
 void RenderOverlays() {
+  DebugDraw_Render();
   OrientHud_Render();
   MouseFlight_Render();
   Cheats_Render();

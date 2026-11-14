@@ -643,6 +643,21 @@ bool Cheats_AllowsCommand(const char *command) {
   return false;
 }
 
+bool Cheats_AllowsCvar(const std::string &name) {
+#if defined(_DEBUG)
+  (void)name;
+  return true; // Debug builds treat every cheat as unlocked (SPEC.md §4)
+#else
+  if (RefusalReason() != nullptr)
+    return false;
+  if (name.rfind("r_show", 0) == 0)
+    return g_state.IsUnlocked(CheatId::Hourglass);
+  return false;
+#endif
+}
+
+void Cheats_MarkCheater() { MarkCheater(); }
+
 bool Cheats_MenuIsOpen() { return g_menu_open; }
 
 void Cheats_OpenMenu() {

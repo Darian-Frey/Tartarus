@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <string>
+
 #include "cheat_table.h"
 
 namespace tartarus {
@@ -33,6 +35,10 @@ void Cheats_Init();
 /// The session's unlock state (for the console's cheat policy).
 CheatState &Cheats();
 
+/// Policy for CHEAT cvars: the r_show* overlays (F-013) need HOURGLASS (Debug builds: always).
+bool Cheats_AllowsCvar(const std::string &name);
+/// Sets IsCheater and zeroes the score, as using a cheat does.
+void Cheats_MarkCheater();
 /// Policy for CMD_CHEAT console commands: true if the cheat the command
 /// belongs to is unlocked (Debug builds: always).
 bool Cheats_AllowsCommand(const char *command);

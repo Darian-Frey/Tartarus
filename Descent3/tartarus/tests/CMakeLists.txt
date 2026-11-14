@@ -71,6 +71,15 @@ target_link_libraries(tartarus_orient_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_orient_tests)
 
 add_executable(
+  tartarus_debug_tests
+  debug_core_tests.cpp
+  ../debug_core.cpp
+  ../orient_core.cpp
+)
+target_link_libraries(tartarus_debug_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_debug_tests)
+
+add_executable(
   tartarus_small_view_tests
   small_view_layout_tests.cpp
   ../small_view_layout.cpp

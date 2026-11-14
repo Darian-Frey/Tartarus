@@ -37,7 +37,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [x] `tools/check_xrefs.py` (IMP-001) and the "Tartarus audits" CI workflow — 2026-11-02
 **Acceptance:** Every cheat in SPEC.md §Cheat passwords works from both menu and console; `classic 1` hides all of it; `cvarlist` shows every SPEC constant. Met 2026-11-02 for every implemented row and every implemented module's constants.
 **Deferred (owner agreed 2026-11-02):**
-- F-013 debug overlays (`r_showaxes`, `r_showobjinfo`, `r_showcollide`): before the weapons work in Phase 4, where they are needed.
+- F-013 debug overlays (`r_showaxes`, `r_showobjinfo`, `r_showcollide`): before the weapons work in Phase 4, where they are needed. Done 2026-11-14 as the first step of Phase 4.
 - F-012 WRAITH (noclip: needs a design that keeps room tracking intact) and ARGUS (upstream's chase camera is half-built); HYDRA does not hold countermeasures yet.
 - AV-004 LAN check (no cheat survives into a netgame): needs a real network game; with the first multiplayer work (D-008).
 - Console: `con_key`, line wrapping (IMP-003), `noclip`, `spawn`, `map <mission> <level>` arguments.
@@ -74,9 +74,10 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 4 — Tactical weapons I
 **Goal:** The two signature mechanics plus the free wins: cloak, gravity missile, repulsor, converter.
-**Status:** Not started
+**Status:** In progress (started 2026-11-14)
 **Features delivered:** F-020, F-021, F-022, F-030
 **Deliverables:**
+- [x] Debug overlays first (F-013, deferred from Phase 1): `r_showaxes`, `r_showobjinfo`, `r_showcollide` — 2026-11-14
 - [ ] Sidecar weapon definitions (`data/tartarus/weapons.txt`) loaded via `AllocWeapon()` (D-007)
 - [ ] `cloak.cpp`: state machine, energy accounting, break hooks in `WeaponFire.cpp` and `physics/collide.cpp`, HUD gauge
 - [ ] `gravwell.cpp`: new fireball index, pull loop with falloff and mass scaling, `GW_IMMUNE` robot flag, visuals

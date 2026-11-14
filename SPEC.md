@@ -81,6 +81,8 @@ Built-in commands (Phase 1):
 | `where` | ship room, position and heading/pitch/bank in degrees; also written to the log (for measuring) |
 | `r_restart` | rebuild the game frame (in a level) so `r_renderscale`, `r_msaa` and `r_depthbits` apply now |
 
+**Debug overlays (F-013).** CHEAT cvars, unlocked by `HOURGLASS` (§4; Debug builds: always), not saved, refused in Classic Mode and multiplayer; any of them on marks the pilot a cheater. `r_showaxes` draws world X (red), Y (green) and Z (blue) from the player, `r_showaxes_size 10` units long, and in cockpit view `r_showaxes_ahead 40` units in front of the ship (a line through the eye would shrink to a point). `r_showcollide` draws each nearby object's collision sphere (radius `size`) as a circle, robots yellow and the rest cyan. `r_showobjinfo` labels nearby objects with type, name, object number, handle (hex) and distance, nearest first, at most `r_show_labels 24` on screen. Both cover robots, powerups, clutter, buildings, weapons and other players out to `r_show_range 300` units, through walls (hence a cheat), and leave out the viewer.
+
 Input capture: while open, the console consumes every key (the toggle key and `Escape` close it); all ship controls are suspended and the key/mouse queues are flushed on close; with `con_pause 1` (default) the game pauses while the console is open in single-player (simulation, time, sound and music, via upstream `PauseGame()`), and keeps running with `con_pause 0` or in multiplayer. Editing keys: Left/Right, Home/End, Backspace/Delete, Up/Down history, Page Up/Down scroll, Tab complete, Ctrl+U clear line, Ctrl+L clear scrollback. Implemented cvars so far: `con_height`, `con_anim_time`, `con_lines`, `con_pause`; `con_key` (rebinding) pending.
 
 ---
@@ -112,7 +114,7 @@ Input capture: while open, the console consumes every key (the toggle key and `E
 | `ARIADNE` | button | Full automap for the current level |
 | `FERRYMAN` | button | Level warp (opens mission/level picker) |
 | `ARGUS` | toggle | External/third-person camera (not implemented yet) |
-| `HOURGLASS` | toggle | Frame-time and render statistics overlay |
+| `HOURGLASS` | toggle | Frame-time and render statistics overlay; the unlock also allows the `r_show*` debug overlays (§3) |
 | `TORPOR` | slider | Time scale 0.1–1.0 (slow motion); `Frametime` is scaled after `CalcFrameTime()` |
 | `STYX` | button | Suicide (restart from last save) |
 | `CATHARSIS` | button | Relock all cheats; clear `IsCheater` at next new game |
