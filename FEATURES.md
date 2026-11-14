@@ -378,6 +378,15 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - An optional difficulty above Insane where selected robots use cloak and gravity weapons
 **Status:** Not started (Phase 7)
 
+### F-072 Guide-Bot routes and new commands
+**Priority:** Should
+**Acceptance:**
+- On level 2, where the map has surface and underground sections, the Guide-Bot leads round the map to its target instead of trying to fly through a wall (Tartarus mode; Classic Mode keeps the stock routes)
+- New commands on the deck's Guide-Bot menu, Tartarus mode only: **Next key** (the nearest key not yet held), **Door I can now open** (the nearest locked door a held key opens), **Unexplored area** (the nearest reachable room the scanner has not mapped, F-050)
+- The Guide-Bot's planned route can be seen and listed for tuning: `r_showpath`, `pathdump`
+**Status:** In progress, inserted into Phase 4 at the owner's request (2026-11-14). Step 1 done 2026-11-14: `r_showpath` (1 legs and nodes, legs orange where they touch the terrain and magenta inside; 2 adds node numbers and rooms, `T<region>` for terrain) and the `pathdump` console command (route to the console and the log), in `debugdraw.cpp` with the F-013 overlays. Seen in scripted runs: on level 1 a long route stops at exactly 50 nodes, the engine's `MAX_NODES` limit for one dynamic path, so long routes are cut short and re-planned; on level 2 a route from the mines (R59) climbs out through R50/R51 onto terrain region 1 and its last terrain node lies back towards the one before it. Next: reproduce the owner's wall case on level 2, then fix the route (likely `aipath.cpp`, gated to Tartarus mode), then the commands (target chosen by Tartarus; two small additions to the Guide-Bot script, `scripts/AIGame.cpp`, to fly to an object or a room).
+**Notes.** The game loads the scripts built by this project (`d3-linux.hog` in the build folder is searched before the Steam install), so the Guide-Bot script can change. Related: F-013, F-050.
+
 ---
 
 ### H. Modding platform

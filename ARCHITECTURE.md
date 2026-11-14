@@ -95,7 +95,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **automap_ext.cpp.** Visited/seen room sets, marker filters, 2D projection, orientation glyph; `TelComAutoMap.cpp` calls into it at its draw and input points.
 
-**debugdraw.cpp.** The three `r_show*` overlays (F-013): world axes, object labels and collision spheres, drawn in 2D over the main view from `RenderOverlays()` with the same camera as the flight HUD. `debug_core.cpp` holds the tested maths (point and line projection with near-plane clipping, sphere radius on screen). The cvars are `CVAR_CHEAT`, unlocked by HOURGLASS (`Cheats_AllowsCvar()`); while all three are off, one boolean is all that runs each frame.
+**debugdraw.cpp.** The three `r_show*` overlays (F-013): world axes, object labels and collision spheres, drawn in 2D over the main view from `RenderOverlays()` with the same camera as the flight HUD. `debug_core.cpp` holds the tested maths (point and line projection with near-plane clipping, sphere radius on screen). The cvars are `CVAR_CHEAT`, unlocked by HOURGLASS (`Cheats_AllowsCvar()`); while they are all off, one boolean is all that runs each frame. It also draws the Guide-Bot's route (`r_showpath`, F-072) from the AI's path record (`ai_path_info`, dynamic and static paths) and lists it with `pathdump`.
 
 ## Hook points in upstream code
 

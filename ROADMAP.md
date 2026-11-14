@@ -78,6 +78,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 **Features delivered:** F-020, F-021, F-022, F-030
 **Deliverables:**
 - [x] Debug overlays first (F-013, deferred from Phase 1): `r_showaxes`, `r_showobjinfo`, `r_showcollide` — 2026-11-14
+- [ ] Guide-Bot routes and new commands (F-072), inserted at the owner's request 2026-11-14: route overlay `r_showpath` and `pathdump` done 2026-11-14; level-2 wall fix; Next key, Door I can now open, Unexplored area
 - [ ] Sidecar weapon definitions (`data/tartarus/weapons.txt`) loaded via `AllocWeapon()` (D-007)
 - [ ] `cloak.cpp`: state machine, energy accounting, break hooks in `WeaponFire.cpp` and `physics/collide.cpp`, HUD gauge
 - [ ] `gravwell.cpp`: new fireball index, pull loop with falloff and mass scaling, `GW_IMMUNE` robot flag, visuals
