@@ -135,8 +135,7 @@ Loaded after `manage/` table pages; each block allocates a slot with `AllocWeapo
 
 ```
 weapon "GravMissile" {
-  class        secondary          // primary | secondary
-  slot         7                  // player weapon list index to attach to (Tartarus range 5–9 secondary)
+  class        tactical           // own key and ammunition, outside the weapon slots (D-019)
   model        "frag.oof"         // existing HOG model (placeholder until GPL art exists)
   tint         0.55 0.25 0.95
   fire_delay   1.2
@@ -312,6 +311,7 @@ Saving: the scan goes in a `.amap` file beside each save, as upstream's `.cnt`, 
 | Cheat menu | Shift+F12 (stock F12 drops a marker) |
 | Cloak | C |
 | Repulsor | V |
+| Gravity missile | G (`gm_fire_key`, D-019) |
 | Convert → shields / → energy | [ / ] |
 | Auto-level hold | X (`al_hold_key`; Left Alt is stock Toggle Slide) |
 | Snap to up | Z (`al_snap_key`) |

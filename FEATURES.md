@@ -126,7 +126,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Low direct damage; scarce pickup; distinct impact and pull visuals and audio
 - `give gravmissile` works from the console
 **Status:** Not started (Phase 4)
-**Notes:** D-007, D-009. Reuses the engine's `GRAVITY_FIELD_INDEX` fireball machinery (`fireball.cpp::DoGravityFieldEffect`). SPEC.md §Gravity missile. AV-006. See also D-008.
+**Notes:** D-007, D-009, D-019 (fired by its own key, G, with its own ammunition; not in a secondary slot, which are all taken). Reuses the engine's `GRAVITY_FIELD_INDEX` fireball machinery (`fireball.cpp::DoGravityFieldEffect`). SPEC.md §Gravity missile. AV-006. See also D-008.
 
 ### F-022 Repulsor pulse
 **Priority:** Should

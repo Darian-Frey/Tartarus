@@ -69,9 +69,9 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 
 ### AV-010 Weapon slot collisions
 **Severity:** Major
-**Description.** Sidecar weapons collide with stock names in `FindWeaponName()`, exceed `MAX_WEAPONS` (200), or claim a player weapon slot already used by a stock weapon, corrupting the weapon lists.
+**Description.** Sidecar weapons collide with stock names in `FindWeaponName()`, exceed `MAX_WEAPONS` (200), or claim a player weapon slot already used by a stock weapon, corrupting the weapon lists. (Tactical weapons such as the gravity missile take no slot at all, D-019.)
 **Detection.** Loader refuses duplicates and logs; `tests/sidecar_test` loads the shipped file against the stock name list; `cvarlist`/`give` reflect the loaded set.
-**Related decisions.** D-007.
+**Related decisions.** D-007, D-019.
 **History.** —
 
 ### AV-011 Auto-level fighting the player

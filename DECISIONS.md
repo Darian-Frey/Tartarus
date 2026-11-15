@@ -141,7 +141,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-01
 **Status:** Accepted
 **Authors:** Shane Hartley (with Claude design discussion 2026-11-01)
-**Related:** F-021 – F-028, ARCHITECTURE.md §weapons_sidecar, AV-010, AV-005
+**Related:** F-021 – F-028, ARCHITECTURE.md §weapons_sidecar, AV-010, AV-005, D-019
 
 **Context.** Weapon stats live in the binary table file loaded by `manage/`. The authoring tool is the MFC level editor, which upstream describes as Windows-only, 32-bit and unusable. Shipping a modified `table.gam` would also mean redistributing Outrage data.
 
@@ -392,4 +392,28 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 
 **Consequences.**
 - The README pictures were retaken in the game on 2026-11-14.
+
+### D-019 The gravity missile has its own key, outside the ten secondary slots
+**Decided:** 2026-11-15
+**Recorded:** 2026-11-15
+**Status:** Accepted
+**Authors:** Shane Hartley (owner's choice of the recommended option, 2026-11-15)
+**Related:** F-021, D-007, AV-010
+
+**Context.** SPEC §5 put the gravity missile in a player secondary slot ("slot 7, Tartarus range 5–9"), but Descent 3 has exactly ten secondary slots and the stock weapons fill them all (Concussion to Black Shark), so any slot would overwrite a stock weapon. The stock Black Shark is already a gravity weapon, but a rare superweapon, not the cheap utility missile F-021 describes.
+
+**Options.**
+- **A. Its own tactical key, with its own ammunition and HUD readout, outside the weapon slots.** Chosen.
+- **B. Rework the Black Shark into the gravity missile in Tartarus mode, stock in Classic Mode.** Rejected: loses the stock superweapon and changes what the pickup means.
+- **C. Share a stock slot, switching by pressing the slot key again (as Descent 2 paired its weapons).** Rejected: the most work in weapon selection and the HUD, for a less direct control.
+
+**Decision.** Option A. The gravity missile is fired by its own key (`gm_fire_key`, default G, a console setting like `al_hold_key`, since the stock bindings screen cannot take new functions without changing pilot files, AV-003). Its ammunition is a Tartarus side-table count, saved in the save sidecar, and shown on the Tartarus HUD. The missile itself is a sidecar weapon (D-007) fired through the engine's own firing code, so its flight, collisions and sounds are stock behaviour; it never enters a ship's weapon battery or the weapon-order list.
+
+**Consequences.**
+- All ten stock secondaries, the Black Shark included, stay as they are.
+- SPEC §5 drops the `slot` key for tactical weapons (`class tactical`); §12 gains the G key.
+- Where ammunition comes from (F-021: a scarce pickup) is decided with the sidecar loader; until then `give gravmissile`.
+- The same pattern serves later tactical weapons that do not fit the slots.
+
+**Reversal conditions.** If playtesting shows a dedicated key is awkward (too many keys to learn), move to Option C.
 
