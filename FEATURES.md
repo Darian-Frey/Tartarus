@@ -178,7 +178,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Should
 **Acceptance:**
 - Two bound keys convert at `conv_rate` units/second with `conv_ratio` loss, never above max or below `conv_floor`
-**Status:** Not started (Phase 4)
+**Status:** Done (Phase 4), 2026-11-15, waiting for the owner: `converter.cpp` and `converter_core.cpp` (unit-tested, the same result at any frame rate). Hold B for energy into shields, N for the reverse (`conv_to_shields_key`, `conv_to_energy_key`); the refuelling sound plays while it works, the flight HUD shows CONVERT, and a HUD message says why it stops. In a scripted run on level 1: 2 s of B took energy 100 to 49 and shields 100 to 125; 2 s of N took shields 125 to 75 and energy 49 to 74; 6 s of B stopped at the 20 floor with "Converter: energy too low". Off in Classic Mode and multiplayer.
 **Notes:** Descent 2 had this; D3 dropped it.
 
 ### F-031 Dash

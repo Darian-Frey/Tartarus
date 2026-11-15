@@ -83,7 +83,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] `cloak.cpp`: state machine, energy accounting, break hooks in `WeaponFire.cpp` and `physics/collide.cpp`, HUD gauge
 - [ ] `gravwell.cpp`: new fireball index, pull loop with falloff and mass scaling, `GW_IMMUNE` robot flag, visuals
 - [ ] Repulsor as a sign-flipped gravity well
-- [ ] Converter keys and HUD feedback
+- [x] Converter keys and HUD feedback (F-030): B and N, sound, CONVERT status word, stop messages — 2026-11-15
 - [ ] Tuning session via console cvars; final values written to SPEC.md
 **Acceptance:** The "cloak → fire gravity missile round a corner → enemy dragged into view as cloak drops" sequence works reliably on at least three stock levels, and robot pull never clips a robot through a wall (AV-006 test).
 

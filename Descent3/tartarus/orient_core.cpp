@@ -299,6 +299,8 @@ std::vector<const char *> StatusWordsRight(const FlightStatus &status) {
     words.push_back("BOOST");
   if (status.light)
     words.push_back("LIGHT");
+  if (status.convert)
+    words.push_back("CONVERT");
   return words;
 }
 

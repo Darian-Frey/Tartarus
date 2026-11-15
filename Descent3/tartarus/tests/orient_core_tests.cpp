@@ -496,11 +496,12 @@ TEST(OrientStatus, ModesGoLeftAssistsGoRight) {
 
 TEST(OrientStatus, AllWordsInOrder) {
   FlightStatus status;
-  status.hold = status.snap = status.boost = status.light = true;
+  status.hold = status.snap = status.boost = status.light = status.convert = true;
   const auto words = StatusWordsRight(status);
-  ASSERT_EQ(words.size(), 4u);
+  ASSERT_EQ(words.size(), 5u);
   EXPECT_STREQ(words[0], "HOLD");
   EXPECT_STREQ(words[3], "LIGHT");
+  EXPECT_STREQ(words[4], "CONVERT");
 }
 
 TEST(OrientReanchor, StartsFullAndFades) {

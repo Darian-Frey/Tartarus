@@ -27,6 +27,7 @@
 #include "ddio.h"
 #include "debugdraw.h"
 #include "guidebot.h"
+#include "converter.h"
 #include "deck.h"
 #include "descent.h"
 #include "game.h"
@@ -87,6 +88,7 @@ void Tartarus_Init() {
   MapScan_Init();
   DebugDraw_Init();
   GuideBot_Init();
+  Converter_Init();
   Deck_Init();
 }
 
@@ -144,6 +146,7 @@ void Frame() {
   MouseFlight_Frame();
   RawMouse_Frame();
   MapScan_Frame();
+  Converter_Frame();
 }
 
 float TimeScale() { return Cheats_TimeScale(); }

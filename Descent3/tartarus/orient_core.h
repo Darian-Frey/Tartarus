@@ -172,6 +172,7 @@ float BankCommand(float rate_deg, float full_rotthrust, float rotdrag);
 struct FlightStatus {
   bool slide = false, bank = false;                       // flying modes
   bool hold = false, snap = false, boost = false, light = false; // assists and systems
+  bool convert = false;                                         // energy <-> shield converter (F-030)
 };
 
 /// The words to show, in order: flying modes for the left of the tape,

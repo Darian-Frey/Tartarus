@@ -235,13 +235,17 @@ Visuals: scaled `LIGHTNING_BOLT_INDEX` strands from centre to each pulled object
 
 ## 8. Energy ↔ shield converter (F-030)
 
-Keys held: `conv_to_shields`, `conv_to_energy`. Per frame: `amt = conv_rate * Frametime`; source `-= amt`; destination `+= amt * conv_ratio`; never below `conv_floor` on the source or above the max on the destination.
+Keys held: `conv_to_shields_key` (B: energy into shields), `conv_to_energy_key` (N: shields into energy); console settings like `al_hold_key`, since the stock bindings screen cannot take new functions (AV-003). Per frame (`ConvertStep()`, `converter_core.cpp`): `amt = conv_rate * Frametime`, cut so the source stays at or above `conv_floor` and the destination at or below its maximum (200, `MAX_SHIELDS` / `MAX_ENERGY`, so amounts above 100 from powerups are allowed); source `-= amt`; destination `+= amt * conv_ratio`. Only what fits is taken. Tartarus mode, single player, while flying (not in menus, the console, pause or death).
 
-| Cvar | Default |
-|---|---|
-| `conv_rate` | 25 /s |
-| `conv_ratio` | 0.5 |
-| `conv_floor` | 20 |
+Feedback: the energy centre's refuelling sound every 0.25 s while converting; the flight HUD's status word CONVERT; once per press, a HUD message when it cannot go on ("Converter: shields full", "energy too low", and the reverse).
+
+| Cvar | Default | Notes |
+|---|---|---|
+| `conv_rate` | 25 | 1–200 units/s taken from the source |
+| `conv_ratio` | 0.5 | 0.05–1 units gained per unit taken |
+| `conv_floor` | 20 | 0–100, the source never goes below this |
+| `conv_to_shields_key` | `b` | |
+| `conv_to_energy_key` | `n` | |
 
 ---
 
@@ -312,7 +316,7 @@ Saving: the scan goes in a `.amap` file beside each save, as upstream's `.cnt`, 
 | Cloak | C |
 | Repulsor | V |
 | Gravity missile | G (`gm_fire_key`, D-019) |
-| Convert → shields / → energy | [ / ] |
+| Convert → shields / → energy | B / N (`conv_to_shields_key`, `conv_to_energy_key`; [ and ] are the stock inventory keys) |
 | Auto-level hold | X (`al_hold_key`; Left Alt is stock Toggle Slide) |
 | Snap to up | Z (`al_snap_key`) |
 | Quicksave / quickload | F5 / F9 |

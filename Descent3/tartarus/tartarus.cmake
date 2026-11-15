@@ -40,6 +40,8 @@ list(APPEND HEADERS
   tartarus/debug_core.h
   tartarus/debugdraw.h
   tartarus/guidebot.h
+  tartarus/converter.h
+  tartarus/converter_core.h
   tartarus/orient_core.h
   tartarus/orient_hud.h
   tartarus/options_tartarus.h
@@ -77,6 +79,8 @@ list(APPEND CPPS
   tartarus/debug_core.cpp
   tartarus/debugdraw.cpp
   tartarus/guidebot.cpp
+  tartarus/converter.cpp
+  tartarus/converter_core.cpp
   tartarus/orient_core.cpp
   tartarus/orient_hud.cpp
   tartarus/options_tartarus.cpp

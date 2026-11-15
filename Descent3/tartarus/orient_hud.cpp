@@ -30,6 +30,7 @@
 #include "bitmap.h"
 #include "classic.h"
 #include "cockpit.h"
+#include "converter.h"
 #include "cvar.h"
 #include "ddio.h"
 #include "findintersection.h"
@@ -558,6 +559,7 @@ void DrawStatusWords() {
   status.snap = Level_Snapping();
   status.boost = (flags & PLAYER_FLAGS_AFTERBURN_ON) != 0;
   status.light = (flags & PLAYER_FLAGS_HEADLIGHT) != 0;
+  status.convert = Converter_Active();
 
   const float cx = Game_window_x + Game_window_w / 2.0f;
   const float y = Game_window_y + hud_flight_heading_y->GetFloat() * Game_window_h - grtext_GetTextHeight("0") / 2.0f;

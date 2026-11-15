@@ -113,3 +113,11 @@ add_executable(
 )
 target_link_libraries(tartarus_deck_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_deck_tests)
+
+add_executable(
+  tartarus_converter_tests
+  converter_core_tests.cpp
+  ../converter_core.cpp
+)
+target_link_libraries(tartarus_converter_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_converter_tests)

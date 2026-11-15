@@ -36,6 +36,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  automap_ext.cpp overlay logic used by TelComAutoMap.cpp             │
 │  debugdraw.cpp   r_show* overlays                                    │
 │  guidebot.cpp    Guide-Bot commands: Next key, door, unexplored      │
+│  converter.cpp   energy <-> shield converter (B / N)                 │
 └──────────────────────────────────────────────────────────────────────┘
                │ reads
 ┌──────────────▼───────────────────────────────────────────────────────┐
