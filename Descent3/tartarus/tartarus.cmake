@@ -39,6 +39,7 @@ list(APPEND HEADERS
   tartarus/mouse_flight_core.h
   tartarus/debug_core.h
   tartarus/debugdraw.h
+  tartarus/guidebot.h
   tartarus/orient_core.h
   tartarus/orient_hud.h
   tartarus/options_tartarus.h
@@ -75,6 +76,7 @@ list(APPEND CPPS
   tartarus/mouse_flight_core.cpp
   tartarus/debug_core.cpp
   tartarus/debugdraw.cpp
+  tartarus/guidebot.cpp
   tartarus/orient_core.cpp
   tartarus/orient_hud.cpp
   tartarus/options_tartarus.cpp

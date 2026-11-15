@@ -43,6 +43,11 @@ void MapScan_Frame();
 /// reveal the map would otherwise show nothing.
 void MapScan_RevealRoom(int room);
 
+/// Whether the scanner is running and has reached any surface of room. False
+/// for every room while the scanner is off (map_scan 0, Classic, multiplayer).
+bool MapScan_Active();
+bool MapScan_RoomScanned(int room);
+
 /// Saves the scan beside a saved game, as upstream's .cnt, so the save format
 /// is untouched (AV-003). In Classic Mode it removes any old file instead, which
 /// would otherwise be paired with the wrong save.

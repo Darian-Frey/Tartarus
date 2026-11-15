@@ -56,6 +56,7 @@
 
 #include "log.h"
 #include "tartarus/deck_screens.h" // TARTARUS: D-016
+#include "tartarus/guidebot.h"     // TARTARUS: F-072
 #include "ddio.h"
 #include "game.h"
 #include "newui.h"
@@ -109,11 +110,8 @@ void BuddyDisplay(void) {
   if (BuddyBotDownloadData() != 1)
     return;
 
-  // TARTARUS: D-016 deck Guide-Bot menu in Tartarus mode
-  std::vector<std::string> deck_commands;
-  for (index = 0; index < Guidebot_menu_data.num_commands; index++)
-    deck_commands.emplace_back(Guidebot_menu_data.command_text[index]);
-  const int deck_command = tartarus::BuddyDeck_Pick(Guidebot_menu_data.title, deck_commands);
+  // TARTARUS: D-016, F-072 deck Guide-Bot menu, with Tartarus's own commands, in Tartarus mode
+  const int deck_command = tartarus::GuideBot_RunMenu(Guidebot_menu_data);
   if (deck_command != tartarus::kDeckStock) {
     if (deck_command >= 0)
       BuddyProcessCommand(deck_command + UID_BUDDYCMD);

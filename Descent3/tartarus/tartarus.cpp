@@ -26,6 +26,7 @@
 #include "cheats.h"
 #include "ddio.h"
 #include "debugdraw.h"
+#include "guidebot.h"
 #include "deck.h"
 #include "descent.h"
 #include "game.h"
@@ -85,6 +86,7 @@ void Tartarus_Init() {
   Level_Init();
   MapScan_Init();
   DebugDraw_Init();
+  GuideBot_Init();
   Deck_Init();
 }
 

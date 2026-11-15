@@ -31,7 +31,9 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/hud.cpp` | `tartarus::OrientHud_RenderReticle` | gated: false in Classic Mode, so the stock reticle draws (F-047) |
 | `Descent3/help.cpp` | `tartarus::HelpDeck_Run` | gated: false in Classic Mode, stock Keys screen (D-016) |
 | `Descent3/screens.cpp` | `tartarus::ResultsDeck_Run` | gated: false in Classic Mode and multiplayer, stock review (D-016) |
-| `Descent3/buddymenu.cpp` | `tartarus::BuddyDeck_Pick`, `tartarus::kDeckStock` | gated: stock Guide-Bot menu in Classic Mode and multiplayer (D-016) |
+| `Descent3/buddymenu.cpp` | `tartarus::GuideBot_RunMenu`, `tartarus::kDeckStock` | gated: reports stock in Classic Mode and multiplayer, so the stock Guide-Bot menu runs without the Tartarus commands (D-016, F-072) |
+| `scripts/AIGame.cpp` | (inline: `GBC_TARTARUS_GO_TO_OBJ`, `GBC_TARTARUS_GO_TO_ROOM` in the Guide-Bot's `COM_DO_ACTION`) | inert: only the deck Guide-Bot menu and the `guide` command send them, and neither is available in Classic Mode (F-072) |
+| `scripts/osiris_common.h` | (inline: the two command numbers) | inert: definitions only (F-072) |
 | `Descent3/pilot.cpp` | `tartarus::PilotDeck_Run` | gated: false in Classic Mode, stock Pilots screen (D-016) |
 | `Descent3/menu.cpp` | `tartarus::MissionDeck_Pick`, `tartarus::LevelDeck_Pick`, `tartarus::kDeckStock` | gated: stock New Game and level warp in Classic Mode (D-016) |
 | `Descent3/config.cpp` | `tartarus::Display_RestoreResolution` | active (compat): BUG-004 |

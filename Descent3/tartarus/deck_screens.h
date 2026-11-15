@@ -48,7 +48,8 @@ int Deck_EditBox(const char *prompt, char *buffer, int buflen, bool showcancel);
 bool HelpDeck_Run(const int *text_ids);
 
 /// BuddyDisplay(): the chosen command, -1 for none, or kDeckStock.
-int BuddyDeck_Pick(const char *title, const std::vector<std::string> &commands);
+int BuddyDeck_Pick(const char *title, const std::vector<std::string> &commands,
+                   const std::vector<std::string> *help = nullptr);
 
 /// MenuNewGame(): the chosen listbox row, -1 if cancelled, or kDeckStock.
 int MissionDeck_Pick(newuiListBox *list, const std::vector<std::filesystem::path> &files);

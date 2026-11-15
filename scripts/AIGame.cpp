@@ -5401,6 +5401,25 @@ bool GuideBot::DoExternalCommands(int me, gb_com *command, int it) {
         strncpy(memory->name, (char *)command->ptr, 7);
         memory->name[7] = '\0';
       }
+    } else if (param1 == GBC_TARTARUS_GO_TO_OBJ || param1 == GBC_TARTARUS_GO_TO_ROOM) {
+      // TARTARUS: F-072 Next key, Door I can now open, Unexplored area. Tartarus
+      // picks the target; the bot goes there as for its own Find commands.
+      const int target = command->ptr != nullptr ? *(int *)command->ptr : -1;
+      if (param1 == GBC_TARTARUS_GO_TO_OBJ && target != -1 && AI_IsObjReachable(me, target)) {
+        DoMessage(TXT_GB_ONMYWAY, false, "GBotAcceptOrder1");
+        AI_AddGoal(me, AIG_GET_TO_OBJ, 1, 1.0f, -1, GF_KEEP_AT_COMPLETION | GF_NOTIFIES, target);
+        AI_SetGoalCircleDist(me, 1, 15.0f);
+        AddGetToGoalCommonGoals(me);
+      } else if (param1 == GBC_TARTARUS_GO_TO_ROOM && target >= 0 && AI_IsDestReachable(me, target)) {
+        vector pnt;
+        Room_Value(target, VF_GET, RMSV_V_PATH_PNT, &pnt);
+        DoMessage(TXT_GB_ONMYWAY, false, "GBotAcceptOrder1");
+        AI_AddGoal(me, AIG_GET_TO_POS, 1, 1.0f, -1, GF_KEEP_AT_COMPLETION | GF_NOTIFIES, &pnt, target);
+        AI_SetGoalCircleDist(me, 1, 20.0f);
+        AddGetToGoalCommonGoals(me);
+      } else {
+        DoMessage(TXT_GB_NOTREACH, true, "GBotConcern1");
+      }
     } else {
       char str[80];
       snprintf(str, sizeof(str), TXT_GB_STRIKE, param1);

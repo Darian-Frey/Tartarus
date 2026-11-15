@@ -951,6 +951,11 @@ inline ddgr_color GR_RGB(int r, int g, int b) { return ((r << 16) + (g << 8) + b
 #define COM_DO_ACTION 1
 #define COM_REINIT 2
 
+// TARTARUS: F-072 Guide-Bot commands chosen by Tartarus, never in the stock menu:
+// gb_com.ptr points to an int, the target object's handle or the room number.
+#define GBC_TARTARUS_GO_TO_OBJ 100
+#define GBC_TARTARUS_GO_TO_ROOM 101
+
 struct gb_com {
   int8_t action;
   int8_t index;

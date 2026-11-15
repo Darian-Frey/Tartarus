@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 4)
+- Guide-Bot commands (F-072): Next key, Door I can now open and Unexplored area on the deck Guide-Bot menu, and `guide key|door|area` on the console (bindable). Tartarus picks the nearest target by route, with doors you cannot open counted as walls, and the Guide-Bot flies there as for its own Find commands; a key with no way to it yet is reported as such — 2026-11-15.
 - Guide-Bot route overlay (F-072): `r_showpath` draws the Guide-Bot's planned route (same HOURGLASS cheat as the other overlays), and `pathdump` lists it to the console and the log; blocked legs show red, and `roominfo` lists a room's openings — 2026-11-14.
 - Debug overlays (F-013): `r_showaxes` (world axes at the ship), `r_showobjinfo` (labels on nearby objects: type, name, number, handle, distance) and `r_showcollide` (collision spheres). Console cheats unlocked by HOURGLASS; they mark the pilot a cheater and are refused in Classic Mode and multiplayer — 2026-11-14.
 ### Added (Phase 2)

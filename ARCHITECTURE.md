@@ -35,6 +35,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  autolevel_ext.cpp  hold/snap/strength on top of physics autolevel   │
 │  automap_ext.cpp overlay logic used by TelComAutoMap.cpp             │
 │  debugdraw.cpp   r_show* overlays                                    │
+│  guidebot.cpp    Guide-Bot commands: Next key, door, unexplored      │
 └──────────────────────────────────────────────────────────────────────┘
                │ reads
 ┌──────────────▼───────────────────────────────────────────────────────┐
@@ -97,6 +98,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **debugdraw.cpp.** The three `r_show*` overlays (F-013): world axes, object labels and collision spheres, drawn in 2D over the main view from `RenderOverlays()` with the same camera as the flight HUD. `debug_core.cpp` holds the tested maths (point and line projection with near-plane clipping, sphere radius on screen). The cvars are `CVAR_CHEAT`, unlocked by HOURGLASS (`Cheats_AllowsCvar()`); while they are all off, one boolean is all that runs each frame. It also draws the Guide-Bot's route (`r_showpath`, F-072) from the AI's path record (`ai_path_info`, dynamic and static paths) and lists it with `pathdump`.
 
+**guidebot.cpp.** The Guide-Bot commands of F-072. When the deck Guide-Bot menu opens with the bot out of the ship, one shortest-route search runs from the player's room over rooms and terrain regions (the BOA graph, as `AIFindAltPath()` in `aipath.cpp`, without its random spread and with the player as the one opening doors). It names the nearest key, the nearest door that needs a key the player has and leads somewhere unscanned, and the nearest unscanned room (`MapScan_RoomScanned()`). The chosen target goes to the Guide-Bot script as `GBC_TARTARUS_GO_TO_OBJ` or `GBC_TARTARUS_GO_TO_ROOM` through `AINotify(AIN_USER_DEFINED)`, as the stock menu sends its commands; the script then flies there as for its own Find commands. The console command `guide` does the same.
+
 ## Hook points in upstream code
 
 Kept deliberately few and each marked `// TARTARUS:` so upstream merges are greppable.
@@ -148,7 +151,8 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/hud.cpp::RenderHUDFrame` | `OrientHud_RenderCanopy()` before `RenderCockpit()` in cockpit view | flight HUD behind the cockpit frame (F-046, D-017) |
 | `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |
 | `Descent3/screens.cpp::PostLevelResults` | `ResultsDeck_Run()` | deck end-of-level review (F-069, D-016) |
-| `Descent3/buddymenu.cpp::BuddyDisplay` | `BuddyDeck_Pick()` after the menu data arrives | deck Guide-Bot menu (F-069, D-016) |
+| `Descent3/buddymenu.cpp::BuddyDisplay` | `GuideBot_RunMenu()` after the menu data arrives | deck Guide-Bot menu with Next key, Door I can now open and Unexplored area (F-069, D-016, F-072) |
+| `scripts/AIGame.cpp` (`GuideBot`, `COM_DO_ACTION`), `scripts/osiris_common.h` | `GBC_TARTARUS_GO_TO_OBJ` and `GBC_TARTARUS_GO_TO_ROOM`: get to an object or a room, as the stock Find commands | the Guide-Bot goes where Tartarus picked (F-072) |
 | `Descent3/pilot.cpp::PilotSelect` | `PilotDeck_Run()` | deck Pilots screen (F-069, D-016) |
 | `Descent3/menu.cpp` (`MenuNewGame`, `DisplayLevelWarpDlg`) | `MissionDeck_Pick()`, `LevelDeck_Pick()` before each stock UI loop | deck New Game and level warp (F-069, D-016) |
 | `Descent3/gamesave.cpp` | `SaveDeck_Run()` in `SaveGameDialog()`, `SaveDeck_PickLoad()` and `SaveDeck_SlotPath()` in `LoadGameDialog()` | deck Save and Load screens (F-069, D-016) |

@@ -412,6 +412,10 @@ void MapScan_RevealRoom(int room_index) {
     g_table.Mark(room_index, i);
 }
 
+bool MapScan_Active() { return Active(); }
+
+bool MapScan_RoomScanned(int room_index) { return Active() && g_table.ScannedInRoom(room_index) > 0; }
+
 void MapScan_Save(const std::filesystem::path &save_path) {
   const std::filesystem::path path = ScanPath(save_path);
   if (!Active()) {

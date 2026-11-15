@@ -143,7 +143,7 @@ bool HelpDeck_Run(const int *text_ids) {
   return true;
 }
 
-int BuddyDeck_Pick(const char *title, const std::vector<std::string> &commands) {
+int BuddyDeck_Pick(const char *title, const std::vector<std::string> &commands, const std::vector<std::string> *help) {
   if (!Deck_Available())
     return kDeckStock;
   DeckListSpec spec;
@@ -154,6 +154,8 @@ int BuddyDeck_Pick(const char *title, const std::vector<std::string> &commands) 
     DeckListItem row;
     row.label = std::string(1, static_cast<char>(i < 9 ? hotkey : hotkey - 'a' + 'A')) + ". " + commands[i];
     row.hotkey = ddio_AsciiToKey(hotkey);
+    if (help != nullptr && i < help->size())
+      row.help = (*help)[i];
     spec.items.push_back(row);
   }
   ddio_MouseQueueFlush(); // clicks from gameplay must not choose a command
