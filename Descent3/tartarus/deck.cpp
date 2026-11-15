@@ -160,6 +160,10 @@ void Open() {
   g_pages = BuildDeckPages(Cvars(), DefaultDeckPages());
   Display_SyncModeCvars();
   DeckSetChoices(g_pages, "r_resolution", Display_ModeChoices());
+  if (g_modal) { // from the main menu: nothing to save, and the menu has its own Load
+    DeckRemoveAction(g_pages, DeckAction::SaveGame);
+    DeckRemoveAction(g_pages, DeckAction::LoadGame);
+  }
   g_sel.assign(g_pages.size(), 0);
   g_scroll.assign(g_pages.size(), 0);
   g_page = 0;
@@ -184,6 +188,10 @@ void RunAction(DeckAction a) {
       Deck_Close();
       Game_interface_mode = GAME_OPTIONS_INTERFACE;
     }
+  } else if (a == DeckAction::SaveGame || a == DeckAction::LoadGame) {
+    // As Alt+F2 and Alt+F3, which some desktops take for themselves (BUG-011).
+    Deck_Close();
+    Game_interface_mode = a == DeckAction::SaveGame ? GAME_SAVE_INTERFACE : GAME_LOAD_INTERFACE;
   } else if (a == DeckAction::StockOptions) {
     g_want_stock = g_modal;
     Deck_Close();
@@ -336,6 +344,8 @@ void DrawReadout(const Theme &t) {
   const std::string text = row->kind == DeckKind::Action
                                ? (row->action == DeckAction::StockOptions  ? "Opens the stock Options menu."
                                   : row->action == DeckAction::KeyBindings ? "Keyboard, joystick and mouse bindings, and weapon order."
+                                  : row->action == DeckAction::SaveGame    ? "Save the game, as Alt+F2. Console: savegame."
+                                  : row->action == DeckAction::LoadGame    ? "Load a saved game, as Alt+F3. Console: loadgame."
                                                                            : "Close this screen.")
                                : row->help + (row->needs_restart ? " Applies when this screen closes." : "");
   for (size_t i = 0; i <= text.size(); ++i) {

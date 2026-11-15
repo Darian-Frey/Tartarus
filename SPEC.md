@@ -76,6 +76,7 @@ Built-in commands (Phase 1):
 | `cheat use <password> [value]` | uses an unlocked row as the menu would: fires a button, flips a toggle, sets the TORPOR time scale (0.1–1.0) |
 | `cheatmenu` | opens the cheat menu |
 | `quit` | leave the game; shows the normal exit confirmation |
+| `savegame`, `loadgame` | open the Save or Load screen, as Alt+F2 and Alt+F3 (which some desktops take, BUG-011); single-player level; bindable |
 | `set <cvar> <value>`, `reset <cvar>`, `toggle <bool cvar>` | explicit forms of cvar assignment |
 | `echo <text>`, `clear`, `version` | |
 | `where` | ship room, position and heading/pitch/bank in degrees; also written to the log (for measuring) |
@@ -366,7 +367,7 @@ Ranges: size 0.05–1.0, aspect 0.25–4.0, x and y −1 or 0–1. Placement is 
 
 **Keys:** Up/Down select, Left/Right change, Enter or Space activate, Tab / Shift+Tab or Page Up/Down change page, Escape or F2 close. **Mouse:** click a page key; click a row to select it, click it again to step (left half down, right half up).
 
-**Pages:** Graphics, Controls, Audio, Gameplay, Tartarus. A curated table in `deck_core.cpp` gives order, labels and choice names; any other saved cvar with a page's prefix (`r_`, `m_`, `s_`, `g_`, `ui_`) appears on that page automatically. Cheat and unsaved cvars do not. Changes apply at once and are saved; rows marked as needing it (`r_resolution`, `r_fullscreen`, `r_renderscale`, `r_msaa`, `r_depthbits`) rebuild the frame when the deck closes, so stepping through a list does not change the screen each time. From the main menu, resolution and fullscreen apply on close and the rest with the next level. On the console, these need `r_restart`.
+**Pages:** Game (in a level only: Save game and Load game, as Alt+F2 and Alt+F3, BUG-011), Graphics, Controls, Audio, Gameplay, Tartarus. A curated table in `deck_core.cpp` gives order, labels and choice names; any other saved cvar with a page's prefix (`r_`, `m_`, `s_`, `g_`, `ui_`) appears on that page automatically. Cheat and unsaved cvars do not. Changes apply at once and are saved; rows marked as needing it (`r_resolution`, `r_fullscreen`, `r_renderscale`, `r_msaa`, `r_depthbits`) rebuild the frame when the deck closes, so stepping through a list does not change the screen each time. From the main menu, resolution and fullscreen apply on close and the rest with the next level. On the console, these need `r_restart`.
 
 | Cvar | Default | Notes |
 |---|---|---|

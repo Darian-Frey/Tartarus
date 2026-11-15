@@ -86,6 +86,18 @@ TEST_F(DeckFixture, ActionsComeLast) {
   EXPECT_EQ(pages[1].rows.back().kind, DeckKind::Action);
 }
 
+TEST_F(DeckFixture, RemovingAnActionDropsItsRowsAndEmptyPages) {
+  std::vector<DeckPageDef> defs = Defs();
+  defs.insert(defs.begin(), {"GAME", {}, {}, {{"Save game", DeckAction::SaveGame}}});
+  auto pages = BuildDeckPages(reg, defs);
+  ASSERT_EQ(pages.size(), 3u);
+  DeckRemoveAction(pages, DeckAction::SaveGame);
+  ASSERT_EQ(pages.size(), 2u); // GAME had nothing else, so it goes
+  EXPECT_EQ(pages[1].rows.back().action, DeckAction::Done);
+  DeckRemoveAction(pages, DeckAction::LoadGame); // none there: nothing changes
+  EXPECT_EQ(pages.size(), 2u);
+}
+
 TEST_F(DeckFixture, SliderStepsSnapAndClamp) {
   const auto pages = BuildDeckPages(reg, Defs());
   const DeckRow *fov = FindRow(pages, "r_fov");

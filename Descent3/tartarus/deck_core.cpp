@@ -63,6 +63,7 @@ DeckRow MakeRow(const Cvar &cv, const char *label, double step) {
 
 const std::vector<DeckPageDef> &DefaultDeckPages() {
   static const std::vector<DeckPageDef> pages = {
+      {"GAME", {}, {}, {{"Save game", DeckAction::SaveGame}, {"Load game", DeckAction::LoadGame}}},
       {"GRAPHICS",
        {{"r_resolution", "Resolution", 0, {}, true},
         {"r_fullscreen", "Fullscreen", 0, {}, true},
@@ -185,6 +186,14 @@ std::vector<DeckPage> BuildDeckPages(const CvarRegistry &reg, const std::vector<
     out.push_back(std::move(page));
   }
   return out;
+}
+
+void DeckRemoveAction(std::vector<DeckPage> &pages, DeckAction action) {
+  for (DeckPage &p : pages)
+    p.rows.erase(std::remove_if(p.rows.begin(), p.rows.end(),
+                                [action](const DeckRow &r) { return r.kind == DeckKind::Action && r.action == action; }),
+                 p.rows.end());
+  pages.erase(std::remove_if(pages.begin(), pages.end(), [](const DeckPage &p) { return p.rows.empty(); }), pages.end());
 }
 
 void DeckSetChoices(std::vector<DeckPage> &pages, const std::string &cvar,

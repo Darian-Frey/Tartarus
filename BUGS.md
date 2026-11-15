@@ -14,14 +14,6 @@ Severity vocabulary: low | medium | high.
 
 ## Open
 
-### BUG-011: Alt+F2 (save game) does not reach the game on Cinnamon
-**Status:** open
-**Severity:** medium
-**Found:** 2026-11-03 (owner report: Alt+F2 does not save)
-**Location:** desktop shortcut, not game code; stock handler in `Descent3/GameLoop.cpp` `ProcessNormalKey()` (`KEY_ALTED + KEY_F2`)
-**Description.** Linux Mint's Cinnamon binds Alt+F2 to its Run dialog (`org.cinnamon.desktop.keybindings.wm panel-run-dialog`), so the desktop takes the key before the game sees it. Other desktops bind it too. The game's handler looks correct, and the options deck only takes unmodified F2. Not yet confirmed by observing the Run dialog. F9 (quick save) is not affected.
-**Fix.** Pending the owner's choice: save and load entries in the options deck, a console command for `bind`, or changing the desktop shortcut. F9 opens the deck Save screen on the first save of a session (F-069).
-
 ### BUG-014: (upstream) The stock Force Gain slider sets full gain at almost every position
 **Status:** open
 **Severity:** low
@@ -38,6 +30,22 @@ Severity vocabulary: low | medium | high.
 **Description.** With the Guide-Bot on the terrain (region 1) and its target in R206, BOA's next room from the terrain is R248, whose two openings both lead underground (to R199 and R249). `AIGenerateBOAPath()` looks for the opening to the outside, finds none, and only asserts (`ASSERT(i < num_portals)`, compiled out in Release); `pos` keeps a leftover value and the route starts about 270 units below the ground. The Guide-Bot then flies straight at it, into the ground. Seen as the owner's report: "it tries to guide me through a wall".
 **Fix.** Not fixed: part of IMP-011. A candidate upstream PR once the BOA side is understood.
 
+### BUG-018: (upstream) The Black Shark's pull gets stronger with frame rate
+**Status:** open
+**Severity:** low
+**Found:** 2026-11-15 (reading `fireball.cpp` for F-021)
+**Location:** `Descent3/fireball.cpp::DoGravityFieldEffect`; `physics/physics.cpp::phys_apply_force`
+**Description.** `phys_apply_force()` adds force ÷ mass to the velocity at once, an impulse, and the gravity field calls it every frame without scaling by `Frametime`, so at 120 fps the pull is twice what it is at 60. The same loop also sets `PF_DESTINATION_POS` on every object in range, although its comment says only close ones (the reason D-009 avoids it). Found by reading; not measured.
+**Fix.** Not fixed (Rule 8): scale the force by `Frametime` against a nominal rate, as SPEC §7 does for the gravity missile. A candidate upstream PR; changing it would alter the stock weapon in Classic Mode, so it needs the owner's decision.
+
+### BUG-017: The default snap-to-up key, Z, is also stock reverse thrust
+**Status:** open
+**Severity:** low
+**Found:** 2026-11-15 (checking SPEC §12 key defaults for the Phase 4 weapons)
+**Location:** `Descent3/tartarus/level_assist.cpp` (`al_snap_key` default `z`); `Descent3/Controls.cpp` (stock `ctfREVERSE_THRUSTKEY` = `KEY_Z`)
+**Description.** `Level_HandleKey()` takes the Z press for snap to up, but the stock controller reads Z's held state on its own, so a tap of Z snaps upright and also gives a short burst of reverse thrust. Pilots who keep the stock A/Z thrust keys get both. Found by reading; not yet seen in play (the owner flies with the mouse).
+**Fix.** Not fixed (Rule 8): pick a free default for `al_snap_key` (SPEC §12 and F-043 say Z), or leave it to the owner to rebind.
+
 ### BUG-016: (upstream) The re-planning check reads the wrong path slot
 **Status:** open
 **Severity:** low
@@ -47,6 +55,14 @@ Severity vocabulary: low | medium | high.
 **Fix.** Not fixed (Rule 8): `path_id[...]` in both places. A candidate upstream PR; part of IMP-011.
 
 ## Fixed
+
+### BUG-011: Alt+F2 (save game) does not reach the game on Cinnamon
+**Status:** fixed
+**Severity:** medium
+**Found:** 2026-11-03 (owner report: Alt+F2 does not save)
+**Location:** desktop shortcut, not game code; stock handler in `Descent3/GameLoop.cpp` `ProcessNormalKey()` (`KEY_ALTED + KEY_F2`)
+**Description.** Linux Mint's Cinnamon binds Alt+F2 to its Run dialog (`org.cinnamon.desktop.keybindings.wm panel-run-dialog`), so the desktop takes the key before the game sees it. Other desktops bind it too. The game's handler looks correct, and the options deck only takes unmodified F2. Not yet confirmed by observing the Run dialog. F9 (quick save) is not affected.
+**Fix.** 2026-11-15, the owner's go-ahead: in-game ways round the desktop shortcut. The options deck (F2) opens on a new Game page with Save game and Load game rows (in a level only; dropped when the deck opens from the main menu, which has its own Load), and the console commands `savegame` and `loadgame` open the same screens and can be bound to any key (`bind`). Alt+F2 and Alt+F3 still work where the desktop leaves them alone. Checked in a scripted run: F2, Enter opens the Save screen; `loadgame` opens Load.
 
 ### BUG-013: No screenshot on the deck Load screen
 **Status:** fixed

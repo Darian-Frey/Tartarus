@@ -33,6 +33,7 @@
 #include "controls.h"
 #include "ddio.h"
 #include "game.h"
+#include "gamecinematics.h"
 #include "gamefont.h"
 #include "gamesequence.h"
 #include "grdefs.h"
@@ -115,6 +116,19 @@ void RegisterEngineCommands(ConsoleCore &con) {
                     Console_Close();
                     Game_interface_mode = GAME_EXIT_CONFIRM;
                   }});
+  // BUG-011: Alt+F2 and Alt+F3 are desktop shortcuts on some Linux desktops.
+  for (const bool save : {true, false}) {
+    con.AddCommand({save ? "savegame" : "loadgame", save ? "savegame" : "loadgame",
+                    save ? "Open the Save screen, as Alt+F2" : "Open the Load screen, as Alt+F3", CMD_NONE,
+                    [save](const CommandArgs &, ConsoleCore &c) {
+                      if (GetFunctionMode() != GAME_MODE || (Game_mode & GM_MULTI) || Cinematic_inuse) {
+                        c.Print(std::string(save ? "savegame" : "loadgame") + ": needs a single-player level");
+                        return;
+                      }
+                      Console_Close();
+                      Game_interface_mode = save ? GAME_SAVE_INTERFACE : GAME_LOAD_INTERFACE;
+                    }});
+  }
   con.AddCommand({"classic", "classic [0|1]", "Show or switch Classic Mode (1 = stock Descent 3)", CMD_NONE,
                   [](const CommandArgs &a, ConsoleCore &c) {
                     if (a.size() > 1) {

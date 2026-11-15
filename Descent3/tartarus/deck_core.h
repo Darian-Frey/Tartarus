@@ -32,7 +32,7 @@
 namespace tartarus {
 
 enum class DeckKind { Toggle, Slider, Choice, Action };
-enum class DeckAction { None, StockOptions, KeyBindings, Done };
+enum class DeckAction { None, StockOptions, KeyBindings, SaveGame, LoadGame, Done };
 
 struct DeckRow {
   std::string label;
@@ -70,6 +70,10 @@ const std::vector<DeckPageDef> &DefaultDeckPages();
 
 /// Curated cvars that are not registered are skipped.
 std::vector<DeckPage> BuildDeckPages(const CvarRegistry &reg, const std::vector<DeckPageDef> &defs);
+
+/// Removes every row for action, such as Save game when the deck opens from
+/// the main menu, where there is nothing to save (BUG-011).
+void DeckRemoveAction(std::vector<DeckPage> &pages, DeckAction action);
 
 /// Gives a row its choices at run time (lists the table cannot know).
 void DeckSetChoices(std::vector<DeckPage> &pages, const std::string &cvar,
