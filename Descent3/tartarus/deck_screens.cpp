@@ -26,8 +26,10 @@
 #include "cfile.h"
 #include "classic.h"
 #include "ctlconfig.h"
+#include "controls.h"
 #include "ddio.h"
 #include "deck.h"
+#include "deck_controls.h"
 #include "difficulty.h"
 #include "game.h"
 #include "gamesequence.h"
@@ -118,6 +120,25 @@ bool HelpDeck_Run(const int *text_ids) {
     spec.items.push_back({TXT(text_ids[i]), TXT(text_ids[i + 1]), ""});
   spec.items.push_back({"`", "Developer console", ""});
   spec.items.push_back({"SHIFT-F12", "Cheat menu", ""});
+  // The stock list has only the fixed keys; these are the pilot's own
+  // bindings, so countermeasures (mines) and inventory show what to press.
+  static const struct {
+    int16_t fn;
+    const char *text;
+  } kBound[] = {{ctfCNTMS_USEKEY, "Drop mine / countermeasure"},
+                {ctfPREV_CNTMSKEY, "Previous countermeasure"},
+                {ctfNEXT_CNTMSKEY, "Next countermeasure"},
+                {ctfINV_USEKEY, "Use inventory item"},
+                {ctfPREV_INVKEY, "Previous inventory item"},
+                {ctfNEXT_INVKEY, "Next inventory item"},
+                {ctfFIREFLARE_KEY, "Fire flare"},
+                {ctfHEADLIGHT_KEY, "Headlight"},
+                {ctfREARVIEW_KEY, "Rear view"},
+                {ctfAUTOMAP_KEY, "Automap"}};
+  for (const auto &b : kBound) {
+    const std::string keys = Controls_BindingText(b.fn);
+    spec.items.push_back({keys.empty() ? "(none)" : keys, b.text, "Change it under Options, Controls, Key bindings."});
+  }
   Deck_RunList(spec);
   return true;
 }

@@ -539,6 +539,12 @@ std::vector<Binding> Snapshot(const t_cfg_element *elements, int count) {
 
 } // namespace
 
+std::string Controls_BindingText(int16_t fn) {
+  if (Controller == nullptr)
+    return "";
+  return BothSlots(fn);
+}
+
 bool ControlsDeck_Run(int mode, void (*ui_callback)(), ControlsDeckAssign assign, const t_cfg_element *keys, int n_keys,
                       const t_cfg_element *joys, int n_joys) {
   if (!Deck_Available())

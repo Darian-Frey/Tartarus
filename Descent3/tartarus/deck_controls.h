@@ -24,6 +24,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 #include "controller.h"
 
@@ -39,5 +40,9 @@ using ControlsDeckAssign = void (*)(int16_t fnid, ct_type elem_type, uint8_t ctr
 /// the game running behind the screens in a level.
 bool ControlsDeck_Run(int mode, void (*ui_callback)(), ControlsDeckAssign assign, const t_cfg_element *keys, int n_keys,
                       const t_cfg_element *joys, int n_joys);
+
+/// The keys or buttons bound to fn, as the bindings page shows them; empty if
+/// none. Used by the Keys screen for the bindable controls.
+std::string Controls_BindingText(int16_t fn);
 
 } // namespace tartarus
