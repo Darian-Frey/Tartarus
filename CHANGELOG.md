@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 4)
+- Cloak on demand (F-020): C turns invisible for up to 8 s, for 30 energy and 8 a second, dropping when energy falls to 20 (`cloak_floor`) rather than draining you to 0; firing, bumping a robot or a hit of 10 or more breaks it into a 6 s cooldown, otherwise 3 s; a gauge under the reticle shows cloaked, recharging and ready. Robots already lose a cloaked player in stock — 2026-11-15.
 - Energy ↔ shield converter (F-030): hold B to turn energy into shields, N for the reverse, at half value (`conv_rate` 25/s, `conv_ratio` 0.5, never below `conv_floor` 20); refuelling sound, CONVERT on the flight HUD, a message when it stops — 2026-11-15.
 - Save and load without Alt+F2 (BUG-011): the options deck (F2) opens on a Game page with Save game and Load game, and the console has `savegame` and `loadgame`, which can be bound; for desktops such as Cinnamon that take Alt+F2 for themselves — 2026-11-15.
 - Guide-Bot commands (F-072): Next key, Door I can now open and Unexplored area on the deck Guide-Bot menu, and `guide key|door|area` on the console (bindable). Tartarus picks the nearest target by route, with doors you cannot open counted as walls, and the Guide-Bot flies there as for its own Find commands; a key with no way to it yet is reported as such — 2026-11-15.

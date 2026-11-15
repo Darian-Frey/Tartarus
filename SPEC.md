@@ -177,6 +177,7 @@ State machine: `READY → ACTIVE → COOLDOWN → READY`.
 | `cloak_cost` | 30 | energy charged on activation |
 | `cloak_drain` | 8 | energy/s while ACTIVE |
 | `cloak_min_energy` | 40 | activation refused below this |
+| `cloak_floor` | 20 | the drain stops here and the cloak drops (owner, 2026-11-15: never drain to 0) |
 | `cloak_max_time` | 8.0 | s; auto-drop |
 | `cloak_cooldown` | 3.0 | s after a voluntary drop or timeout |
 | `cloak_cooldown_forced` | 6.0 | s after fire/bump/damage break |
@@ -184,13 +185,18 @@ State machine: `READY → ACTIVE → COOLDOWN → READY`.
 | `cloak_break_on_flare` | 0 | 1 = flares also break cloak |
 | `cloak_toggle` | 1 | 1 = press to toggle; 0 = hold to maintain |
 | `cloak_bump_alerts` | 1 | bumped robot is alerted to the player |
+| `cloak_key` | `c` | |
+| `hud_cloak` | 1 | gauge: 0 off, 1 while in use, 2 always |
+| `hud_cloak_y` | 0.615 | gauge height on the view |
 
 Rules:
-- Activation: `energy ≥ cloak_min_energy` and state `READY`; then `energy -= cloak_cost`; call `MakeObjectInvisible(Player_object, cloak_max_time, 0.25f, true)`.
-- Each frame ACTIVE: `energy -= cloak_drain * Frametime`; if `energy ≤ 0` → drop (voluntary cooldown).
-- `Cloak_Break(reason)` from `FireWeaponFromPlayer` (and `FireFlareFromPlayer` if `cloak_break_on_flare`), from the robot/player collision case in `physics/collide.cpp`, and from the damage path when `damage ≥ cloak_break_damage`. Forced breaks use `cloak_cooldown_forced`.
-- Decloak visual: 0.25 s fade-in plus a brief flash sprite so a decloak is readable to the player (and later to AI, F-070).
-- HUD gauge (`hud_cloak 1`): ring segment next to the afterburner gauge; blue = READY, white with sweep = ACTIVE (remaining fraction), red = COOLDOWN.
+- Key: `cloak_key` (C), a console setting like `al_hold_key` (the stock bindings screen cannot take new functions, AV-003). In COOLDOWN the key says how long is left; below the energy to start it says what is needed; already cloaked by the stock powerup or a cheat, it refuses.
+- Activation: state `READY` and energy at least `max(cloak_min_energy, cloak_cost + cloak_floor + cloak_drain)` (58 by default: a cloak never starts at the floor); then `energy -= cloak_cost`; `MakeObjectInvisible(Player_object, cloak_max_time + 0.5, 0.25, true)` (the engine's timer is only a backstop), and the stock "Cloak on" sound.
+- Each frame ACTIVE (`CloakMachine::Tick()`, `cloak_core.cpp`, unit-tested): `energy -= cloak_drain * Frametime`; never below `cloak_floor`; at `cloak_max_time` or at the floor → drop (voluntary cooldown; "Cloak: energy low" for the second). Frozen while paused, in menus or the console.
+- Breaks (forced, `cloak_cooldown_forced`, a HUD message naming the cause): firing, seen from any weapon battery's `last_fire_time` (set by `WBFireBattery()` on every shot) later than the moment the cloak came on, the flare battery only with `cloak_break_on_flare`, so `WeaponFire.cpp` needs no hook; touching a robot other than the Guide-Bot (hook in `physics/collide.cpp::collide_generic_and_player()`, which with `cloak_bump_alerts` also makes the robot fully aware); one hit of at least `cloak_break_damage` (hook in `damage.cpp::ApplyDamageToPlayer()`, single player).
+- Death, a new level or a new ship object returns to READY and takes the cloak off (AV-007); so do Classic Mode and multiplayer.
+- Decloak: the stock 0.25 s fade-in and "Cloak off" sound. (The flash sprite is not done.)
+- HUD gauge (`hud_cloak`, 0 off, 1 while cloaked or recharging and 1.5 s after it is ready again, 2 always): a short bar under the reticle at `hud_cloak_y` (0.615 of the view) with a label; blue CLOAK READY, white CLOAKED emptying, red CLOAK RECHARGING filling. Robots already ignore a cloaked player in stock (`AIDetermineObjVisLevel`): with the afterburner on, or the headlight pointed at them, they partly see you.
 
 ---
 

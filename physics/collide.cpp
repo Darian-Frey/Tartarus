@@ -859,6 +859,7 @@
 #include "trigger.h"
 #include "vecmat.h"
 #include "weapon.h"
+#include "tartarus/cloak.h" // TARTARUS: F-020
 
 #define PLAYER_ROTATION_BY_FORCE_SCALAR 0.12f
 #define NONPLAYER_ROTATION_BY_FORCE_SCALAR 1.0f
@@ -2135,6 +2136,8 @@ void collide_generic_and_player(object *robotobj, object *playerobj, vector *col
       }
     }
   }
+
+  tartarus::Cloak_Bumped(robotobj, playerobj); // TARTARUS: F-020 touching a robot breaks the cloak
 
   if (robotobj->control_type == CT_AI) {
     AINotify(robotobj, AIN_BUMPED_OBJ, (void *)playerobj);

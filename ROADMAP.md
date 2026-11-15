@@ -80,7 +80,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [x] Debug overlays first (F-013, deferred from Phase 1): `r_showaxes`, `r_showobjinfo`, `r_showcollide` — 2026-11-14
 - [ ] Guide-Bot routes and new commands (F-072), inserted at the owner's request 2026-11-14: route overlay `r_showpath`, `pathdump` and `roominfo` done 2026-11-14; the level-2 wall fix moved to IMP-011 (owner); Next key, Door I can now open and Unexplored area done 2026-11-15 (`guidebot.cpp`, `guide` command), waiting for the owner
 - [ ] Sidecar weapon definitions (`data/tartarus/weapons.txt`) loaded via `AllocWeapon()` (D-007)
-- [ ] `cloak.cpp`: state machine, energy accounting, break hooks in `WeaponFire.cpp` and `physics/collide.cpp`, HUD gauge
+- [x] `cloak.cpp`: state machine, energy accounting, break hooks in `damage.cpp` and `physics/collide.cpp` (firing seen without a hook), HUD gauge (F-020) — 2026-11-15
 - [ ] `gravwell.cpp`: new fireball index, pull loop with falloff and mass scaling, `GW_IMMUNE` robot flag, visuals
 - [ ] Repulsor as a sign-flipped gravity well
 - [x] Converter keys and HUD feedback (F-030): B and N, sound, CONVERT status word, stop messages — 2026-11-15

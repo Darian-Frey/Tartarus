@@ -113,7 +113,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - A forced drop starts a cooldown of `cloak_cooldown_forced`; a voluntary drop `cloak_cooldown`
 - Robots lose target lock while cloaked, using the existing invisibility path (`MakeObjectInvisible`); a bump decloaks *and* alerts the bumped robot
 - HUD gauge shows state (ready / active with time left / cooldown)
-**Status:** Not started (Phase 4)
+**Status:** Done (Phase 4), 2026-11-15, waiting for the owner: `cloak.cpp` and `cloak_core.cpp` (state machine, 13 unit tests, AV-007). C cloaks; firing is seen from the weapon batteries' last-fired times, so no hook in `WeaponFire.cpp`; one-line hooks in `damage.cpp` (a hit of 10 or more) and `physics/collide.cpp` (a robot, not the Guide-Bot). Scripted runs on level 1: C took energy 100 to 70 and drained 8 a second; firing broke it ("Cloak broken: weapon fired") into the 6 s cooldown, and C during it said "Cloak recharging: 6 s"; left alone it dropped at 8 s into the 3 s cooldown, and the gauge went blue (CLOAK READY). Not yet seen in a run: a bump or a big hit breaking it, and robots losing and regaining you (the owner to try). The decloak flash sprite is not done. At the owner's request (2026-11-15) it drops at an energy floor, `cloak_floor` 20, instead of draining to 0, and needs 58 energy to start (cost, floor and a second of drain); checked in a run: from 100 it dropped at 20 with "Cloak: energy low", and C at 20 said "Cloak needs 58 energy".
 **Notes:** SPEC.md §Cloak. AV-007. See also D-008.
 
 ### F-021 Gravity missile

@@ -121,3 +121,11 @@ add_executable(
 )
 target_link_libraries(tartarus_converter_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_converter_tests)
+
+add_executable(
+  tartarus_cloak_tests
+  cloak_core_tests.cpp
+  ../cloak_core.cpp
+)
+target_link_libraries(tartarus_cloak_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_cloak_tests)

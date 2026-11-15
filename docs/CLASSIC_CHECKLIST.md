@@ -32,6 +32,8 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/help.cpp` | `tartarus::HelpDeck_Run` | gated: false in Classic Mode, stock Keys screen (D-016) |
 | `Descent3/screens.cpp` | `tartarus::ResultsDeck_Run` | gated: false in Classic Mode and multiplayer, stock review (D-016) |
 | `Descent3/buddymenu.cpp` | `tartarus::GuideBot_RunMenu`, `tartarus::kDeckStock` | gated: reports stock in Classic Mode and multiplayer, so the stock Guide-Bot menu runs without the Tartarus commands (D-016, F-072) |
+| `Descent3/damage.cpp` | `tartarus::Cloak_PlayerDamaged` | gated: returns at once in Classic Mode and multiplayer, and unless the Tartarus cloak is on (F-020) |
+| `physics/collide.cpp` | `tartarus::Cloak_Bumped` | gated: returns at once in Classic Mode and multiplayer, and unless the Tartarus cloak is on (F-020) |
 | `scripts/AIGame.cpp` | (inline: `GBC_TARTARUS_GO_TO_OBJ`, `GBC_TARTARUS_GO_TO_ROOM` in the Guide-Bot's `COM_DO_ACTION`) | inert: only the deck Guide-Bot menu and the `guide` command send them, and neither is available in Classic Mode (F-072) |
 | `scripts/osiris_common.h` | (inline: the two command numbers) | inert: definitions only (F-072) |
 | `Descent3/pilot.cpp` | `tartarus::PilotDeck_Run` | gated: false in Classic Mode, stock Pilots screen (D-016) |

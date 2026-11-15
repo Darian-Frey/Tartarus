@@ -588,6 +588,7 @@
 #include "viseffect.h"
 #include "pserror.h"
 #include "psrand.h"
+#include "tartarus/cloak.h" // TARTARUS: F-020
 
 
 static void SetDeformDamageEffect(object *obj);
@@ -845,6 +846,7 @@ bool ApplyDamageToPlayer(object *playerobj, object *killer, int damage_type, flo
       damage_amount *= Ships[Players[playerobj->id].ship_index].armor_scalar;
 
       DecreasePlayerShields(playerobj->id, damage_amount);
+      tartarus::Cloak_PlayerDamaged(playerobj, damage_amount); // TARTARUS: F-020 a big hit breaks the cloak
 
       if (damage_amount > 0 && playsound)
         PlayPlayerDamageSound(playerobj, damage_type);

@@ -37,6 +37,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  debugdraw.cpp   r_show* overlays                                    │
 │  guidebot.cpp    Guide-Bot commands: Next key, door, unexplored      │
 │  converter.cpp   energy <-> shield converter (B / N)                 │
+│  cloak.cpp       player cloak on C: state machine, breaks, gauge     │
 └──────────────────────────────────────────────────────────────────────┘
                │ reads
 ┌──────────────▼───────────────────────────────────────────────────────┐
@@ -153,6 +154,8 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |
 | `Descent3/screens.cpp::PostLevelResults` | `ResultsDeck_Run()` | deck end-of-level review (F-069, D-016) |
 | `Descent3/buddymenu.cpp::BuddyDisplay` | `GuideBot_RunMenu()` after the menu data arrives | deck Guide-Bot menu with Next key, Door I can now open and Unexplored area (F-069, D-016, F-072) |
+| `Descent3/damage.cpp::ApplyDamageToPlayer` | `Cloak_PlayerDamaged()` after `DecreasePlayerShields()` (single player) | a big hit breaks the cloak (F-020) |
+| `physics/collide.cpp::collide_generic_and_player` | `Cloak_Bumped()` before the robot's `AIN_BUMPED_OBJ` | touching a robot breaks the cloak and alerts it (F-020) |
 | `scripts/AIGame.cpp` (`GuideBot`, `COM_DO_ACTION`), `scripts/osiris_common.h` | `GBC_TARTARUS_GO_TO_OBJ` and `GBC_TARTARUS_GO_TO_ROOM`: get to an object or a room, as the stock Find commands | the Guide-Bot goes where Tartarus picked (F-072) |
 | `Descent3/pilot.cpp::PilotSelect` | `PilotDeck_Run()` | deck Pilots screen (F-069, D-016) |
 | `Descent3/menu.cpp` (`MenuNewGame`, `DisplayLevelWarpDlg`) | `MissionDeck_Pick()`, `LevelDeck_Pick()` before each stock UI loop | deck New Game and level warp (F-069, D-016) |

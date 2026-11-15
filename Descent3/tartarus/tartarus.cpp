@@ -28,6 +28,7 @@
 #include "debugdraw.h"
 #include "guidebot.h"
 #include "converter.h"
+#include "cloak.h"
 #include "deck.h"
 #include "descent.h"
 #include "game.h"
@@ -89,6 +90,7 @@ void Tartarus_Init() {
   DebugDraw_Init();
   GuideBot_Init();
   Converter_Init();
+  Cloak_Init();
   Deck_Init();
 }
 
@@ -122,7 +124,7 @@ void UpdatePause() {
 } // namespace
 
 bool HandleKey(int key) {
-  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) ||
+  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) ||
                     Binds_HandleKey(key);
   UpdatePause();
   return used;
@@ -147,6 +149,7 @@ void Frame() {
   RawMouse_Frame();
   MapScan_Frame();
   Converter_Frame();
+  Cloak_Frame();
 }
 
 float TimeScale() { return Cheats_TimeScale(); }
@@ -155,6 +158,7 @@ void RenderOverlays() {
   DebugDraw_Render();
   OrientHud_Render();
   MouseFlight_Render();
+  Cloak_Render();
   Cheats_Render();
   Deck_Render();
   Console_Render();

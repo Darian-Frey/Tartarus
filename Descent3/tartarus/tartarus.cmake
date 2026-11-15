@@ -41,6 +41,8 @@ list(APPEND HEADERS
   tartarus/debugdraw.h
   tartarus/guidebot.h
   tartarus/converter.h
+  tartarus/cloak.h
+  tartarus/cloak_core.h
   tartarus/converter_core.h
   tartarus/orient_core.h
   tartarus/orient_hud.h
@@ -80,6 +82,8 @@ list(APPEND CPPS
   tartarus/debugdraw.cpp
   tartarus/guidebot.cpp
   tartarus/converter.cpp
+  tartarus/cloak.cpp
+  tartarus/cloak_core.cpp
   tartarus/converter_core.cpp
   tartarus/orient_core.cpp
   tartarus/orient_hud.cpp
