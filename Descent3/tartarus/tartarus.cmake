@@ -41,6 +41,8 @@ list(APPEND HEADERS
   tartarus/debugdraw.h
   tartarus/guidebot.h
   tartarus/converter.h
+  tartarus/sidecar_core.h
+  tartarus/weapons_sidecar.h
   tartarus/cloak.h
   tartarus/cloak_core.h
   tartarus/converter_core.h
@@ -82,6 +84,8 @@ list(APPEND CPPS
   tartarus/debugdraw.cpp
   tartarus/guidebot.cpp
   tartarus/converter.cpp
+  tartarus/sidecar_core.cpp
+  tartarus/weapons_sidecar.cpp
   tartarus/cloak.cpp
   tartarus/cloak_core.cpp
   tartarus/converter_core.cpp
@@ -113,6 +117,13 @@ add_custom_target(tartarus_version ALL
 # The Descent3 target does not exist yet at include time; attach the
 # dependency once the directory has been processed.
 cmake_language(DEFER CALL add_dependencies Descent3 tartarus_version)
+
+# The weapon sidecar (D-007) is built into the game from data/tartarus/weapons.txt;
+# CMake re-runs when the file changes.
+set(TARTARUS_WEAPONS_TXT ${PROJECT_SOURCE_DIR}/data/tartarus/weapons.txt)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${TARTARUS_WEAPONS_TXT})
+file(READ ${TARTARUS_WEAPONS_TXT} TARTARUS_WEAPONS_TEXT)
+configure_file(${TARTARUS_DIR}/weapons_default.h.in ${PROJECT_BINARY_DIR}/lib/tartarus_weapons_default.h @ONLY)
 
 if(BUILD_TESTING)
   add_subdirectory(tartarus/tests)

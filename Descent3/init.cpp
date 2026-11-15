@@ -974,6 +974,7 @@
 #include "tartarus/datadir.h" // TARTARUS: F-003
 #include "tartarus/display.h" // TARTARUS: BUG-004/005
 #include "tartarus/tartarus.h" // TARTARUS: Tartarus_Init
+#include "tartarus/weapons_sidecar.h" // TARTARUS: D-007
 #include "newui.h"
 #include "SmallViews.h"
 #include "uisys.h"
@@ -1937,6 +1938,7 @@ void InitD3Systems2(bool editor) {
 
   if (!tables_loaded)
     Error("Cannot load table file.");
+  tartarus::WeaponSidecar_Load(); // TARTARUS: D-007 weapons from weapons.txt, after the stock ones
 
   INIT_MESSAGE((TXT_INITCOLLATING));
 

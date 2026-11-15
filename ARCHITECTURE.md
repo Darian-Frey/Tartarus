@@ -38,6 +38,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  guidebot.cpp    Guide-Bot commands: Next key, door, unexplored      │
 │  converter.cpp   energy <-> shield converter (B / N)                 │
 │  cloak.cpp       player cloak on C: state machine, breaks, gauge     │
+│  weapons_sidecar.cpp  weapons from weapons.txt (D-007)               │
 └──────────────────────────────────────────────────────────────────────┘
                │ reads
 ┌──────────────▼───────────────────────────────────────────────────────┐
@@ -109,7 +110,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | Upstream file | Hook | Purpose |
 |---|---|---|
 | `Descent3/GameLoop.cpp` | `tartarus::HandleKey()` first in the `ProcessKeys()` loop (console, options deck, cheat menu, key bindings); `tartarus::RenderOverlays()` after the HUD in `GameRenderFrame()`; `tartarus::Frame()` after `DoPlayerFrame()` in `GameFrame()`; `Frametime *= tartarus::TimeScale()` after `CalcFrameTime()`; `tartarus::PausedFrame()` in the paused branch of `GameFrame()` (keys while the console/cheat menu holds the pause, IMP-004) | console, cheats, later cloak/converter ticks |
-| `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()`; `Display_SaveSettings()` after the `RS_fullscreen` write in `SaveGameSettings()` | startup, display settings |
+| `Descent3/init.cpp` | `DataDir_Probe()` at upstream's Steam TODO in `InitIOSystems()`; `DataDir_RequireHog()` after `cf_OpenLibrary("d3.hog")`; `Tartarus_Init()` right after `InitIOSystems()` in `InitD3Systems1()`; `Display_SaveSettings()` after the `RS_fullscreen` write in `SaveGameSettings()`; `WeaponSidecar_Load()` after `mng_LoadTableFiles()` in `InitD3Systems2()` | startup, display settings, sidecar weapons (D-007) |
 | `Descent3/init.cpp::LoadGameSettings` (RS_fov clamp), `Descent3/config.cpp` video sheet (FOV slider range and apply) | `kFovAbsMin/Max`, `Display_FovMin/Max()`, `Display_SetFov()` | FOV range (F-060) |
 | `renderer/HardwareOpenGL.cpp::rend_Flip` (+ `TartarusDrawBarFill`, `Tartarus_bar_fill_*` globals), `renderer/dyna_gl.h` (`glFramebufferTexture2D`) | blurred fill instead of the black clear when the frame is narrower than the window | menu bars (F-060) |
 | `Descent3/gamesequence.cpp` (level start), `Descent3/gamecinematics.cpp::Cinematic_Frame` | `SkipBriefing()`, `SkipCinematics()` (command-line `-skipbriefing`, `-skipcinematics`) | test runs |

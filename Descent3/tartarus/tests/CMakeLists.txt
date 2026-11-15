@@ -129,3 +129,12 @@ add_executable(
 )
 target_link_libraries(tartarus_cloak_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_cloak_tests)
+
+add_executable(
+  tartarus_sidecar_tests
+  sidecar_core_tests.cpp
+  ../sidecar_core.cpp
+)
+target_compile_definitions(tartarus_sidecar_tests PRIVATE TARTARUS_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+target_link_libraries(tartarus_sidecar_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_sidecar_tests)

@@ -15,6 +15,7 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/init.cpp` | `tartarus::DataDir_Probe`, `tartarus::DataDir_RequireHog` | active (compat): finds the Steam install (F-003) |
 | `Descent3/init.cpp` | `tartarus::Tartarus_Init` | active: loads `tartarus.cfg`, sets up cvars, console and modules; no gameplay change by itself |
 | `Descent3/init.cpp` | `tartarus::Display_SaveSettings` | active (compat): BUG-004/005 |
+| `Descent3/init.cpp` | `tartarus::WeaponSidecar_Load` | active, inert in play: adds the sidecar weapons in free slots after the stock ones (stock weapons, their slots and saves unchanged); nothing fires or gives them in Classic Mode, and loading them in both modes keeps saves loadable after switching (D-007) |
 | `Descent3/init.cpp` | `tartarus::kFovAbsMin`, `tartarus::kFovAbsMax` | gated: the load-time clamp is widened, then `Display_Init()` narrows FOV to upstream's 72–90 in Classic Mode |
 | `Descent3/mmItem.cpp` | `tartarus::Deck_DrawMenuArt` | gated: returns false in Classic Mode, stock art drawing (D-016) |
 | `Descent3/mmItem.cpp` | `tartarus::DrawMenuBuildString` | active (cosmetic): main-menu build string and upstream credit (F-004) |

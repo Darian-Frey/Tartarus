@@ -1,0 +1,36 @@
+// Tartarus weapon sidecar (D-007, SPEC.md section 5).
+//
+// Each block makes a new weapon by copying a stock one ("base") and changing
+// what is listed. Stock weapons are never changed. Built into the game; a copy
+// of this file named weapons.txt in the game's writable folder (beside
+// tartarus.cfg) is read instead, so values can be tried without a rebuild.
+//
+// Keys:
+//   base        stock weapon to copy (required)
+//   class       tactical: fired by its own key, with its own ammunition (D-019)
+//   speed       launch speed, units a second
+//   lifetime    seconds before it expires
+//   mass        for physics
+//   damage      on a direct hit, to robots and players
+//   impact_size, impact_damage   blast radius and blast damage
+//   tint        red green blue (0 to 1): the colour of its light
+//   fire_sound, impact_sound     sound names from the game data
+//   model       model name from the game data
+//   fire_delay  seconds between shots      } kept by Tartarus for the
+//   ammo_pickup, ammo_max                   } module that fires it
+//   flags       TWF_GRAVWELL and the other Tartarus flags
+// The gravity well's own numbers (gw_radius and so on) are console settings.
+
+weapon "GravMissile" {
+  base         "Concussion"
+  class        tactical
+  speed        70
+  lifetime     6.0
+  mass         2.0
+  damage       15
+  tint         0.55 0.25 0.95
+  fire_delay   1.2
+  ammo_pickup  3
+  ammo_max     12
+  flags        TWF_GRAVWELL
+}

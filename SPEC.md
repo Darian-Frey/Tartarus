@@ -131,29 +131,30 @@ Debug builds (`CMAKE_BUILD_TYPE=Debug`) treat every row as pre-unlocked but stil
 
 ## 5. Weapon sidecar format (`data/tartarus/weapons.txt`)
 
-Loaded after `manage/` table pages; each block allocates a slot with `AllocWeapon()`; names must not collide with `FindWeaponName()` results (AV-010). Assets are referenced by the names already present in the HOGs.
+Loaded once, right after the game's tables (`WeaponSidecar_Load()`, hook in `init.cpp`), in Classic Mode too (the weapons sit unused there). Each block copies a stock weapon (`base`) into a free slot from `AllocWeapon()` and changes what it lists; stock weapons are never changed. Names must not collide with any weapon already loaded, case ignored (AV-010); the loader also checks for a free slot first, since `AllocWeapon()` stops on `Int3()` when `MAX_WEAPONS` (200) is reached. A block with a problem is left out and logged; the rest still load. The file is built into the game at compile time; `weapons.txt` in the writable folder (beside `tartarus.cfg`) is read instead when present, for tuning without a rebuild. Console `weaponinfo [name]` lists what loaded. Parser and checks: `sidecar_core.cpp`, unit-tested, including the shipped file against the stock names.
 
 ```
 weapon "GravMissile" {
-  class        tactical           // own key and ammunition, outside the weapon slots (D-019)
-  model        "frag.oof"         // existing HOG model (placeholder until GPL art exists)
-  tint         0.55 0.25 0.95
-  fire_delay   1.2
-  speed        70
+  base         "Concussion"       // stock weapon copied first (required)
+  class        tactical           // own key and ammunition, outside the weapon slots (D-019); the only class
+  speed        70                 // launch speed (phys_info.velocity.z)
   lifetime     6.0
   mass         2.0
-  damage       15                 // direct impact only
-  ammo_pickup  3
-  ammo_max     12
-  fire_sound   "WpnMicroMissileFire"
-  impact_sound "WpnBlackSharkImpact"
+  damage       15                 // direct hit, robots and players
+  impact_size  0                  // optional: blast radius and blast damage
+  impact_damage 0
+  tint         0.55 0.25 0.95     // the colour of its light
+  model        "frag.oof"         // optional: a model from the game data; unknown names keep the base's
+  fire_sound   "..."              // optional: sound names; unknown names keep the base's
+  impact_sound "..."
+  fire_delay   1.2                // } kept in Tartarus's side table for the
+  ammo_pickup  3                  // } module that fires it
+  ammo_max     12                 // }
   flags        TWF_GRAVWELL       // Tartarus flag; triggers gravwell.cpp on wall impact
-  // module-specific keys are passed through as a key/value list:
-  gw_radius    60
-  gw_time      1.5
-  gw_force     420
 }
 ```
+
+Unknown keys are logged and ignored. Module numbers such as the gravity well's `gw_radius` are console settings (§7), not file keys, so each has one home.
 
 **Tartarus weapon flags** (stored in a side table keyed by weapon index, *not* in the upstream `weapon.flags` word):
 

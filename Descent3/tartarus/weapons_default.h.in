@@ -1,0 +1,3 @@
+// Generated from data/tartarus/weapons.txt by tartarus.cmake (D-007). Do not edit.
+#pragma once
+inline constexpr const char kTartarusDefaultWeapons[] = R"TARTARUS_WEAPONS(@TARTARUS_WEAPONS_TEXT@)TARTARUS_WEAPONS";

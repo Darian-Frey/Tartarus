@@ -72,7 +72,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 **Description.** Sidecar weapons collide with stock names in `FindWeaponName()`, exceed `MAX_WEAPONS` (200), or claim a player weapon slot already used by a stock weapon, corrupting the weapon lists. (Tactical weapons such as the gravity missile take no slot at all, D-019.)
 **Detection.** Loader refuses duplicates and logs; `tests/sidecar_test` loads the shipped file against the stock name list; `cvarlist`/`give` reflect the loaded set.
 **Related decisions.** D-007, D-019.
-**History.** —
+**History.** 2026-11-15: the loader (`weapons_sidecar.cpp`) refuses a name already in use (case ignored), a missing base, any class but tactical and unknown flags, and checks for a free slot before `AllocWeapon()`; `sidecar_core_tests.cpp` loads the shipped file against the stock names. A scripted run with a test file loaded GravMissile and a second weapon and refused one named "Frag".
 
 ### AV-011 Auto-level fighting the player
 **Severity:** Minor
