@@ -59,6 +59,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Proposal.** Remove the alpha calls and pick a dimmer colour, or draw the ring with a small alpha-capable helper.
 **Trade-offs.** None of note.
 
+### IMP-013: Move the CI actions off Node.js 20
+**Status:** suggested
+**Found:** 2026-11-16 (manual CI build run 43953668516)
+**Location:** `.github/workflows/build.yml`, `.github/workflows/cd.yml` (upstream's files with Tartarus edits)
+**Effort:** small
+**Description.** GitHub warns that `actions/checkout@v4` and `actions/upload-artifact@v4` target Node.js 20, which is deprecated; the runners already force them onto Node.js 24 and the build passes. Once GitHub drops Node.js 20 entirely, a pinned action that no longer runs would break the build.
+**Proposal.** Take upstream's update to newer action versions when it comes through a merge; if it has not by the time GitHub sets a removal date, bump the versions here with `// TARTARUS:`-style comments in the YAML.
+**Trade-offs.** Bumping ahead of upstream adds merge conflicts in files we share with it.
+
 ### IMP-012: Refresh the module diagram in ARCHITECTURE.md
 **Status:** suggested
 **Found:** 2026-11-16 (adding `repulsor.cpp` for F-022)

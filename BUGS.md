@@ -38,14 +38,6 @@ Severity vocabulary: low | medium | high.
 **Description.** `phys_apply_force()` adds force ÷ mass to the velocity at once, an impulse, and the gravity field calls it every frame without scaling by `Frametime`, so at 120 fps the pull is twice what it is at 60. The same loop also sets `PF_DESTINATION_POS` on every object in range, although its comment says only close ones (the reason D-009 avoids it). Found by reading; not measured.
 **Fix.** Not fixed (Rule 8): scale the force by `Frametime` against a nominal rate, as SPEC §7 does for the gravity missile. A candidate upstream PR; changing it would alter the stock weapon in Classic Mode, so it needs the owner's decision.
 
-### BUG-017: The default snap-to-up key, Z, is also stock reverse thrust
-**Status:** open
-**Severity:** low
-**Found:** 2026-11-15 (checking SPEC §12 key defaults for the Phase 4 weapons)
-**Location:** `Descent3/tartarus/level_assist.cpp` (`al_snap_key` default `z`); `Descent3/Controls.cpp` (stock `ctfREVERSE_THRUSTKEY` = `KEY_Z`)
-**Description.** `Level_HandleKey()` takes the Z press for snap to up, but the stock controller reads Z's held state on its own, so a tap of Z snaps upright and also gives a short burst of reverse thrust. Pilots who keep the stock A/Z thrust keys get both. Found by reading; not yet seen in play (the owner flies with the mouse).
-**Fix.** Not fixed (Rule 8): pick a free default for `al_snap_key` (SPEC §12 and F-043 say Z), or leave it to the owner to rebind.
-
 ### BUG-016: (upstream) The re-planning check reads the wrong path slot
 **Status:** open
 **Severity:** low
@@ -55,6 +47,14 @@ Severity vocabulary: low | medium | high.
 **Fix.** Not fixed (Rule 8): `path_id[...]` in both places. A candidate upstream PR; part of IMP-011.
 
 ## Fixed
+
+### BUG-017: The default snap-to-up key, Z, is also stock reverse thrust
+**Status:** fixed
+**Severity:** low
+**Found:** 2026-11-15 (checking SPEC §12 key defaults for the Phase 4 weapons)
+**Location:** `Descent3/tartarus/level_assist.cpp` (`al_snap_key` default `z`); `Descent3/Controls.cpp` (stock `ctfREVERSE_THRUSTKEY` = `KEY_Z`)
+**Description.** `Level_HandleKey()` takes the Z press for snap to up, but the stock controller reads Z's held state on its own, so a tap of Z snaps upright and also gives a short burst of reverse thrust. Pilots who keep the stock A/Z thrust keys get both. Found by reading; not yet seen in play (the owner flies with the mouse).
+**Fix.** 2026-11-16: `al_snap_key` now defaults to `t`, which stock leaves free (it is only a timedemo test key in Debug builds, and Tartarus takes it first). Pilots who set the key themselves keep their choice. SPEC §9 and §12, README updated.
 
 ### BUG-011: Alt+F2 (save game) does not reach the game on Cinnamon
 **Status:** fixed

@@ -313,7 +313,7 @@ Feedback: the energy centre's refuelling sound every 0.25 s while converting; th
 
 All three are on the deck's Gameplay page.
 
-**Auto-level extensions** (`al_`, F-043): these add bank input after all other controls, as if the pilot pressed the bank keys, so `physics/physics.cpp` and stock auto-level are untouched (stock is itself on at level 2 by default). Any roll input wins and cancels a snap. `al_strength 0.0–1.0` (default 0, opt-in, D-017) adds extra levelling `al_delay 0.4` s after the last roll input. Hold (`al_hold_key x`): rolls to upright while held, at up to `al_hold_rate 180` °/s. Snap (`al_snap_key z`): a tap rolls to the nearest of the four uprights in about `al_snap_time 0.35` s, easing out; a tap just after letting go of a bank key waits up to 0.15 s for the input to end. Neither acts when the nose is nearly straight up or down, where roll has no meaning. The correction is never quicker than a 0.2 s time constant: the controls run about 20 times a second, and faster overshoots (AV-011).
+**Auto-level extensions** (`al_`, F-043): these add bank input after all other controls, as if the pilot pressed the bank keys, so `physics/physics.cpp` and stock auto-level are untouched (stock is itself on at level 2 by default). Any roll input wins and cancels a snap. `al_strength 0.0–1.0` (default 0, opt-in, D-017) adds extra levelling `al_delay 0.4` s after the last roll input. Hold (`al_hold_key x`): rolls to upright while held, at up to `al_hold_rate 180` °/s. Snap (`al_snap_key t`): a tap rolls to the nearest of the four uprights in about `al_snap_time 0.35` s, easing out; a tap just after letting go of a bank key waits up to 0.15 s for the input to end. Neither acts when the nose is nearly straight up or down, where roll has no meaning. The correction is never quicker than a 0.2 s time constant: the controls run about 20 times a second, and faster overshoots (AV-011).
 
 Budget: all orientation HUD items together ≤ 0.2 ms/frame at 1080p (ROADMAP Phase 3 acceptance). Measured at 1280x720 on Intel UHD, CPU time: up-tick, ball and gizmo together average 0.05 ms, worst 0.19 ms (2026-11-04); the whole flight HUD averages about 0.12 ms, with peaks of about 0.25 ms (2026-11-05). At 1920x1080 (2026-11-06) it averages about 0.13 ms, so the average is within budget; the worst single frame in each 120 reached 0.17–0.29 ms. Text is over half of that, at about 1 µs a character: there is no waste to remove, only labels to drop, and the labels were kept. Shapes are batched into one draw per colour with `rend_DrawTriangles2D`, so the cost hardly depends on resolution.
 
@@ -354,7 +354,7 @@ Saving: the scan goes in a `.amap` file beside each save, as upstream's `.cnt`, 
 | Gravity missile | G (`gm_fire_key`, D-019) |
 | Convert → shields / → energy | B / N (`conv_to_shields_key`, `conv_to_energy_key`; [ and ] are the stock inventory keys) |
 | Auto-level hold | X (`al_hold_key`; Left Alt is stock Toggle Slide) |
-| Snap to up | Z (`al_snap_key`) |
+| Snap to up | T (`al_snap_key`; Z until 2026-11-16, BUG-017) |
 | Quicksave / quickload | F5 / F9 |
 | Mouse recentre (F-067) | Middle mouse button (`m_vj_recentre_button`); also `m_recentre` |
 

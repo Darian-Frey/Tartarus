@@ -43,7 +43,7 @@ Every part has its own switch on the deck's Gameplay page, one setting turns the
 
 ## Staying upright
 
-Hold **X** to roll upright, or tap **Z** to roll to the nearest upright. Any roll input of your own cancels them. Both work as ordinary bank input, so the stock physics are untouched. Optional aids can also be switched on: a wedge on the reticle that points to world up, an axis gizmo and this attitude ball, each with adjustable size, position and transparency.
+Hold **X** to roll upright, or tap **T** to roll to the nearest upright. Any roll input of your own cancels them. Both work as ordinary bank input, so the stock physics are untouched. Optional aids can also be switched on: a wedge on the reticle that points to world up, an axis gizmo and this attitude ball, each with adjustable size, position and transparency.
 
 <img src="docs/images/attitude-ball.png" alt="The attitude ball, rolled with the nose above the horizon line" width="200">
 

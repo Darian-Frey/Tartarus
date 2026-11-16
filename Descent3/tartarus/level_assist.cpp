@@ -75,7 +75,7 @@ void Level_Init() {
   al_hold_rate = cv.RegisterFloat("al_hold_rate", 180.0f, 30.0f, 360.0f, "Auto-level hold: degrees a second toward upright", flags);
   al_snap_time = cv.RegisterFloat("al_snap_time", 0.35f, 0.1f, 2.0f, "Snap to up: seconds to reach the nearest upright", flags);
   al_hold_key = cv.RegisterString("al_hold_key", "x", "Auto-level hold: rolls upright while held", flags);
-  al_snap_key = cv.RegisterString("al_snap_key", "z", "Snap to up: a tap rolls to the nearest upright", flags);
+  al_snap_key = cv.RegisterString("al_snap_key", "t", "Snap to up: a tap rolls to the nearest upright", flags);
 }
 
 bool Level_HandleKey(int key) {
