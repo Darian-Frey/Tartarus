@@ -125,7 +125,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Player is affected when within `gw_self_radius` (default on)
 - Low direct damage; scarce pickup; distinct impact and pull visuals and audio
 - `give gravmissile` works from the console
-**Status:** Not started (Phase 4)
+**Status:** In progress (Phase 4), 2026-11-15: built, to tune with the owner. `gravmissile.cpp` (G fires the GravMissile of `weapons.txt`, 1.2 s apart; each level starts with at least 3, owner's choice; count beside saves; `give gravmissile`; readout GRAV MISSILES n) and `gravwell.cpp` with `gravwell_core.cpp` (7 unit tests: falloff, fade, mass scaling and immunity, bad input, the same pull at any frame rate). A scripted run on level 1 with the reach widened to 400 for the test: the missile crossed the room, a well opened at the far wall (logged), the ship was pulled (speed 0 to 8, range to the wall 137 to 131), and the count went 3, 2, 1 with the fire delay holding back repeated presses. Not yet seen: robots pulled round a corner (the acceptance sequence), wall clipping (AV-006), and the right `gw_force`; the robots' own thrust and drag may need a stronger pull. No well sound yet.
 **Notes:** D-007, D-009, D-019 (fired by its own key, G, with its own ammunition; not in a secondary slot, which are all taken). Reuses the engine's `GRAVITY_FIELD_INDEX` fireball machinery (`fireball.cpp::DoGravityFieldEffect`). SPEC.md §Gravity missile. AV-006. See also D-008.
 
 ### F-022 Repulsor pulse

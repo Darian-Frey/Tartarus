@@ -241,6 +241,11 @@ void Cloak_Frame() {
     g_ready_shown -= Frametime;
 }
 
+void Cloak_WeaponFired() {
+  if (Usable() && g_cloak.State() == CloakState::Active)
+    Break("Cloak broken: weapon fired");
+}
+
 void Cloak_PlayerDamaged(const object *player, float damage) {
   if (player != Player_object || !Usable() || g_cloak.State() != CloakState::Active)
     return;

@@ -29,6 +29,8 @@
 #include "guidebot.h"
 #include "converter.h"
 #include "cloak.h"
+#include "gravmissile.h"
+#include "gravwell.h"
 #include "deck.h"
 #include "descent.h"
 #include "game.h"
@@ -91,6 +93,8 @@ void Tartarus_Init() {
   GuideBot_Init();
   Converter_Init();
   Cloak_Init();
+  Gravwell_Init();
+  GravMissile_Init();
   Deck_Init();
 }
 
@@ -124,7 +128,7 @@ void UpdatePause() {
 } // namespace
 
 bool HandleKey(int key) {
-  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) ||
+  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) || GravMissile_HandleKey(key) ||
                     Binds_HandleKey(key);
   UpdatePause();
   return used;
@@ -150,15 +154,34 @@ void Frame() {
   MapScan_Frame();
   Converter_Frame();
   Cloak_Frame();
+  Gravwell_Frame();
 }
 
 float TimeScale() { return Cheats_TimeScale(); }
+
+void Tartarus_LevelStart() {
+  MapScan_Reset();
+  Gravwell_Reset();
+  GravMissile_LevelStart();
+}
+
+void Tartarus_SaveState(const std::filesystem::path &save_path) {
+  MapScan_Save(save_path);
+  GravMissile_Save(save_path);
+}
+
+void Tartarus_LoadState(const std::filesystem::path &save_path) {
+  MapScan_Load(save_path);
+  Gravwell_Reset();
+  GravMissile_Load(save_path);
+}
 
 void RenderOverlays() {
   DebugDraw_Render();
   OrientHud_Render();
   MouseFlight_Render();
   Cloak_Render();
+  GravMissile_Render();
   Cheats_Render();
   Deck_Render();
   Console_Render();

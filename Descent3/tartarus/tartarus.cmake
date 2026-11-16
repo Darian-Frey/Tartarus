@@ -43,6 +43,9 @@ list(APPEND HEADERS
   tartarus/converter.h
   tartarus/sidecar_core.h
   tartarus/weapons_sidecar.h
+  tartarus/gravmissile.h
+  tartarus/gravwell.h
+  tartarus/gravwell_core.h
   tartarus/cloak.h
   tartarus/cloak_core.h
   tartarus/converter_core.h
@@ -86,6 +89,9 @@ list(APPEND CPPS
   tartarus/converter.cpp
   tartarus/sidecar_core.cpp
   tartarus/weapons_sidecar.cpp
+  tartarus/gravmissile.cpp
+  tartarus/gravwell.cpp
+  tartarus/gravwell_core.cpp
   tartarus/cloak.cpp
   tartarus/cloak_core.cpp
   tartarus/converter_core.cpp

@@ -23,6 +23,8 @@
 // every frame instead of refilled once (SPEC.md §4).
 
 #include "cheats.h"
+
+#include "gravmissile.h"
 #include "map_scan.h"
 
 #include <algorithm>
@@ -466,6 +468,7 @@ void RegisterCommands(ConsoleCore &con) {
                     MarkCheater();
                     if (key == "all") {
                       GiveAllWeapons();
+                      GravMissile_Fill();
                       GiveAllKeys();
                     } else if (key == "energy") {
                       p.energy = MAX_ENERGY;
@@ -473,6 +476,7 @@ void RegisterCommands(ConsoleCore &con) {
                       Objects[p.objnum].shields = MAX_SHIELDS;
                     } else if (key == "ammo") {
                       FillAmmo(true, true);
+                      GravMissile_Fill();
                     } else if (key == "keys") {
                       GiveAllKeys();
                     } else {
@@ -480,6 +484,10 @@ void RegisterCommands(ConsoleCore &con) {
                       for (int i = 0; i < MAX_PLAYER_WEAPONS; i++) {
                         if (Squash(Static_weapon_names[i]) == key)
                           found = i;
+                      }
+                      if (found < 0 && GravMissile_Give(key)) { // the Tartarus weapons (D-019)
+                        Notify("Given: " + what);
+                        return;
                       }
                       if (found < 0) {
                         c.Print("give: unknown item '" + what + "'");

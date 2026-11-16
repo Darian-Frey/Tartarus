@@ -81,7 +81,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [ ] Guide-Bot routes and new commands (F-072), inserted at the owner's request 2026-11-14: route overlay `r_showpath`, `pathdump` and `roominfo` done 2026-11-14; the level-2 wall fix moved to IMP-011 (owner); Next key, Door I can now open and Unexplored area done 2026-11-15 (`guidebot.cpp`, `guide` command), waiting for the owner
 - [x] Sidecar weapon definitions (`data/tartarus/weapons.txt`) loaded via `AllocWeapon()` (D-007): built in, overridable from the writable folder, `weaponinfo`; GravMissile defined — 2026-11-15
 - [x] `cloak.cpp`: state machine, energy accounting, break hooks in `damage.cpp` and `physics/collide.cpp` (firing seen without a hook), HUD gauge (F-020) — 2026-11-15
-- [ ] `gravwell.cpp`: new fireball index, pull loop with falloff and mass scaling, `GW_IMMUNE` robot flag, visuals
+- [x] `gravwell.cpp`: wells as a side list (no fireball index, D-009 note), pull loop with falloff and mass scaling, `gw_immune_mass`, visuals; `gravmissile.cpp` launcher on G with per-level ammunition (F-021) — 2026-11-15, tuning with the owner to come
 - [ ] Repulsor as a sign-flipped gravity well
 - [x] Converter keys and HUD feedback (F-030): B and N, sound, CONVERT status word, stop messages — 2026-11-15
 - [ ] Tuning session via console cvars; final values written to SPEC.md

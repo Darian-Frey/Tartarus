@@ -178,6 +178,7 @@
 #include "marker.h"
 #include "hlsoundlib.h"
 #include "tartarus/map_scan.h" // TARTARUS: F-050
+#include "tartarus/tartarus.h" // TARTARUS: F-021
 
 // Variables needed for automap
 static vector AM_view_pos = {0, 0, 0};
@@ -204,7 +205,7 @@ static uint8_t *Small_faces[MAX_ROOMS];
 // clears out the list of visible rooms that we've seen
 void AutomapClearVisMap() {
   memset(AutomapVisMap, 0, MAX_ROOMS);
-  tartarus::MapScan_Reset(); // TARTARUS: F-050 a new level starts with nothing scanned
+  tartarus::Tartarus_LevelStart(); // TARTARUS: F-050, F-021 a new level: nothing scanned, ammunition refilled
 }
 
 void ClassifyAMFaces() {

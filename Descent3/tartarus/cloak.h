@@ -41,6 +41,10 @@ void Cloak_Frame();
 /// The HUD gauge, from RenderOverlays().
 void Cloak_Render();
 
+/// A Tartarus weapon was fired (the gravity missile goes through
+/// CreateAndFireWeapon(), which the battery check does not see): breaks the cloak.
+void Cloak_WeaponFired();
+
 /// Hook in ApplyDamageToPlayer() (damage.cpp): a hit of at least
 /// cloak_break_damage breaks the cloak.
 void Cloak_PlayerDamaged(const object *player, float damage);

@@ -4,6 +4,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Reference F-, D-,
 
 ## [Unreleased]
 ### Added (Phase 4)
+- Gravity missile (F-021): G fires it, each level starts with at least 3 (`gm_level_ammo`), and where it explodes a well pulls robots, missiles and (closer in) you toward the centre for 1.5 s, weaker for heavy robots and none for bosses; walls stop them, never pinned (D-009). Readout GRAV MISSILES n; `give gravmissile`. To be tuned in play — 2026-11-15.
 - Weapon sidecar (D-007): new weapons come from `data/tartarus/weapons.txt`, each a copy of a stock weapon with its own name and changes, in free slots after the stock ones; built into the game, or read from `weapons.txt` in the writable folder for tuning; `weaponinfo` lists them. The first entry is GravMissile (F-021), not yet fireable — 2026-11-15.
 - Cloak on demand (F-020): C turns invisible for up to 8 s, for 30 energy and 8 a second, dropping when energy falls to 20 (`cloak_floor`) rather than draining you to 0; firing, bumping a robot or a hit of 10 or more breaks it into a 6 s cooldown, otherwise 3 s; a gauge under the reticle shows cloaked, recharging and ready. Robots already lose a cloaked player in stock — 2026-11-15.
 - Energy ↔ shield converter (F-030): hold B to turn energy into shields, N for the reverse, at half value (`conv_rate` 25/s, `conv_ratio` 0.5, never below `conv_floor` 20); refuelling sound, CONVERT on the flight HUD, a message when it stops — 2026-11-15.

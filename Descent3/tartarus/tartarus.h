@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <filesystem>
+
 namespace tartarus {
 
 /// Called from InitD3Systems1() right after InitIOSystems(): command-line args
@@ -49,6 +51,15 @@ float TimeScale();
 /// menu holds the pause (con_pause, IMP-004), feeds them the keys that
 /// ProcessKeys() does not read while paused.
 void PausedFrame();
+
+/// A level has started (AutomapClearVisMap(), before StartLevel()): the
+/// scanner map and the per-level state of the modules start afresh.
+void Tartarus_LevelStart();
+
+/// Beside a save, and after a load: the scanner's .amap and the modules' state
+/// (AV-003: the save format itself is untouched).
+void Tartarus_SaveState(const std::filesystem::path &save_path);
+void Tartarus_LoadState(const std::filesystem::path &save_path);
 
 /// Overlays drawn after the HUD: cheat menu and tag, then the console on top.
 void RenderOverlays();

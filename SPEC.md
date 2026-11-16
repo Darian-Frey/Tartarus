@@ -203,38 +203,42 @@ Rules:
 
 ## 7. Gravity missile and repulsor (F-021, F-022)
 
-Spawned on wall impact as fireball index `TARTARUS_GRAVWELL_INDEX` (allocated above the stock fireball table). Frame function `DoGravWellFrame(obj)`:
+**Launcher** (`gravmissile.cpp`, D-019): `gm_fire_key` (G) fires the `GravMissile` of `weapons.txt` (§5) straight ahead through `CreateAndFireWeapon()`, with its fire sound, at most once per `fire_delay`; firing breaks the cloak. Ammunition is a Tartarus count, not a weapon slot: each level starts with at least `gm_level_ammo` (owner, 2026-11-15; more is never taken away), at most `ammo_max`; a new game or replaying a level starts from 0 before the refill. The count is kept in a `.tstate` file beside each save. `give gravmissile` (and `give ammo`, `give all`) fills it. Readout `GRAV MISSILES n` under the view's centre at `hud_gravmissile_y` (`hud_gravmissile` 0 off, 1 while you have any, 2 always). With none left the key says "No gravity missiles".
+
+**Well** (`gravwell.cpp`): when a weapon with `TWF_GRAVWELL` explodes (wall, robot or end of life; hook in `DoWeaponExploded()`), a well opens at the point of impact for `gw_time`. Wells are a Tartarus side list run from `Frame()`, at most 8, cleared at each level start and load: no fireball index is added (D-009's option B, implemented without touching the fireball table). Each frame (`WellAcceleration()`, `gravwell_core.cpp`, unit-tested):
 
 ```
-for each candidate object o within gw_radius of obj->pos
-    (robots, player if gw_self, weapons if gw_pull_weapons; never doors/powerups):
-  d      = max(0, |o.pos − obj.pos| − o.size)
-  if d > gw_radius or o has GW_IMMUNE: continue
-  fall   = 1 − d / gw_radius                       // linear falloff
-  tnorm  = obj.lifeleft / gw_time                  // fades as the well expires
-  F      = gw_force * fall * tnorm
-  F     *= clamp(gw_mass_ref / o.mass, gw_mass_min_scale, 1.0)   // heavy robots budge, light ones fly
-  dir    = normalize(obj.pos − o.pos)
-  phys_apply_force(o, dir * F * Frametime * 60)    // force scaled to a nominal 60 Hz tick
+for each pullable object o (robots but not the Guide-Bot; the player if gw_self, out to gw_self_radius;
+    matter weapons in flight if gw_pull_weapons, not other gravity missiles; never doors, powerups or buildings):
+  d      = max(0, distance to o's surface)          // polygon objects by their wall sphere, as the stock field
+  if d >= radius or o.mass >= gw_immune_mass: skip
+  fall   = 1 − d / radius                            // linear falloff
+  fade   = life_left / gw_time                       // fades as the well expires
+  accel  = gw_force * fall * fade * clamp(gw_mass_ref / o.mass, gw_mass_min_scale, 1)   // never above gw_force
+  dv     = accel * Frametime                         // the same pull at any frame rate; NaN and bad input give 0
+  phys_apply_force(o, dir_to_centre * dv * o.mass)   // phys_apply_force adds force / mass to velocity
 ```
 
-No `PF_DESTINATION_POS` pinning (D-009); walls stop objects via normal collision (AV-006).
+`gw_force` is a peak acceleration in units/s², not a per-tick force: the first draft multiplied by `Frametime * 60` and let `phys_apply_force` divide by mass, which would have flung light objects at thousands of units/s². No `PF_DESTINATION_POS` pinning (D-009); walls stop objects through normal collision (AV-006).
 
 | Cvar | Default | Notes |
 |---|---|---|
-| `gw_radius` | 60 | world units; ≈ 2.5× a Frag splash |
+| `gw_radius` | 60 | world units, to an object's surface |
 | `gw_time` | 1.5 | s |
-| `gw_force` | 420 | peak |
-| `gw_mass_ref` | 4.0 | mass at which scale = 1 |
+| `gw_force` | 420 | peak acceleration, units/s² (to tune) |
+| `gw_mass_ref` | 4.0 | objects up to this mass get the full pull |
 | `gw_mass_min_scale` | 0.15 | floor for very heavy robots |
+| `gw_immune_mass` | 40 | this heavy or more ignores the well (bosses); 0 = none; replaces the planned `robot_overrides.txt` |
 | `gw_self` | 1 | pull the player too |
 | `gw_self_radius` | 40 | |
 | `gw_pull_weapons` | 1 | missiles curve in (fun, and a counter) |
-| `gw_stun_on_arrive` | 0.6 | s of AI stun when a robot reaches < 1 radius of centre (needs F-070; 0 before then) |
+| `gw_stun_on_arrive` | — | not built: needs F-070 |
+| `gm_fire_key` | `g` | |
+| `gm_level_ammo` | 3 | each level starts with at least this many |
+| `hud_gravmissile` | 1 | readout: 0 off, 1 while you have any, 2 always |
+| `hud_gravmissile_y` | 0.665 | readout height on the view |
 
-`GW_IMMUNE`: per-robot-type flag set from `data/tartarus/robot_overrides.txt` (bosses and any robot with `mass > 40` by default).
-
-Visuals: scaled `LIGHTNING_BOLT_INDEX` strands from centre to each pulled object (as the stock field does), a dark inward-moving particle ring, screen shake ∝ proximity. Audio: reuse a pitched-down Black Shark loop (placeholder).
+Visuals: a glow (`SUN_CORONA_INDEX`, a quarter of the radius across) at the centre for the life of the well, sparks when it opens, a `LIGHTNING_BOLT_INDEX` strand from the centre to each object it pulls (as the stock field), and screen shake for the player inside it, stronger nearer the centre. Audio: the base weapon's impact sound only (a well sound is still to come). A log line names each well's room and position, for tuning.
 
 **Repulsor** (`rp_`): no object spawned; one-shot application of the loop above with `dir` negated, centred on the player, radius `rp_radius 35`, impulse `rp_force 600`, cost `rp_cost 20` energy, cooldown `rp_cooldown 4.0`.
 

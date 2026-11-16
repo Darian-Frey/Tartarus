@@ -138,3 +138,11 @@ add_executable(
 target_compile_definitions(tartarus_sidecar_tests PRIVATE TARTARUS_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 target_link_libraries(tartarus_sidecar_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_sidecar_tests)
+
+add_executable(
+  tartarus_gravwell_tests
+  gravwell_core_tests.cpp
+  ../gravwell_core.cpp
+)
+target_link_libraries(tartarus_gravwell_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_gravwell_tests)
