@@ -146,3 +146,11 @@ add_executable(
 )
 target_link_libraries(tartarus_gravwell_tests GTest::gtest_main)
 gtest_discover_tests(tartarus_gravwell_tests)
+
+add_executable(
+  tartarus_frame_clock_tests
+  frame_clock_core_tests.cpp
+  ../frame_clock_core.cpp
+)
+target_link_libraries(tartarus_frame_clock_tests GTest::gtest_main)
+gtest_discover_tests(tartarus_frame_clock_tests)

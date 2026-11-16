@@ -89,12 +89,12 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 5 — Modernisation
 **Goal:** The engine feels like a 2026 native Linux game.
-**Status:** In progress (started 2026-11-16)
+**Status:** Done 2026-11-16, waiting for the owner to fly F-061 and F-064
 **Features delivered:** F-061, F-064 (F-060, F-062, F-063 moved to Phase 2 by D-013)
 **Deliverables:**
 - [x] Quicksave/quickload (F-064): F9 to its own file, F6 to load (also while dying), autosave at each level start, QUICK and AUTO on the deck Load screen — 2026-11-16
-- [ ] Fixed-timestep physics prototype behind `phys_fixedstep` cvar; recorded-input equivalence test; D-012 resolved to Accepted or Deprecated
-**Acceptance:** Identical recorded-input runs at 60 and 240 Hz diverge by < 1 unit of position after 60 s.
+- [x] Fixed-timestep physics prototype behind `phys_fixedstep` cvar; recorded-input equivalence test; D-012 resolved to Accepted or Deprecated — 2026-11-16: measured with `flighttest`, resolved as targeted fixes (`phys_exact_rot`, `r_precise_timer`), no fixed tick (D-012, owner)
+**Acceptance:** Identical recorded-input runs at 60 and 240 Hz diverge by < 1 unit of position after 60 s. Revised 2026-11-16 (owner, D-012): within 0.1° of heading and 1% of the distance flown after 60 s (measured 7.4 units of about 1,170; stock 21.8 and 40°); the 1-unit figure is left to IMP-014.
 
 ## Phase 6 — Tactical weapons II and AI
 **Goal:** Round out the arsenal and make robots react to it.

@@ -38,6 +38,7 @@
 #include "vecmat.h"
 #include "viseffect.h"
 #include "weapon.h"
+#include "tartarus/phys_exact.h" // TARTARUS: F-061
 
 // Global variables for physics system
 uint8_t Default_player_terrain_leveling = 0;
@@ -319,6 +320,7 @@ void set_object_turnroll(object *obj, vector *rotvel, angle *turnroll) {
     int max_roll;
 
     max_roll = obj->mtype.phys_info.max_turnroll_rate * Frametime;
+    max_roll = tartarus::PhysExact_TurnrollStep(obj, obj->mtype.phys_info.max_turnroll_rate * Frametime, max_roll); // TARTARUS: F-061 keep the dropped fraction
 
     if (*turnroll > 32000)
       delta_ang = desired_bank - (*turnroll - 65535);
@@ -615,6 +617,7 @@ bool PhysicsDoSimRot(object *obj, float frame_time, matrix *orient, vector *rott
     }
   }
 
+  const vector tartarus_rotvel0 = *rotvel; // TARTARUS: F-061 the turn speed at the start of the frame
   if (pi->rotdrag > 0.0f) {
     if (!(pi->flags & PF_USES_THRUST)) {
       *rotthrust = vector{};
@@ -630,6 +633,7 @@ bool PhysicsDoSimRot(object *obj, float frame_time, matrix *orient, vector *rott
   tangles.b() = (int16_t)(rotvel->z() * frame_time);
 
   vm_AnglesToMatrix(&rotmat, tangles.p(), tangles.h(), tangles.b());
+  tartarus::PhysExact_Rotation(*obj, tartarus_rotvel0, *rotvel, *rotthrust, frame_time, &rotmat); // TARTARUS: F-061 exact angles
   *orient = *orient * rotmat; // ObjSetOrient is below
 
   // Determine the new turnroll from this amount of turning

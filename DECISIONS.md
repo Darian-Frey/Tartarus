@@ -247,25 +247,30 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Reversal conditions.** None.
 
 ### D-012 Fixed-timestep physics
-**Decided:** —
+**Decided:** 2026-11-16
 **Recorded:** 2026-11-01
-**Status:** Proposed
-**Authors:** Claude (proposal); decision deferred to Phase 5 prototype
-**Related:** F-061, ROADMAP Phase 5
+**Status:** Accepted
+**Authors:** Claude (proposal, measurements); Shane Hartley (decision, 2026-11-16)
+**Related:** F-061, IMP-007, IMP-014, ROADMAP Phase 5
 
 **Context.** Upstream integrates with the variable `Frametime`. Modern high-refresh displays expose frame-rate-dependent behaviour. A fixed tick with interpolated rendering is the standard fix but may measurably change the feel of a 27-year-old game, which Classic Mode promises not to do.
 
 **Options.**
 - **A. Leave timing alone; cap render rate in Classic.** Safe; leaves high-Hz players with stutter.
 - **B. Fixed tick everywhere.** Best determinism; risks altering Classic feel.
-- **C. Fixed tick behind a cvar, default on in Tartarus mode and off in Classic, promoted to Classic only if a recorded-input equivalence test shows no behavioural difference.** Current proposal.
+- **C. Fixed tick behind a cvar, default on in Tartarus mode and off in Classic, promoted to Classic only if a recorded-input equivalence test shows no behavioural difference.** The proposal until 2026-11-16.
+- **D. Measure first, then fix what the measurement shows, in Tartarus mode only.** Added 2026-11-16. Chosen.
 
-**Decision.** Deferred. Prototype Option C in Phase 5 and seal then.
+**Measurements (2026-11-16, `flighttest`, level 1).** A short manoeuvre (thrust, turn, pitch, coast; input weighted by game time, so frame timing is not the variable) at 30 to 530 fps: position within 0.3 units at every rate, as stock physics already integrates thrust and drag exactly per frame; heading 1.8° and pitch 1.7° less at 530 than at 30. Cause: `PhysicsDoSimRot()` turns by `(int16_t)(rotvel * frame_time)`, dropping the fraction each frame (slower than one angle unit a frame, no turn at all), and by the end-of-frame turn speed for the whole frame. A 60 s circling run at 60 and 240 fps ended 21.8 units and 40° of heading apart in stock.
+
+**Decision.** Option D: no fixed tick. In Tartarus mode, `phys_exact_rot` turns each frame by the unrounded angle of the frame's average turn speed and carries the turn bank's dropped fraction, and `r_precise_timer` measures frames in microseconds and caps them exactly (IMP-007). With both, the short manoeuvre ends within 0.35° of heading at 30 to 529 fps, and the 60 s run at 60 and 240 fps within 0.1° of heading and 7.4 units (0.6% of the distance flown; two runs at the same rate differ by about 1 unit). The remainder is traced to stock auto-level, which corrects the bank once per frame (IMP-014). The acceptance is revised to these measured figures (owner, 2026-11-16).
 
 **Consequences.**
-- Nothing until the prototype exists.
+- Classic Mode and multiplayer keep stock timing and rotation.
+- Not bit-exact replays: a time-trial mode built on recorded input (F-061's original determinism goal) would need IMP-014 or a fixed tick after all.
+- `flighttest` stays as the regression check for any later change to physics or timing.
 
-**Reversal conditions.** n/a until Accepted.
+**Reversal conditions.** A feature that needs exact repeatability (replays, time trials, lockstep multiplayer), or a frame-rate effect found in play that the targeted fixes do not cover: then Option C.
 
 ### D-013 Add a "Controls & display" phase as Phase 2
 **Decided:** 2026-11-01

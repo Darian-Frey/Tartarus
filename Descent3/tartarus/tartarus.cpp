@@ -30,6 +30,9 @@
 #include "converter.h"
 #include "cloak.h"
 #include "gravmissile.h"
+#include "flight_test.h"
+#include "frame_clock.h"
+#include "phys_exact.h"
 #include "quicksave.h"
 #include "repulsor.h"
 #include "gravwell.h"
@@ -99,6 +102,9 @@ void Tartarus_Init() {
   GravMissile_Init();
   Repulsor_Init();
   Quicksave_Init();
+  FlightTest_Init();
+  PhysExact_Init();
+  FrameClock_Init();
   Deck_Init();
 }
 

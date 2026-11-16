@@ -36,6 +36,9 @@ Behaviour column: **gated** = does nothing (or exactly stock) in Classic Mode; *
 | `Descent3/WeaponFire.cpp` | `tartarus::Gravwell_WeaponExploded` | gated: returns at once in Classic Mode and multiplayer, and for any weapon without the Tartarus gravity-well flag; stock weapons never have it (F-021) |
 | `Descent3/damage.cpp` | `tartarus::Cloak_PlayerDamaged` | gated: returns at once in Classic Mode and multiplayer, and unless the Tartarus cloak is on (F-020) |
 | `physics/collide.cpp` | `tartarus::Cloak_Bumped` | gated: returns at once in Classic Mode and multiplayer, and unless the Tartarus cloak is on (F-020) |
+| `physics/physics.cpp` | `tartarus::PhysExact_Rotation`, `tartarus::PhysExact_TurnrollStep` | gated: return at once (stock matrix and stock step kept) in Classic Mode and multiplayer, or with `phys_exact_rot 0` (F-061) |
+| `Descent3/GameLoop.cpp` | `tartarus::FrameClock_Refine`, `tartarus::FrameClock_Limit` | gated: the stock millisecond frame time and limiter are left alone in Classic Mode or with `r_precise_timer 0` (F-061) |
+| `Descent3/Controls.cpp` | `tartarus::FlightTest_Apply` | gated: returns at once in Classic Mode, and unless a `flighttest` is running, which Classic Mode refuses (F-061) |
 | `scripts/AIGame.cpp` | (inline: `GBC_TARTARUS_GO_TO_OBJ`, `GBC_TARTARUS_GO_TO_ROOM` in the Guide-Bot's `COM_DO_ACTION`) | inert: only the deck Guide-Bot menu and the `guide` command send them, and neither is available in Classic Mode (F-072) |
 | `scripts/osiris_common.h` | (inline: the two command numbers) | inert: definitions only (F-072) |
 | `Descent3/pilot.cpp` | `tartarus::PilotDeck_Run` | gated: false in Classic Mode, stock Pilots screen (D-016) |

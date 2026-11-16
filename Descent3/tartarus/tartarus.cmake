@@ -46,6 +46,10 @@ list(APPEND HEADERS
   tartarus/gravmissile.h
   tartarus/gravwell.h
   tartarus/gravwell_core.h
+  tartarus/flight_test.h
+  tartarus/frame_clock.h
+  tartarus/frame_clock_core.h
+  tartarus/phys_exact.h
   tartarus/quicksave.h
   tartarus/repulsor.h
   tartarus/cloak.h
@@ -94,6 +98,10 @@ list(APPEND CPPS
   tartarus/gravmissile.cpp
   tartarus/gravwell.cpp
   tartarus/gravwell_core.cpp
+  tartarus/flight_test.cpp
+  tartarus/frame_clock.cpp
+  tartarus/frame_clock_core.cpp
+  tartarus/phys_exact.cpp
   tartarus/quicksave.cpp
   tartarus/repulsor.cpp
   tartarus/cloak.cpp

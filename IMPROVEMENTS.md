@@ -42,7 +42,7 @@ Effort vocabulary: trivial | small | medium | large.
 **Trade-offs.** Large: every screen that moves over needs its input, focus and keyboard navigation rebuilt and tested. Upstream's `newui` screens keep working until each is replaced, so the change can land screen by screen. Open question for the owner: should Classic Mode keep the stock menus (stricter "Classic is classic", AV-001) or use the new look too (menus are not gameplay)?
 
 ### IMP-007: Precise frame limiter
-**Status:** suggested
+**Status:** done 2026-11-16 as part of F-061 (`frame_clock.cpp`, `r_precise_timer`, Tartarus mode only; D-012)
 **Found:** 2026-11-02 (F-068 frame-cap test)
 **Location:** `Descent3/GameLoop.cpp` `GameFrame()` (`Min_allowed_frametime`, `timer_GetMSTime()`), `CalcFrameTime()`
 **Effort:** small
@@ -58,6 +58,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Description.** `rend_DrawLine()` forces `AT_ALWAYS`, so the alpha set in `MouseFlight_Render()` has no effect: the virtual-joystick ring is opaque.
 **Proposal.** Remove the alpha calls and pick a dimmer colour, or draw the ring with a small alpha-capable helper.
 **Trade-offs.** None of note.
+
+### IMP-014: Sub-step the ship's turning for frame-rate-exact auto-level
+**Status:** suggested
+**Found:** 2026-11-16 (F-061 acceptance run, D-012)
+**Location:** `physics/physics.cpp` `PhysicsDoSimRot()` (the player auto-level block) and `set_object_turnroll()`, which reads the global `Frametime`; `Descent3/tartarus/phys_exact.cpp`
+**Effort:** medium
+**Description.** With F-061's fixes, a 60 s circling flight at 60 and 240 fps still ends 7.4 units apart. The ship settles at a different bank in the turn (31.4° against 32.3°): stock auto-level reads the bank once per frame and pushes for the whole frame, and a controller sampled less often settles differently.
+**Proposal.** Run the player's rotation step in fixed sub-steps (1/240 s) inside each frame, so the auto-level sees the same steps at any frame rate; `set_object_turnroll()` would need the sub-step time, not `Frametime`. Measure with `flighttest long`.
+**Trade-offs.** Several rotation steps a frame for the player; a deeper change to stock physics for a 0.6% effect, only worth it if replays or time trials need exact repeatability (D-012).
 
 ### IMP-013: Move the CI actions off Node.js 20
 **Status:** suggested

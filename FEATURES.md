@@ -294,8 +294,9 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Physics/AI tick at a fixed rate (SPEC.md); rendering interpolates; game feel at 60/144/240 Hz is identical in a recorded-input test
 - Classic Mode may keep upstream timing if the change proves behaviour-altering (see D-012)
-**Status:** Not started (Phase 5)
-**Notes:** D-012 (Proposed). Highest-risk item in the plan.
+- Revised 2026-11-16 (owner, D-012): no fixed tick; the same manoeuvre ends within 0.5° of heading at 30 to 530 fps, and a 60 s flight at 60 and 240 fps within 0.1° of heading and 1% of the distance flown
+**Status:** Done (Phase 5), 2026-11-16, for the owner to fly: measured first (`flight_test.cpp`, `flighttest` and `flighttest long`), which showed stock movement already frame-rate independent and turning not. `phys_exact.cpp` (`phys_exact_rot`, on): the frame's turn from the unrounded angle of the average turn speed, the turn bank's dropped fraction carried; `frame_clock.cpp` (`r_precise_timer`, on): microsecond frame time and an exact `r_maxfps` cap (IMP-007; 144 now gives 144 fps, not 166). Results in D-012: heading 1.8° → 0.35° apart over 30–529 fps; after 60 s at 60 and 240 fps, 21.8 → 7.4 units and 40° → 0.1°. Remainder: stock auto-level sampled once per frame (IMP-014). 6 unit tests.
+**Notes:** D-012 (Accepted 2026-11-16: targeted fixes, no fixed tick). Classic Mode and multiplayer keep stock timing.
 
 ### F-062 Raw mouse input
 **Priority:** Should

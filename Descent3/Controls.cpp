@@ -428,6 +428,7 @@
 #include "sounds.h"
 #include "tartarus/mouse_flight.h" // TARTARUS: F-067
 #include "tartarus/level_assist.h" // TARTARUS: F-043
+#include "tartarus/flight_test.h"  // TARTARUS: F-061
 
 float Key_ramp_speed = 0.5f;
 
@@ -768,6 +769,7 @@ void DoMovement(game_controls *controls) {
   DoControllerMovement(controls);
   tartarus::MouseFlight_Apply(controls); // TARTARUS: F-067 virtual-joystick mouse, as a joystick axis
   tartarus::Level_Apply(controls);       // TARTARUS: F-043 hold and snap, as bank input, after all other input
+  tartarus::FlightTest_Apply(controls);  // TARTARUS: F-061 timing probe replaces the input while it runs
 
   //	clip controller values
   if (controls->pitch_thrust > LIMIT_PITCH)

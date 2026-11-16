@@ -804,6 +804,7 @@
 #include "chrono_timer.h"
 #include "gameloop.h"
 #include "tartarus/tartarus.h" // TARTARUS: F-010, F-012
+#include "tartarus/frame_clock.h" // TARTARUS: F-061
 #include "game.h"
 #include "render.h"
 #include "descent.h"
@@ -2751,6 +2752,7 @@ void CalcFrameTime(void) {
   }
 
   last_timer = current_timer;
+  tartarus::FrameClock_Refine(&Frametime); // TARTARUS: F-061 microsecond frame time in Tartarus mode
 
   if (Min_frametime > Frametime) {
     LOG_DEBUG << "This was the fastest frame yet!";
@@ -3073,6 +3075,7 @@ void GameFrame(void) {
 
     int64_t current_timer;
     uint32_t sleeptime;
+    tartarus::FrameClock_Limit(); // TARTARUS: F-061 exact r_maxfps cap in Tartarus mode, before the stock ms limiter
     current_timer = timer_GetMSTime();
     if ((current_timer - last_timer) < Min_allowed_frametime) {
       sleeptime = (uint32_t)Min_allowed_frametime - (current_timer - last_timer);

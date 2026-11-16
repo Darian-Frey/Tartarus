@@ -4,6 +4,7 @@
 #   tools/run_probe.sh <work-dir> <probe.py> [extra game args...]
 # Extra tartarus.cfg lines come from $CFG (newline-separated); MENU=1 stays at the main menu.
 # RES_W and RES_H set the resolution, in hex as the registry holds it (default 500 and 2D0, 1280x720).
+# PROBE_TIMEOUT (seconds, default 200) for long probes such as `flighttest long`.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 work=$1; probe=$(realpath "$2"); shift 2
@@ -21,7 +22,7 @@ printf 'set classic 0\n' > "$p/tartarus.cfg"
 level="-mission d3 -loadlevel 1"
 [ -n "$MENU" ] && level=""  # MENU=1 stays at the main menu
 cd "$work"
-PYTHONPATH="$root/tools" XDG_DATA_HOME="$work/xdg" timeout 200 python3 "$probe" "$work" \
+PYTHONPATH="$root/tools" XDG_DATA_HOME="$work/xdg" timeout ${PROBE_TIMEOUT:-200} python3 "$probe" "$work" \
   "$root/builds/linux/build/Release/Descent3" -windowed -logfile -nosound -nomusic -pilot bob \
   $level -skipbriefing -skipcinematics "$@" >/dev/null 2>&1 || true
 tail -1 "$work/drive.log"

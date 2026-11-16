@@ -31,6 +31,9 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  gravwell.cpp    gravity-missile well                                │
 │  repulsor.cpp    repulsor pulse: V key, wall-launch, readout         │
 │  quicksave.cpp   quicksave F9, quickload F6, level-start autosave    │
+│  phys_exact.cpp  exact per-frame rotation, turn-bank carry (F-061)   │
+│  frame_clock.cpp microsecond frame time, exact frame cap (F-061)     │
+│  flight_test.cpp flighttest: frame-rate comparison probe (F-061)     │
 │  gravmissile.cpp gravity missile: G key, ammunition, readout         │
 │  converter.cpp   energy↔shield converter (B / N)                     │
 │  mouse_flight.cpp  virtual-joystick mouse modes (F-067)              │
@@ -159,6 +162,10 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/WeaponFire.cpp::DoWeaponExploded` | `Gravwell_WeaponExploded()` after the stock `WF_GRAVITY_FIELD` check | a gravity missile leaves a well (F-021, D-009) |
 | `Descent3/damage.cpp::ApplyDamageToPlayer` | `Cloak_PlayerDamaged()` after `DecreasePlayerShields()` (single player) | a big hit breaks the cloak (F-020) |
 | `physics/collide.cpp::collide_generic_and_player` | `Cloak_Bumped()` before the robot's `AIN_BUMPED_OBJ` | touching a robot breaks the cloak and alerts it (F-020) |
+| `physics/physics.cpp::PhysicsDoSimRot` | the turn speed at the start of the frame kept; `PhysExact_Rotation()` after the stock rotation matrix is built | the frame's turn from the unrounded angle of the average turn speed (F-061, D-012) |
+| `physics/physics.cpp::set_object_turnroll` | `PhysExact_TurnrollStep()` after the stock `max_roll` | the turn bank's dropped fraction carried to the next frame (F-061) |
+| `Descent3/GameLoop.cpp` (`CalcFrameTime()`, `GameFrame()`) | `FrameClock_Refine()` after the stock measurement; `FrameClock_Limit()` before the stock limiter | microsecond frame time and exact `r_maxfps` cap (F-061, IMP-007) |
+| `Descent3/Controls.cpp::DoMovement` | `FlightTest_Apply()` after `Level_Apply()` | `flighttest` replaces the movement input while it runs (F-061) |
 | `scripts/AIGame.cpp` (`GuideBot`, `COM_DO_ACTION`), `scripts/osiris_common.h` | `GBC_TARTARUS_GO_TO_OBJ` and `GBC_TARTARUS_GO_TO_ROOM`: get to an object or a room, as the stock Find commands | the Guide-Bot goes where Tartarus picked (F-072) |
 | `Descent3/pilot.cpp::PilotSelect` | `PilotDeck_Run()` | deck Pilots screen (F-069, D-016) |
 | `Descent3/menu.cpp` (`MenuNewGame`, `DisplayLevelWarpDlg`) | `MissionDeck_Pick()`, `LevelDeck_Pick()` before each stock UI loop | deck New Game and level warp (F-069, D-016) |
