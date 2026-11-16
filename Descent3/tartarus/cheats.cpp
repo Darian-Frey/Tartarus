@@ -379,6 +379,7 @@ constexpr CommandCheat kCommandCheats[] = {
     {"god", CheatId::Ambrosia},
     {"timescale", CheatId::Torpor},
     {"map", CheatId::Ferryman},
+    {"stun", CheatId::Hourglass}, // F-070 test tool, with the debug overlays
 };
 
 bool ParseOnOff(const std::string &s, bool current, bool *out) {

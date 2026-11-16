@@ -34,6 +34,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  phys_exact.cpp  exact per-frame rotation, turn-bank carry (F-061)   │
 │  frame_clock.cpp microsecond frame time, exact frame cap (F-061)     │
 │  flight_test.cpp flighttest: frame-rate comparison probe (F-061)     │
+│  ai_react.cpp    robot reactions: stun, decloak noise (F-070)        │
 │  gravmissile.cpp gravity missile: G key, ammunition, readout         │
 │  converter.cpp   energy↔shield converter (B / N)                     │
 │  mouse_flight.cpp  virtual-joystick mouse modes (F-067)              │

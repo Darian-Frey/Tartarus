@@ -24,6 +24,7 @@
 #include <string>
 
 #include "aistruct.h"
+#include "ai_react.h"
 #include "binds.h"
 #include "classic.h"
 #include "cloak_core.h"
@@ -101,6 +102,7 @@ void Uncloak(const char *why) {
     MakeObjectVisible(Player_object);
   g_ours = false;
   PlaySound("Cloak off");
+  AiReact_Decloaked(); // robots in earshot come to look (F-070)
   if (why != nullptr)
     AddHUDMessage("%s", why);
 }

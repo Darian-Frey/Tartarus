@@ -65,7 +65,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 **Description.** Robots never regain target after decloak (invisibility flag not cleared on a forced break), or never lose it (flag set but AI path not using it), or a cloak persists across death/level load.
 **Detection.** State-machine unit test for every transition clearing/setting the invisibility flag; manual: decloak in front of a robot and confirm it fires within 1 s; level transition with cloak active returns to READY.
 **Related features.** F-020, F-070.
-**History.** 2026-11-15: F-020 built. `cloak_core_tests.cpp` covers every transition (activate, drain, timeout, out of energy, forced and voluntary drops, cooldown to ready, reset); `cloak.cpp` takes the invisibility off on every drop, and returns to READY on death, a new level or a new ship. The manual check (decloak in front of a robot, it fires within 1 s) is still to do.
+**History.** 2026-11-15: F-020 built. `cloak_core_tests.cpp` covers every transition (activate, drain, timeout, out of energy, forced and voluntary drops, cooldown to ready, reset); `cloak.cpp` takes the invisibility off on every drop, and returns to READY on death, a new level or a new ship. The manual check (decloak in front of a robot, it fires within 1 s) is still to do. 2026-11-16: F-070 makes every cloak drop a stock noise (`ai_decloak_noise`), so robots in earshot become aware rather than staying unaware of a player who is visible again.
 
 ### AV-010 Weapon slot collisions
 **Severity:** Major

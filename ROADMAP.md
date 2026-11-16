@@ -98,11 +98,11 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 6 — Tactical weapons II and AI
 **Goal:** Round out the arsenal and make robots react to it.
-**Status:** Not started
+**Status:** In progress (started 2026-11-16; order and launcher chosen by the owner: robot reactions first, then EMP mine and decoy, flak, ricochet, overcharge, tether, dash, scanner ping, up cues; one launcher, D-020)
 **Features delivered:** F-023 – F-028, F-031, F-032, F-044, F-045, F-070
 **Deliverables:**
 - [ ] Each weapon as its own sidecar entry plus a small behaviour module
-- [ ] AI hooks: target-selection override (decoy), stunned state (EMP), gravity-escape goal, decloak-investigate
+- [ ] AI hooks: target-selection override (decoy), stunned state (EMP), gravity-escape goal, decloak-investigate — stunned state, gravity escape and decloak noise done 2026-11-16 (`ai_react.cpp`, F-070); the decoy override comes with F-025
 **Acceptance:** Each weapon has at least one level where it is the obviously right tool; AI changes are invisible in Classic Mode.
 
 ## Phase 7 — Platform

@@ -46,6 +46,7 @@ list(APPEND HEADERS
   tartarus/gravmissile.h
   tartarus/gravwell.h
   tartarus/gravwell_core.h
+  tartarus/ai_react.h
   tartarus/flight_test.h
   tartarus/frame_clock.h
   tartarus/frame_clock_core.h
@@ -98,6 +99,7 @@ list(APPEND CPPS
   tartarus/gravmissile.cpp
   tartarus/gravwell.cpp
   tartarus/gravwell_core.cpp
+  tartarus/ai_react.cpp
   tartarus/flight_test.cpp
   tartarus/frame_clock.cpp
   tartarus/frame_clock_core.cpp

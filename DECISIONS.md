@@ -405,7 +405,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 **Recorded:** 2026-11-15
 **Status:** Accepted
 **Authors:** Shane Hartley (owner's choice of the recommended option, 2026-11-15)
-**Related:** F-021, D-007, AV-010
+**Related:** F-021, D-007, AV-010, D-020
 
 **Context.** SPEC §5 put the gravity missile in a player secondary slot ("slot 7, Tartarus range 5–9"), but Descent 3 has exactly ten secondary slots and the stock weapons fill them all (Concussion to Black Shark), so any slot would overwrite a stock weapon. The stock Black Shark is already a gravity weapon, but a rare superweapon, not the cheap utility missile F-021 describes.
 
@@ -423,4 +423,27 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - The same pattern serves later tactical weapons that do not fit the slots.
 
 **Reversal conditions.** If playtesting shows a dedicated key is awkward (too many keys to learn), move to Option C.
+
+### D-020 One tactical launcher: G fires the selected tactical weapon, Y cycles
+**Decided:** 2026-11-16
+**Recorded:** 2026-11-16
+**Status:** Accepted
+**Authors:** Shane Hartley (owner's choice of the recommended option, 2026-11-16)
+**Related:** D-019, F-021, F-023, F-024, F-025, F-026, F-027, F-028
+
+**Context.** Phase 6 adds up to six tactical weapons (flak, ricochet slug, decoy, EMP mine, overcharge, tether). D-019 gave the gravity missile a key of its own and named "too many keys to learn" as its reversal condition; six more single keys would meet it, and free keys are running short (SPEC §12).
+
+**Options.**
+- **A. One launcher: `gm_fire_key` (G) fires the selected tactical weapon, one more key (default Y) cycles through those the pilot carries, as stock secondary cycling.** Chosen.
+- **B. A key for each weapon, as the gravity missile.** Rejected: six more keys.
+- **C. Share stock secondary slots (D-019's option C).** Rejected: reverses D-019 and is the most work in weapon selection and the HUD.
+
+**Decision.** Option A. D-019 stands for everything but the key: tactical weapons stay outside the ten secondary slots, with Tartarus ammunition counts kept beside saves and fired through the engine's own firing code. The readout under the reticle shows the selected weapon and its count. Built with the first Phase 6 weapon; until then G fires the gravity missile as before.
+
+**Consequences.**
+- One new key (Y); the cycle order follows `weapons.txt`.
+- Each Phase 6 weapon is a sidecar entry (D-007) plus a small behaviour module.
+- Weapons with an ability rather than a projectile (overcharge on the primary trigger) may still take their own input; decided per weapon.
+
+**Reversal conditions.** If switching mid-fight proves too slow in play, give the most used weapons direct keys as well (Option B for those).
 

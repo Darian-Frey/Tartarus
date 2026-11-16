@@ -232,7 +232,8 @@ for each pullable object o (robots but not the Guide-Bot; the player if gw_self,
 | `gw_self` | 1 | pull the player too |
 | `gw_self_radius` | 40 | |
 | `gw_pull_weapons` | 1 | missiles curve in (fun, and a counter) |
-| `gw_stun_on_arrive` | — | not built: needs F-070 |
+| `gw_escape` | 0.5 | robots thrust against the pull with this share of their own engines (`full_thrust / mass` as an acceleration); stunned robots do not (F-070) |
+| `gw_stun_on_arrive` | 0 | seconds a robot reaching the centre (within 2 units) is stunned; 0 off (F-070) |
 | `gm_fire_key` | `g` | |
 | `gm_level_ammo` | 3 | each level starts with at least this many |
 | `hud_gravmissile` | 1 | readout: 0 off, 1 while you have any, 2 always |
@@ -357,7 +358,7 @@ Saving: the scan goes in a `.amap` file beside each save, as upstream's `.cnt`, 
 | Cheat menu | Shift+F12 (stock F12 drops a marker) |
 | Cloak | C |
 | Repulsor | V |
-| Gravity missile | G (`gm_fire_key`, D-019) |
+| Gravity missile | G (`gm_fire_key`, D-019); from the first Phase 6 weapon, G fires the selected tactical weapon and Y cycles (D-020) |
 | Convert → shields / → energy | B / N (`conv_to_shields_key`, `conv_to_energy_key`; [ and ] are the stock inventory keys) |
 | Auto-level hold | X (`al_hold_key`; Left Alt is stock Toggle Slide) |
 | Snap to up | T (`al_snap_key`; Z until 2026-11-16, BUG-017) |
@@ -428,4 +429,18 @@ Ranges: size 0.05–1.0, aspect 0.25–4.0, x and y −1 or 0–1. Placement is 
 **Other screens:** in Tartarus mode the main menu, Save, Load, New Game, level warp, Pilots, the Keys help (F1), the Guide-Bot menu (F4) and all Yes/No, OK and text-entry boxes use the same casing as a list (message boxes keep stock in multiplayer): Up/Down or the pointer select, Enter, Space or a click chooses, Escape goes back (not on the main menu), and main menu rows keep their stock hotkeys. Save asks for a name, and for confirmation before overwriting. Yes/No boxes start on No. Load shows the save's screenshot. Choosing a pilot opens that pilot's page: fly as this pilot, difficulty, profanity filter, audio taunts, ship and logo, keyboard, controller, the stock pilot screen, delete; the page saves each change at once. The Controls page's Key bindings row opens these screens, as does a pilot's page. Keyboard and Joystick and mouse list every function with its two bindings; Enter opens a page to rebind, clear or invert each one (Escape cancels a capture), and the top rows are Reset to Defaults (asks first), Adjust Settings (stock), Restore Settings and the other pages. Weapon order lists primaries and secondaries, highest priority first; Enter moves a weapon up or down or turns its auto-select off. Deck screens switch the menu frame to the chosen resolution while open and back to 640x480 for stock screens; the pointer keeps the stock speed at any resolution.
 
 Layout is a 1160x680 area scaled to the frame, so the deck keeps its size on screen; text is the game's large font scaled to a target height. Scanlines are drawn under the text because `rend_DrawLine` has no alpha.
+
+---
+
+## 16. Robot reactions (F-070)
+
+`ai_react.cpp`, Tartarus mode, single player; no robot struct changes (AV-003).
+
+- **Stunned.** `AiReact_Stun(robot, seconds)` sets the stock `AIF_DISABLED` flag (what scripts use to switch robots off: no thinking, firing or animation; physics goes on, so the robot drifts) and zeroes its thrust. A Tartarus list holds each stun's end; a longer stun extends, a shorter one does not shorten; sparks every 0.35 s. Robots already switched off by a script, the Guide-Bot and dying robots are refused. Stuns are cleared at a level start, appended to the `.tstate` file beside a save and restored on load (the save itself keeps the flag set). Switching to Classic Mode wakes every robot at once. Console `stun [seconds] [radius]` (default 5 s, 150 units; HOURGLASS) for tests.
+- **Decloak noise.** Whenever the Tartarus cloak drops (voluntary, timed out, broken), the player makes a stock noise (`AIN_HEAR_NOISE`, hostile 0.5, curiosity 1) of `ai_decloak_noise` units (120; 0 off; stock weapon noises are 60): robots that hear it become aware and come to look, as for a stock noise.
+- **Gravity escape.** See §7 `gw_escape` and `gw_stun_on_arrive`.
+
+| Cvar | Default | Notes |
+|---|---|---|
+| `ai_decloak_noise` | 120 | world units; 0 off |
 

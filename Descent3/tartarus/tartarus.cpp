@@ -30,6 +30,7 @@
 #include "converter.h"
 #include "cloak.h"
 #include "gravmissile.h"
+#include "ai_react.h"
 #include "flight_test.h"
 #include "frame_clock.h"
 #include "phys_exact.h"
@@ -105,6 +106,7 @@ void Tartarus_Init() {
   FlightTest_Init();
   PhysExact_Init();
   FrameClock_Init();
+  AiReact_Init();
   Deck_Init();
 }
 
@@ -165,6 +167,7 @@ void Frame() {
   Converter_Frame();
   Cloak_Frame();
   Gravwell_Frame();
+  AiReact_Frame();
   Quicksave_Frame();
 }
 
@@ -175,18 +178,21 @@ void Tartarus_LevelStart() {
   Gravwell_Reset();
   GravMissile_LevelStart();
   Repulsor_Reset();
+  AiReact_Reset();
   Quicksave_LevelStart();
 }
 
 void Tartarus_SaveState(const std::filesystem::path &save_path) {
   MapScan_Save(save_path);
-  GravMissile_Save(save_path);
+  GravMissile_Save(save_path); // writes the .tstate file
+  AiReact_Save(save_path);     // appends to it
 }
 
 void Tartarus_LoadState(const std::filesystem::path &save_path) {
   MapScan_Load(save_path);
   Gravwell_Reset();
   GravMissile_Load(save_path);
+  AiReact_Load(save_path);
   Repulsor_Reset();
   Quicksave_Loaded();
 }

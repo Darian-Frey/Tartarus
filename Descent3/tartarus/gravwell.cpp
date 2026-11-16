@@ -22,6 +22,7 @@
 #include <cmath>
 #include <vector>
 
+#include "ai_react.h"
 #include "classic.h"
 #include "cvar.h"
 #include "damage.h"
@@ -52,6 +53,8 @@ Cvar *gw_immune_mass = nullptr;
 Cvar *gw_self = nullptr;
 Cvar *gw_self_radius = nullptr;
 Cvar *gw_pull_weapons = nullptr;
+Cvar *gw_escape = nullptr;
+Cvar *gw_stun_on_arrive = nullptr;
 
 constexpr size_t kMaxWells = 8;
 
@@ -129,7 +132,20 @@ void Pull(Well &w, const WellSettings &s) {
     const float len = vm_NormalizeVector(&dir);
     if (!(len > 0.01f) || !std::isfinite(len))
       continue;
-    vector push = dir * (dv * o.mtype.phys_info.mass); // phys_apply_force adds push / mass to velocity
+    float net = dv;
+    if (o.type == OBJ_ROBOT) {
+      if (AiReact_IsStunned(&o)) {
+        // stunned: no fight
+      } else {
+        // Robots thrust against the pull with a share of their own engines (F-070); a strong one gets out.
+        const float own = o.mtype.phys_info.full_thrust / o.mtype.phys_info.mass;
+        net -= WellDeltaV(gw_escape->GetFloat() * own, Frametime);
+        const float stun = gw_stun_on_arrive->GetFloat();
+        if (stun > 0.0f && dist <= 2.0f)
+          AiReact_Stun(&o, stun);
+      }
+    }
+    vector push = dir * (net * o.mtype.phys_info.mass); // phys_apply_force adds push / mass to velocity
     phys_apply_force(&o, &push);
     if (&o == Player_object)
       AddToShakeMagnitude(8.0f * (1.0f - std::max(0.0f, dist) / std::max(1.0f, use.radius)));
@@ -160,6 +176,8 @@ void Gravwell_Init() {
   gw_self = cv.RegisterBool("gw_self", true, "Gravity well: pulls the player too", flags);
   gw_self_radius = cv.RegisterFloat("gw_self_radius", 40.0f, 0.0f, 400.0f, "Gravity well: reach on the player", flags);
   gw_pull_weapons = cv.RegisterBool("gw_pull_weapons", true, "Gravity well: bends missiles in flight", flags);
+  gw_escape = cv.RegisterFloat("gw_escape", 0.5f, 0.0f, 2.0f, "Gravity well: share of a robot's own thrust it pulls away with", flags);
+  gw_stun_on_arrive = cv.RegisterFloat("gw_stun_on_arrive", 0.0f, 0.0f, 10.0f, "Gravity well: seconds a robot reaching the centre is stunned; 0 off", flags);
 }
 
 void Gravwell_Reset() { g_wells.clear(); }

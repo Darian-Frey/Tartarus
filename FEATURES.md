@@ -126,7 +126,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 - Low direct damage; scarce pickup; distinct impact and pull visuals and audio
 - `give gravmissile` works from the console
 **Status:** In progress (Phase 4), 2026-11-15: built, to tune with the owner. `gravmissile.cpp` (G fires the GravMissile of `weapons.txt`, 1.2 s apart; each level starts with at least 3, owner's choice; count beside saves; `give gravmissile`; readout GRAV MISSILES n) and `gravwell.cpp` with `gravwell_core.cpp` (7 unit tests: falloff, fade, mass scaling and immunity, bad input, the same pull at any frame rate). A scripted run on level 1 with the reach widened to 400 for the test: the missile crossed the room, a well opened at the far wall (logged), the ship was pulled (speed 0 to 8, range to the wall 137 to 131), and the count went 3, 2, 1 with the fire delay holding back repeated presses. Not yet seen: robots pulled round a corner (the acceptance sequence), wall clipping (AV-006), and the right `gw_force`; the robots' own thrust and drag may need a stronger pull. No well sound yet.
-**Notes:** D-007, D-009, D-019 (fired by its own key, G, with its own ammunition; not in a secondary slot, which are all taken). Reuses the engine's `GRAVITY_FIELD_INDEX` fireball machinery (`fireball.cpp::DoGravityFieldEffect`). SPEC.md §Gravity missile. AV-006. See also D-008.
+**Notes:** D-007, D-009, D-019 (fired by its own key, G, with its own ammunition; not in a secondary slot, which are all taken). Reuses the engine's `GRAVITY_FIELD_INDEX` fireball machinery (`fireball.cpp::DoGravityFieldEffect`). SPEC.md §Gravity missile. AV-006. See also D-008. Fired from the tactical launcher (D-020).
 
 ### F-022 Repulsor pulse
 **Priority:** Should
@@ -141,38 +141,42 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Detonates when a robot comes within `flak_trigger_radius` of the projectile, or on impact
 **Status:** Not started (Phase 6)
+**Notes:** Fired from the tactical launcher (D-020).
 
 ### F-024 Ricochet slug
 **Priority:** Could
 **Acceptance:**
 - Bounces up to `ric_bounces` times; damage multiplied by `ric_gain` per bounce; uses existing bounce flags
 **Status:** Not started (Phase 6)
+**Notes:** Fired from the tactical launcher (D-020).
 
 ### F-025 Decoy drone
 **Priority:** Could
 **Acceptance:**
 - Deploys a stationary hologram of the player ship for `decoy_time`; robots within range retarget it in preference to the player
 **Status:** Not started (Phase 6)
-**Notes:** Needs an AI target-selection hook (F-070).
+**Notes:** Needs an AI target-selection hook (F-070). Fired from the tactical launcher (D-020).
 
 ### F-026 EMP mine
 **Priority:** Could
 **Acceptance:**
 - Proximity mine that applies a `stunned` AI state for `emp_time` instead of damage
 **Status:** Not started (Phase 6)
+**Notes:** Fired from the tactical launcher (D-020).
 
 ### F-027 Overcharge
 **Priority:** Could
 **Acceptance:**
 - Holding primary fire on an energy weapon for > `oc_hold` seconds dumps up to `oc_max_energy` into a single shot scaled by `oc_gain`; HUD charge bar
 **Status:** Not started (Phase 6)
+**Notes:** Fired from the tactical launcher (D-020).
 
 ### F-028 Tether / grapple
 **Priority:** Could
 **Acceptance:**
 - Fires a line; on wall hit applies a spring force toward the anchor until released or `tether_max_len` exceeded
 **Status:** Not started (Phase 6)
-**Notes:** See also D-007.
+**Notes:** See also D-007. Fired from the tactical launcher (D-020).
 
 ### F-030 Energy ↔ shield converter
 **Priority:** Should
@@ -370,7 +374,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Should
 **Acceptance:**
 - Robots caught in a gravity well attempt to thrust away if they can; a decloak flash within sight triggers an investigate behaviour; stunned state exists for F-026
-**Status:** Not started (Phase 6)
+**Status:** In progress (Phase 6), 2026-11-16: `ai_react.cpp`. Stunned: the stock `AIF_DISABLED` switch with Tartarus timers (thrust stopped, sparks; robots a script switched off are left alone; timers saved beside saves); `stun [seconds] [radius]` (HOURGLASS). Decloak: the cloak dropping is a stock noise of `ai_decloak_noise` (120) units, so robots in earshot become aware and come to look. Gravity escape: robots in a well thrust against it with `gw_escape` (0.5) of their own engines, stunned ones cannot; `gw_stun_on_arrive` (off) stuns a robot that reaches the centre. Scripted run: 56 robots stunned and woke on time; a 30 s stun survived quicksave and quickload. Not yet seen in play: the escape and the decloak reaction. The decoy's target override comes with F-025.
 **Notes:** See also AV-007.
 
 ### F-071 Mirror difficulty tier
