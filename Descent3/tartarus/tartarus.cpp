@@ -30,6 +30,7 @@
 #include "converter.h"
 #include "cloak.h"
 #include "gravmissile.h"
+#include "quicksave.h"
 #include "repulsor.h"
 #include "gravwell.h"
 #include "deck.h"
@@ -97,6 +98,7 @@ void Tartarus_Init() {
   Gravwell_Init();
   GravMissile_Init();
   Repulsor_Init();
+  Quicksave_Init();
   Deck_Init();
 }
 
@@ -130,7 +132,7 @@ void UpdatePause() {
 } // namespace
 
 bool HandleKey(int key) {
-  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) || GravMissile_HandleKey(key) || Repulsor_HandleKey(key) ||
+  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) || GravMissile_HandleKey(key) || Repulsor_HandleKey(key) || Quicksave_HandleKey(key) ||
                     Binds_HandleKey(key);
   UpdatePause();
   return used;
@@ -157,6 +159,7 @@ void Frame() {
   Converter_Frame();
   Cloak_Frame();
   Gravwell_Frame();
+  Quicksave_Frame();
 }
 
 float TimeScale() { return Cheats_TimeScale(); }
@@ -166,6 +169,7 @@ void Tartarus_LevelStart() {
   Gravwell_Reset();
   GravMissile_LevelStart();
   Repulsor_Reset();
+  Quicksave_LevelStart();
 }
 
 void Tartarus_SaveState(const std::filesystem::path &save_path) {
@@ -178,6 +182,7 @@ void Tartarus_LoadState(const std::filesystem::path &save_path) {
   Gravwell_Reset();
   GravMissile_Load(save_path);
   Repulsor_Reset();
+  Quicksave_Loaded();
 }
 
 void RenderOverlays() {

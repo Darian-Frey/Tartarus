@@ -14,6 +14,14 @@ Severity vocabulary: low | medium | high.
 
 ## Open
 
+### BUG-019: The console is drawn several times down the screen while the ship explodes
+**Status:** open
+**Severity:** low
+**Found:** 2026-11-16 (a scripted F-064 test: the console opened, `cheat use styx`, a screenshot during the explosion)
+**Location:** probably `Descent3/tartarus/console.cpp` (`Console_Render()`) with the death camera's smaller 3D view; not traced
+**Description.** In the screenshot taken 0.7 s into the self-destruct, the console's last lines appeared three times, stacked down the top of the screen, as if drawn into a frame that is not cleared above the shrunken view. Seen once, in a scripted run; not yet seen in play.
+**Fix.** Not fixed (Rule 8). Check whether the stock HUD messages do the same, then whether `Console_Render()` needs the full-screen clear the death view skips.
+
 ### BUG-014: (upstream) The stock Force Gain slider sets full gain at almost every position
 **Status:** open
 **Severity:** low

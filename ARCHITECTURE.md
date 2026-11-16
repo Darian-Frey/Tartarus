@@ -30,6 +30,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  cloak.cpp       player cloak on C: state machine, breaks, gauge     │
 │  gravwell.cpp    gravity-missile well                                │
 │  repulsor.cpp    repulsor pulse: V key, wall-launch, readout         │
+│  quicksave.cpp   quicksave F9, quickload F6, level-start autosave    │
 │  gravmissile.cpp gravity missile: G key, ammunition, readout         │
 │  converter.cpp   energy↔shield converter (B / N)                     │
 │  mouse_flight.cpp  virtual-joystick mouse modes (F-067)              │

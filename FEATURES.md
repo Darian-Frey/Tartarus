@@ -315,7 +315,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Should
 **Acceptance:**
 - `F5`/`F9` quicksave/quickload using the existing save path; `g_checkpoints 0` disables mid-level autosaves for purists
-**Status:** Not started (Phase 5)
+**Status:** Done (Phase 5), 2026-11-16, to be tried by the owner: `quicksave.cpp`. The owner chose F9 to save (stock's key) into a file of its own, F6 to load (F5 is stock demo recording), and an autosave a second into each level, since stock has none. Both show first on the deck Load screen (QUICK, AUTO). Two scripted runs on level 1: the autosave and quicksave were written; after flying on, F6 put the ship back where it was saved (x 2026.8, then 2019.9, back to 2026.7); after a self-destruct, F6 during the explosion brought the ship back with full shields.
 
 ### F-065 Demo free camera
 **Priority:** Could

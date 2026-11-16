@@ -46,6 +46,7 @@ list(APPEND HEADERS
   tartarus/gravmissile.h
   tartarus/gravwell.h
   tartarus/gravwell_core.h
+  tartarus/quicksave.h
   tartarus/repulsor.h
   tartarus/cloak.h
   tartarus/cloak_core.h
@@ -93,6 +94,7 @@ list(APPEND CPPS
   tartarus/gravmissile.cpp
   tartarus/gravwell.cpp
   tartarus/gravwell_core.cpp
+  tartarus/quicksave.cpp
   tartarus/repulsor.cpp
   tartarus/cloak.cpp
   tartarus/cloak_core.cpp

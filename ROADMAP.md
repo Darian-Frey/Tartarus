@@ -89,10 +89,10 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 
 ## Phase 5 — Modernisation
 **Goal:** The engine feels like a 2026 native Linux game.
-**Status:** Not started
+**Status:** In progress (started 2026-11-16)
 **Features delivered:** F-061, F-064 (F-060, F-062, F-063 moved to Phase 2 by D-013)
 **Deliverables:**
-- [ ] Quicksave/quickload
+- [x] Quicksave/quickload (F-064): F9 to its own file, F6 to load (also while dying), autosave at each level start, QUICK and AUTO on the deck Load screen — 2026-11-16
 - [ ] Fixed-timestep physics prototype behind `phys_fixedstep` cvar; recorded-input equivalence test; D-012 resolved to Accepted or Deprecated
 **Acceptance:** Identical recorded-input runs at 60 and 240 Hz diverge by < 1 unit of position after 60 s.
 

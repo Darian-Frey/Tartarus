@@ -35,6 +35,15 @@ bool SaveDeck_Run();
 /// Runs the load screen: the chosen slot, -1 if cancelled, or kSaveDeckStock.
 int SaveDeck_PickLoad();
 
+/// Slots past the eight numbered ones: the quicksave and the level-start
+/// autosave (F-064), files of their own in savegame/ that the stock dialogs
+/// ignore. They are offered on the Load screen, never on the Save screen.
+inline constexpr int kQuickSlot = 100;
+inline constexpr int kAutoSlot = 101;
+
 std::filesystem::path SaveDeck_SlotPath(int slot);
+
+/// Quickload: the next SaveDeck_PickLoad() returns slot at once, no screen.
+void SaveDeck_RequestLoad(int slot);
 
 } // namespace tartarus

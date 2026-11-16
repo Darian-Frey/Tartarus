@@ -46,6 +46,9 @@ struct Slot {
   std::string desc;
 };
 
+int g_requested = -1;     // SaveDeck_RequestLoad()
+std::vector<int> g_rows;  // the slot shown on each row of the list
+
 chunked_bitmap g_thumb{};
 int g_thumb_slot = -1;
 
@@ -64,7 +67,8 @@ void Preview(int row, int x1, int y1, int x2, int /*y2*/) {
     char desc[GAMESAVE_DESCLEN + 1];
     int bm_handle = -1;
     std::error_code ec;
-    const std::filesystem::path path = SaveDeck_SlotPath(row);
+    const int slot = row >= 0 && row < static_cast<int>(g_rows.size()) ? g_rows[static_cast<size_t>(row)] : row;
+    const std::filesystem::path path = SaveDeck_SlotPath(slot);
     if (std::filesystem::exists(path, ec) && GetGameStateInfo(path, desc, &bm_handle) && bm_handle > 0) {
       // rend_Screenshot() leaves the opaque bit clear, and the renderer draws
       // such pixels as fully transparent (BUG-013).
@@ -80,20 +84,25 @@ void Preview(int row, int x1, int y1, int x2, int /*y2*/) {
                     static_cast<float>(y1), (x2 - x1) / static_cast<float>(g_thumb.pw));
 }
 
+Slot ReadSlot(int slot) {
+  Slot s;
+  std::error_code ec;
+  const std::filesystem::path path = SaveDeck_SlotPath(slot);
+  if (!std::filesystem::exists(path, ec))
+    return s;
+  s.taken = true;
+  char desc[GAMESAVE_DESCLEN + 1];
+  if (GetGameStateInfo(path, desc)) {
+    s.used = true;
+    s.desc = desc;
+  }
+  return s;
+}
+
 std::vector<Slot> ReadSlots() {
   std::vector<Slot> slots(kSlots);
-  for (int i = 0; i < kSlots; ++i) {
-    std::error_code ec;
-    const std::filesystem::path path = SaveDeck_SlotPath(i);
-    if (!std::filesystem::exists(path, ec))
-      continue;
-    slots[i].taken = true;
-    char desc[GAMESAVE_DESCLEN + 1];
-    if (GetGameStateInfo(path, desc)) {
-      slots[i].used = true;
-      slots[i].desc = desc;
-    }
-  }
+  for (int i = 0; i < kSlots; ++i)
+    slots[static_cast<size_t>(i)] = ReadSlot(i);
   return slots;
 }
 
@@ -101,7 +110,21 @@ DeckListSpec SlotList(const char *title, const std::vector<Slot> &slots, bool lo
   DeckListSpec spec;
   spec.title = title;
   spec.preview = Preview;
+  g_rows.clear();
+  if (loading) { // the quicksave and autosave first, when there are any (F-064)
+    for (int extra : {kQuickSlot, kAutoSlot}) {
+      const Slot s = ReadSlot(extra);
+      if (!s.used)
+        continue;
+      DeckListItem item;
+      item.label = s.desc;
+      item.value = extra == kQuickSlot ? "QUICK" : "AUTO";
+      spec.items.push_back(item);
+      g_rows.push_back(extra);
+    }
+  }
   for (int i = 0; i < kSlots; ++i) {
+    g_rows.push_back(i);
     const Slot &s = slots[static_cast<size_t>(i)];
     DeckListItem item;
     item.label = s.used ? s.desc : (s.taken ? TXT_ILLEGALSAVEGAME : TXT_EMPTY);
@@ -115,6 +138,10 @@ DeckListSpec SlotList(const char *title, const std::vector<Slot> &slots, bool lo
 } // namespace
 
 std::filesystem::path SaveDeck_SlotPath(int slot) {
+  if (slot == kQuickSlot)
+    return cf_GetWritableBaseDirectory() / "savegame" / "quicksave";
+  if (slot == kAutoSlot)
+    return cf_GetWritableBaseDirectory() / "savegame" / "autosave";
   char name[16];
   std::snprintf(name, sizeof(name), "saveg%03d", slot);
   return cf_GetWritableBaseDirectory() / "savegame" / name;
@@ -168,24 +195,31 @@ bool SaveDeck_Run() {
   }
 }
 
+void SaveDeck_RequestLoad(int slot) { g_requested = slot; }
+
 int SaveDeck_PickLoad() {
+  if (g_requested != -1) { // quickload: no screen
+    const int slot = g_requested;
+    g_requested = -1;
+    return slot;
+  }
   if (IsClassic())
     return kSaveDeckStock;
   const std::vector<Slot> slots = ReadSlots();
+  DeckListSpec spec = SlotList(TXT_LOADGAME, slots, true);
   int first = -1;
-  for (int i = kSlots - 1; i >= 0; --i) {
-    if (slots[static_cast<size_t>(i)].used)
-      first = i;
+  for (int row = static_cast<int>(spec.items.size()) - 1; row >= 0; --row) {
+    if (spec.items[static_cast<size_t>(row)].enabled)
+      first = row;
   }
   if (first < 0) {
     Deck_Message(TXT_LOADGAME, TXT_ERRNOSAVEGAMES);
     return -1;
   }
-  DeckListSpec spec = SlotList(TXT_LOADGAME, slots, true);
   spec.selected = first;
-  const int slot = Deck_RunList(spec);
+  const int row = Deck_RunList(spec);
   FreeThumb();
-  return slot;
+  return row < 0 ? -1 : g_rows[static_cast<size_t>(row)];
 }
 
 } // namespace tartarus
