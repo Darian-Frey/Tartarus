@@ -43,7 +43,8 @@ list(APPEND HEADERS
   tartarus/converter.h
   tartarus/sidecar_core.h
   tartarus/weapons_sidecar.h
-  tartarus/gravmissile.h
+  tartarus/launcher.h
+  tartarus/emp.h
   tartarus/gravwell.h
   tartarus/gravwell_core.h
   tartarus/ai_react.h
@@ -96,7 +97,8 @@ list(APPEND CPPS
   tartarus/converter.cpp
   tartarus/sidecar_core.cpp
   tartarus/weapons_sidecar.cpp
-  tartarus/gravmissile.cpp
+  tartarus/launcher.cpp
+  tartarus/emp.cpp
   tartarus/gravwell.cpp
   tartarus/gravwell_core.cpp
   tartarus/ai_react.cpp

@@ -29,7 +29,8 @@
 #include "guidebot.h"
 #include "converter.h"
 #include "cloak.h"
-#include "gravmissile.h"
+#include "launcher.h"
+#include "emp.h"
 #include "ai_react.h"
 #include "flight_test.h"
 #include "frame_clock.h"
@@ -100,7 +101,8 @@ void Tartarus_Init() {
   Converter_Init();
   Cloak_Init();
   Gravwell_Init();
-  GravMissile_Init();
+  Launcher_Init();
+  Emp_Init();
   Repulsor_Init();
   Quicksave_Init();
   FlightTest_Init();
@@ -140,7 +142,7 @@ void UpdatePause() {
 } // namespace
 
 bool HandleKey(int key) {
-  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) || GravMissile_HandleKey(key) || Repulsor_HandleKey(key) || Quicksave_HandleKey(key) ||
+  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) || Launcher_HandleKey(key) || Repulsor_HandleKey(key) || Quicksave_HandleKey(key) ||
                     Binds_HandleKey(key);
   UpdatePause();
   return used;
@@ -168,15 +170,22 @@ void Frame() {
   Cloak_Frame();
   Gravwell_Frame();
   AiReact_Frame();
+  Emp_Frame();
   Quicksave_Frame();
 }
 
 float TimeScale() { return Cheats_TimeScale(); }
 
+void Tartarus_WeaponExploded(const object *weapon_obj, const vector *point) {
+  Gravwell_WeaponExploded(weapon_obj, point);
+  Emp_WeaponExploded(weapon_obj, point);
+}
+
 void Tartarus_LevelStart() {
   MapScan_Reset();
   Gravwell_Reset();
-  GravMissile_LevelStart();
+  Launcher_LevelStart();
+  Emp_Reset();
   Repulsor_Reset();
   AiReact_Reset();
   Quicksave_LevelStart();
@@ -184,14 +193,15 @@ void Tartarus_LevelStart() {
 
 void Tartarus_SaveState(const std::filesystem::path &save_path) {
   MapScan_Save(save_path);
-  GravMissile_Save(save_path); // writes the .tstate file
+  Launcher_Save(save_path); // writes the .tstate file
   AiReact_Save(save_path);     // appends to it
 }
 
 void Tartarus_LoadState(const std::filesystem::path &save_path) {
   MapScan_Load(save_path);
   Gravwell_Reset();
-  GravMissile_Load(save_path);
+  Launcher_Load(save_path);
+  Emp_Reset();
   AiReact_Load(save_path);
   Repulsor_Reset();
   Quicksave_Loaded();
@@ -202,7 +212,7 @@ void RenderOverlays() {
   OrientHud_Render();
   MouseFlight_Render();
   Cloak_Render();
-  GravMissile_Render();
+  Launcher_Render();
   Repulsor_Render();
   Cheats_Render();
   Deck_Render();

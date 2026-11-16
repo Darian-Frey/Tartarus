@@ -939,7 +939,7 @@
 #include "pserror.h"
 #include "psrand.h"
 #include "BOA.h"
-#include "tartarus/gravwell.h" // TARTARUS: F-021
+#include "tartarus/tartarus.h" // TARTARUS: F-021, F-026
 
 
 static bool AreObjectsAttached(const object *obj1, const object *obj2) {
@@ -3079,7 +3079,7 @@ void DoWeaponExploded(object *obj, vector *norm, vector *collision_point, object
   if (Weapons[obj->id].flags & WF_GRAVITY_FIELD)
     CreateGravityField(&obj->pos, obj->roomnum, Weapons[obj->id].gravity_size, Weapons[obj->id].gravity_time,
                        obj->parent_handle);
-  tartarus::Gravwell_WeaponExploded(obj, &col_point); // TARTARUS: F-021 a gravity missile leaves a well
+  tartarus::Tartarus_WeaponExploded(obj, &col_point); // TARTARUS: F-021, F-026 gravity wells and EMP mines
 
   if (hit_object == Viewer_object && !(Weapons[obj->id].flags & WF_MATTER_WEAPON))
     return; // Don't draw if it is the viewer who is getting hit

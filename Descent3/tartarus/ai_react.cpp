@@ -89,6 +89,7 @@ void StunCommand(const CommandArgs &a, ConsoleCore &c) {
       ++n;
   }
   c.Print("stun: " + std::to_string(n) + " robot(s) for " + std::to_string(seconds).substr(0, 4) + " s");
+  LOG_INFO.printf("[tartarus] stun: %d robot(s) within %.0f for %.1f s", n, radius, seconds);
 }
 
 } // namespace

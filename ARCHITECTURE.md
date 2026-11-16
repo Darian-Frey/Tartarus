@@ -35,7 +35,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  frame_clock.cpp microsecond frame time, exact frame cap (F-061)     │
 │  flight_test.cpp flighttest: frame-rate comparison probe (F-061)     │
 │  ai_react.cpp    robot reactions: stun, decloak noise (F-070)        │
-│  gravmissile.cpp gravity missile: G key, ammunition, readout         │
+│  launcher.cpp    tactical launcher: G fires, Y cycles, ammo (D-020)  │
+│  emp.cpp         EMP mine: proximity trigger, stun pulse (F-026)     │
 │  converter.cpp   energy↔shield converter (B / N)                     │
 │  mouse_flight.cpp  virtual-joystick mouse modes (F-067)              │
 │  orient_hud.cpp  up-tick, attitude ball, gizmo                       │
@@ -148,19 +149,19 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/gamesequence.cpp::RunGameMenu` | `Deck_RunPendingControls()` before `OptionsMenu()` | Key bindings row of the in-level deck (F-069, D-016) |
 | `lib/renderer.h`, `renderer/HardwareOpenGL.cpp` | `rend_DrawTriangles2D()`, a new function | many flat triangles in one draw (F-046) |
 | `Descent3/Controls.cpp` | `Level_Apply()` after `MouseFlight_Apply()` | hold and snap as bank input (F-043) |
-| `Descent3/TelComAutoMap.cpp` | `Tartarus_LevelStart()` in `AutomapClearVisMap()` (the dispatcher: `MapScan_Reset()`, `Gravwell_Reset()`, `GravMissile_LevelStart()`), `MapScan_MapOpened()` in `TelComAutoMap()`, `MapScan_DrawFace()` per surface in `TCAMRenderRoom()`, `MapScan_FinishRooms()` after the rooms in `TCAMCallback()`, `MapScan_Background()` for the screen colour | laser scanner on the map (F-050) |
+| `Descent3/TelComAutoMap.cpp` | `Tartarus_LevelStart()` in `AutomapClearVisMap()` (the dispatcher: `MapScan_Reset()`, `Gravwell_Reset()`, `Launcher_LevelStart()`, `Emp_Reset()` and the rest), `MapScan_MapOpened()` in `TelComAutoMap()`, `MapScan_DrawFace()` per surface in `TCAMRenderRoom()`, `MapScan_FinishRooms()` after the rooms in `TCAMCallback()`, `MapScan_Background()` for the screen colour | laser scanner on the map (F-050) |
 | `lib/renderer.h`, `renderer/HardwareOpenGL.cpp` | `rend_DrawLines3D()`, a new function | world-space lines in one draw, so depth agrees with the walls (F-050) |
 | `Descent3/gamesave.cpp` | `Tartarus_SaveState()` at the end of `SaveGameState()`, `Tartarus_LoadState()` in `LoadCurrentSaveGame()` (dispatchers in `tartarus.cpp`) | scan kept in a `.amap` file and the gravity-missile count in a `.tstate` file beside the save (F-050, F-021, AV-003) |
 | `Descent3/gamesequence.cpp` (`GAME_TELCOM_AUTOMAP`) | `MapScan_RunMap()` before `TelComShow()` | full-resolution map screen (F-050) |
 | `Descent3/TelComAutoMap.cpp`, `TelComAutoMap.h` | `TCAMRenderView()` split from `TCAMCallback()`; new `TCAMDeckBegin()`, `TCAMDeckFrame()`, `TCAMDeckEnd()`; `MapScan_CameraBack()`, `MapScan_DrawsShip()` | the map without TelCom (F-050) |
 | `Descent3/multisafe.cpp`, `Descent3/GameCheat.cpp` | `MapScan_RevealRoom()` beside `AutomapVisMap[i] = 1` | full-map powerup and cheat fill in the scanner map (F-050) |
-| `Descent3/GameCheat.cpp` | `GravMissile_Fill()` before `AddHUDMessage(TXT_ALLWEAPONS)` | the typed all-weapons cheat fills the gravity missiles too (F-021) |
+| `Descent3/GameCheat.cpp` | `Launcher_Fill()` before `AddHUDMessage(TXT_ALLWEAPONS)` | the typed all-weapons cheat fills the tactical weapons too (F-021, D-020) |
 | `Descent3/hud.cpp::RenderReticle` | `OrientHud_RenderReticle()` before the stock drawing, with the slot masks | drawn reticle styles (F-047) |
 | `Descent3/hud.cpp::RenderHUDFrame` | `OrientHud_RenderCanopy()` before `RenderCockpit()` in cockpit view | flight HUD behind the cockpit frame (F-046, D-017) |
 | `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |
 | `Descent3/screens.cpp::PostLevelResults` | `ResultsDeck_Run()` | deck end-of-level review (F-069, D-016) |
 | `Descent3/buddymenu.cpp::BuddyDisplay` | `GuideBot_RunMenu()` after the menu data arrives | deck Guide-Bot menu with Next key, Door I can now open and Unexplored area (F-069, D-016, F-072) |
-| `Descent3/WeaponFire.cpp::DoWeaponExploded` | `Gravwell_WeaponExploded()` after the stock `WF_GRAVITY_FIELD` check | a gravity missile leaves a well (F-021, D-009) |
+| `Descent3/WeaponFire.cpp::DoWeaponExploded` | `Tartarus_WeaponExploded()` after the stock `WF_GRAVITY_FIELD` check (dispatcher: `Gravwell_WeaponExploded()`, `Emp_WeaponExploded()`) | a gravity missile leaves a well, an EMP mine pulses (F-021, D-009, F-026) |
 | `Descent3/damage.cpp::ApplyDamageToPlayer` | `Cloak_PlayerDamaged()` after `DecreasePlayerShields()` (single player) | a big hit breaks the cloak (F-020) |
 | `physics/collide.cpp::collide_generic_and_player` | `Cloak_Bumped()` before the robot's `AIN_BUMPED_OBJ` | touching a robot breaks the cloak and alerts it (F-020) |
 | `physics/physics.cpp::PhysicsDoSimRot` | the turn speed at the start of the frame kept; `PhysExact_Rotation()` after the stock rotation matrix is built | the frame's turn from the unrounded angle of the average turn speed (F-061, D-012) |

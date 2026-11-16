@@ -149,7 +149,7 @@
 #include "ship.h"
 #include "render.h"
 #include "renderer.h"
-#include "tartarus/gravmissile.h" // TARTARUS: F-021
+#include "tartarus/launcher.h" // TARTARUS: F-021, D-020
 #include "tartarus/map_scan.h" // TARTARUS: F-050
 
 #define CHEATSPOT 14
@@ -616,7 +616,7 @@ void DemoCheats(int key) {
         Players[Player_num].counter_measures.Add(OBJ_WEAPON, p_id, objp, OBJ_POWERUP, p_pid);
     }
 
-    tartarus::GravMissile_Fill(); // TARTARUS: F-021 the all-weapons cheat fills the gravity missiles too
+    tartarus::Launcher_Fill(); // TARTARUS: F-021, D-020 the all-weapons cheat fills the tactical weapons too
     AddHUDMessage(TXT_ALLWEAPONS);
     if (snd_cheat != -1)
       Sound_system.Play2dSound(snd_cheat);

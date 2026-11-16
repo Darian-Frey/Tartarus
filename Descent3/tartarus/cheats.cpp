@@ -24,7 +24,7 @@
 
 #include "cheats.h"
 
-#include "gravmissile.h"
+#include "launcher.h"
 #include "map_scan.h"
 
 #include <algorithm>
@@ -197,7 +197,7 @@ void GiveAllWeapons() {
   object *objp = &Objects[p.objnum];
   p.weapon_flags = 0xFFFFFFFF;
   FillAmmo(true, true);
-  GravMissile_Fill(); // the Tartarus weapons too (D-019)
+  Launcher_Fill(); // the Tartarus weapons too (D-019)
   p.energy = MAX_ENERGY;
   objp->shields = MAX_SHIELDS;
   p.afterburn_time_left = AFTERBURN_TIME;
@@ -380,6 +380,7 @@ constexpr CommandCheat kCommandCheats[] = {
     {"timescale", CheatId::Torpor},
     {"map", CheatId::Ferryman},
     {"stun", CheatId::Hourglass}, // F-070 test tool, with the debug overlays
+    {"emp", CheatId::Hourglass},  // F-026 test tool
 };
 
 bool ParseOnOff(const std::string &s, bool current, bool *out) {
@@ -477,7 +478,7 @@ void RegisterCommands(ConsoleCore &con) {
                       Objects[p.objnum].shields = MAX_SHIELDS;
                     } else if (key == "ammo") {
                       FillAmmo(true, true);
-                      GravMissile_Fill();
+                      Launcher_Fill();
                     } else if (key == "keys") {
                       GiveAllKeys();
                     } else {
@@ -486,7 +487,7 @@ void RegisterCommands(ConsoleCore &con) {
                         if (Squash(Static_weapon_names[i]) == key)
                           found = i;
                       }
-                      if (found < 0 && GravMissile_Give(key)) { // the Tartarus weapons (D-019)
+                      if (found < 0 && Launcher_Give(key)) { // the Tartarus weapons (D-019)
                         Notify("Given: " + what);
                         return;
                       }

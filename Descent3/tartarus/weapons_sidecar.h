@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace tartarus {
 
@@ -49,5 +50,8 @@ void WeaponSidecar_Load();
 /// A loaded sidecar weapon by name (any case) or by Weapons[] index; nullptr if none.
 const SidecarWeapon *WeaponSidecar_Find(const std::string &name);
 const SidecarWeapon *WeaponSidecar_ByIndex(int index);
+
+/// Every loaded sidecar weapon, in weapons.txt order.
+const std::vector<SidecarWeapon> &WeaponSidecar_All();
 
 } // namespace tartarus

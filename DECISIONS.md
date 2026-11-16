@@ -438,7 +438,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - **B. A key for each weapon, as the gravity missile.** Rejected: six more keys.
 - **C. Share stock secondary slots (D-019's option C).** Rejected: reverses D-019 and is the most work in weapon selection and the HUD.
 
-**Decision.** Option A. D-019 stands for everything but the key: tactical weapons stay outside the ten secondary slots, with Tartarus ammunition counts kept beside saves and fired through the engine's own firing code. The readout under the reticle shows the selected weapon and its count. Built with the first Phase 6 weapon; until then G fires the gravity missile as before.
+**Decision.** Option A. D-019 stands for everything but the key: tactical weapons stay outside the ten secondary slots, with Tartarus ammunition counts kept beside saves and fired through the engine's own firing code. The readout under the reticle shows the selected weapon and its count. Built with the first Phase 6 weapon, the EMP mine (2026-11-16, `launcher.cpp`, which replaces `gravmissile.cpp`; the `gm_` and `hud_gravmissile` cvar names are kept so settings carry over).
 
 **Consequences.**
 - One new key (Y); the cycle order follows `weapons.txt`.

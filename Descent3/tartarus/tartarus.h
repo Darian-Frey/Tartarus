@@ -22,6 +22,10 @@
 
 #include <filesystem>
 
+#include "vecmat.h"
+
+struct object;
+
 namespace tartarus {
 
 /// Called from InitD3Systems1() right after InitIOSystems(): command-line args
@@ -54,6 +58,9 @@ void PausedFrame();
 
 /// A level has started (AutomapClearVisMap(), before StartLevel()): the
 /// scanner map and the per-level state of the modules start afresh.
+/// DoWeaponExploded() (WeaponFire.cpp): a weapon went off; gravity wells (F-021) and EMP mines (F-026).
+void Tartarus_WeaponExploded(const object *weapon_obj, const vector *point);
+
 void Tartarus_LevelStart();
 
 /// Beside a save, and after a load: the scanner's .amap and the modules' state

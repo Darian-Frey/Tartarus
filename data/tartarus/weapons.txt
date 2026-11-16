@@ -34,3 +34,23 @@ weapon "GravMissile" {
   ammo_max     12
   flags        TWF_GRAVWELL
 }
+
+// EMP mine (F-026, D-020): dropped behind the ship (speed 0), goes off when a
+// robot comes near (emp_trigger_radius) or something hits it, and stuns the
+// robots around it (emp_radius, emp_time) instead of damaging them.
+weapon "EMPMine" {
+  base         "Concussion"
+  class        tactical
+  speed        0
+  lifetime     60.0
+  mass         1.0
+  damage       0
+  impact_size  0
+  impact_damage 0
+  model        "ProxMine.OOF"
+  tint         0.3 0.6 1.0
+  fire_delay   0.5
+  ammo_pickup  2
+  ammo_max     6
+  flags        TWF_EMP
+}

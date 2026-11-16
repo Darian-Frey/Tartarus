@@ -131,7 +131,32 @@ void Apply(const SidecarKey &k, weapon *w, SidecarWeapon *side, const std::strin
   }
 }
 
+// A stock weapon, for picking a base: its flags, physics and spawns.
+std::string StockLine(int i) {
+  const weapon &w = Weapons[i];
+  const bool model = !(w.flags & WF_IMAGE_BITMAP) && !(w.flags & WF_IMAGE_VCLIP) && w.fire_image_handle >= 0;
+  char line[320];
+  std::snprintf(line, sizeof(line),
+                "%.40s (#%d): flags 0x%x, phys 0x%x, speed %.0f, life %.1f, mass %.2f, drag %.2f, damage %.0f, "
+                "blast %.0f/%.0f, spawn %d x%d, robot %d, %s %.40s",
+                w.name, i, static_cast<unsigned>(w.flags), static_cast<unsigned>(w.phys_info.flags),
+                w.phys_info.velocity.z(), w.life_time, w.phys_info.mass, w.phys_info.drag, w.generic_damage,
+                w.impact_size, w.impact_generic_damage, w.spawn_handle, w.spawn_count, w.robot_spawn_handle,
+                model ? "model" : "image", model ? Poly_models[w.fire_image_handle].name : "");
+  return line;
+}
+
 void WeaponInfo(const CommandArgs &a, ConsoleCore &c) {
+  if (a.size() > 1 && a[1] == "stock") { // every stock weapon, also in the log
+    for (int i = 0; i < MAX_WEAPONS; ++i) {
+      if (!Weapons[i].used || WeaponSidecar_ByIndex(i) != nullptr)
+        continue;
+      const std::string line = StockLine(i);
+      c.Print(line);
+      LOG_INFO << "[tartarus] weaponinfo: " << line;
+    }
+    return;
+  }
   if (g_weapons.empty()) {
     c.Print("weaponinfo: no sidecar weapons loaded");
     return;
@@ -156,7 +181,7 @@ void WeaponInfo(const CommandArgs &a, ConsoleCore &c) {
 void WeaponSidecar_Load() {
   if (!g_command_added) {
     g_command_added = true;
-    Console().AddCommand({"weaponinfo", "weaponinfo [name]", "List the Tartarus weapons from weapons.txt (D-007)",
+    Console().AddCommand({"weaponinfo", "weaponinfo [name|stock]", "List the Tartarus weapons from weapons.txt (D-007), or every stock weapon",
                           CMD_NONE, [](const CommandArgs &a, ConsoleCore &c) { WeaponInfo(a, c); }});
   }
   if (!g_weapons.empty())
@@ -231,5 +256,7 @@ const SidecarWeapon *WeaponSidecar_ByIndex(int index) {
       return &s;
   return nullptr;
 }
+
+const std::vector<SidecarWeapon> &WeaponSidecar_All() { return g_weapons; }
 
 } // namespace tartarus

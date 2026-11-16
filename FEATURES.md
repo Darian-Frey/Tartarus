@@ -161,7 +161,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Priority:** Could
 **Acceptance:**
 - Proximity mine that applies a `stunned` AI state for `emp_time` instead of damage
-**Status:** Not started (Phase 6)
+**Status:** In progress (Phase 6), 2026-11-16: built, to try in play. `emp.cpp` and `EMPMine` in `weapons.txt` (a speed-0 Concussion with the stock ProxMine model, no damage); dropped behind the ship from the tactical launcher (`launcher.cpp`, D-020: Y selects it, G drops it; 2 a level, `emp_level_ammo`). Goes off when a robot comes within `emp_trigger_radius` (25) in sight, after `emp_arm_time`, or when hit; stuns robots within `emp_radius` (60) in sight for `emp_time` (4 s) through F-070, bosses excepted (`emp_immune_mass`). Scripted runs: selecting, dropping (the mine sits behind the ship), the count going 2, 1, 0 and the pulse itself (`emp` test command) work; no robot came near a mine in the runs, so the trigger and the stun on real robots wait for play.
 **Notes:** Fired from the tactical launcher (D-020).
 
 ### F-027 Overcharge

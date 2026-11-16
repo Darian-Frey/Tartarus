@@ -203,7 +203,7 @@ Rules:
 
 ## 7. Gravity missile and repulsor (F-021, F-022)
 
-**Launcher** (`gravmissile.cpp`, D-019): `gm_fire_key` (G) fires the `GravMissile` of `weapons.txt` (§5) straight ahead through `CreateAndFireWeapon()`, with its fire sound, at most once per `fire_delay`; firing breaks the cloak. Ammunition is a Tartarus count, not a weapon slot: each level starts with at least `gm_level_ammo` (owner, 2026-11-15; more is never taken away), at most `ammo_max`; a new game or replaying a level starts from 0 before the refill. The count is kept in a `.tstate` file beside each save. `give gravmissile` (and `give ammo`, `give all`) fills it. Readout `GRAV MISSILES n` under the view's centre at `hud_gravmissile_y` (`hud_gravmissile` 0 off, 1 while you have any, 2 always). With none left the key says "No gravity missiles".
+**Launcher** (`launcher.cpp`, D-019, D-020; `gravmissile.cpp` until 2026-11-16): every `class tactical` weapon of `weapons.txt` (§5), in file order. `gm_fire_key` (G) fires the selected one through `CreateAndFireWeapon()`, with its fire sound, at most once per its `fire_delay`; a weapon with speed 0 (a mine) is dropped behind the ship, the rest fly straight ahead; firing breaks the cloak. `gm_cycle_key` (Y) selects the next weapon you have ammunition for ("EMP MINE selected"). Ammunition is a Tartarus count per weapon, not a weapon slot: each level starts with at least `gm_level_ammo` gravity missiles (owner, 2026-11-15) and `emp_level_ammo` EMP mines (more is never taken away), at most `ammo_max`; a new game or replaying a level starts from 0 before the refill. Counts and the selection are kept in a `.tstate` file beside each save (`ammo <name> <n>`, `selected <name>`; the older `gravmissile <n>` line still loads). `give <weapon>` (`give gravmissile`, `give empmine`) and `give ammo`, `give all` and the all-weapons cheats fill them. Readout `<WEAPON> n` (`GRAV MISSILE 3`) under the view's centre at `hud_gravmissile_y` (`hud_gravmissile` 0 off, 1 while you have any, 2 always). With none left the key says "No GRAV MISSILE left".
 
 **Well** (`gravwell.cpp`): when a weapon with `TWF_GRAVWELL` explodes (wall, robot or end of life; hook in `DoWeaponExploded()`), a well opens at the point of impact for `gw_time`. Wells are a Tartarus side list run from `Frame()`, at most 8, cleared at each level start and load: no fireball index is added (D-009's option B, implemented without touching the fireball table). Each frame (`WellAcceleration()`, `gravwell_core.cpp`, unit-tested):
 
@@ -234,7 +234,8 @@ for each pullable object o (robots but not the Guide-Bot; the player if gw_self,
 | `gw_pull_weapons` | 1 | missiles curve in (fun, and a counter) |
 | `gw_escape` | 0.5 | robots thrust against the pull with this share of their own engines (`full_thrust / mass` as an acceleration); stunned robots do not (F-070) |
 | `gw_stun_on_arrive` | 0 | seconds a robot reaching the centre (within 2 units) is stunned; 0 off (F-070) |
-| `gm_fire_key` | `g` | |
+| `gm_fire_key` | `g` | fires the selected tactical weapon (D-020) |
+| `gm_cycle_key` | `y` | selects the next one (D-020) |
 | `gm_level_ammo` | 3 | each level starts with at least this many |
 | `hud_gravmissile` | 1 | readout: 0 off, 1 while you have any, 2 always |
 | `hud_gravmissile_y` | 0.665 | readout height on the view |
@@ -358,7 +359,7 @@ Saving: the scan goes in a `.amap` file beside each save, as upstream's `.cnt`, 
 | Cheat menu | Shift+F12 (stock F12 drops a marker) |
 | Cloak | C |
 | Repulsor | V |
-| Gravity missile | G (`gm_fire_key`, D-019); from the first Phase 6 weapon, G fires the selected tactical weapon and Y cycles (D-020) |
+| Tactical launcher | G fires the selected tactical weapon, Y cycles (`gm_fire_key`, `gm_cycle_key`; D-019, D-020) |
 | Convert → shields / → energy | B / N (`conv_to_shields_key`, `conv_to_energy_key`; [ and ] are the stock inventory keys) |
 | Auto-level hold | X (`al_hold_key`; Left Alt is stock Toggle Slide) |
 | Snap to up | T (`al_snap_key`; Z until 2026-11-16, BUG-017) |
@@ -432,7 +433,7 @@ Layout is a 1160x680 area scaled to the frame, so the deck keeps its size on scr
 
 ---
 
-## 16. Robot reactions (F-070)
+## 16. Robot reactions and the EMP mine (F-070, F-026)
 
 `ai_react.cpp`, Tartarus mode, single player; no robot struct changes (AV-003).
 
@@ -443,4 +444,15 @@ Layout is a 1160x680 area scaled to the frame, so the deck keeps its size on scr
 | Cvar | Default | Notes |
 |---|---|---|
 | `ai_decloak_noise` | 120 | world units; 0 off |
+
+**EMP mine** (`emp.cpp`, F-026): `EMPMine` in `weapons.txt`, a copy of the Concussion with speed 0, lifetime 60 s, no damage or blast, the stock `ProxMine.OOF` model, `TWF_EMP`; dropped behind the ship by the launcher. After `emp_arm_time` it goes off when a robot (not the Guide-Bot, lighter than `emp_immune_mass`) comes within `emp_trigger_radius` of it in sight, or when something hits it (the `DoWeaponExploded` hook); after 60 s it simply vanishes. The pulse stuns every such robot within `emp_radius` in sight of it for `emp_time` (above), with a blue blast ring, sparks, a lightning strand to each robot, the stock lightning sound and a log line. No effect on the player. Mines lying in a loaded level are watched again (armed). Console `emp` (HOURGLASS) pulses from the ship, for tests.
+
+| Cvar | Default | Notes |
+|---|---|---|
+| `emp_radius` | 60 | world units, to a robot's surface |
+| `emp_time` | 4 | s stunned |
+| `emp_trigger_radius` | 25 | |
+| `emp_arm_time` | 0.75 | s after dropping |
+| `emp_immune_mass` | 40 | bosses; 0 none |
+| `emp_level_ammo` | 2 | each level starts with at least this many |
 
