@@ -30,6 +30,7 @@
 #include "converter.h"
 #include "cloak.h"
 #include "gravmissile.h"
+#include "repulsor.h"
 #include "gravwell.h"
 #include "deck.h"
 #include "descent.h"
@@ -95,6 +96,7 @@ void Tartarus_Init() {
   Cloak_Init();
   Gravwell_Init();
   GravMissile_Init();
+  Repulsor_Init();
   Deck_Init();
 }
 
@@ -128,7 +130,7 @@ void UpdatePause() {
 } // namespace
 
 bool HandleKey(int key) {
-  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) || GravMissile_HandleKey(key) ||
+  const bool used = Console_HandleKey(key) || Deck_HandleKey(key) || Cheats_HandleKey(key) || Level_HandleKey(key) || Cloak_HandleKey(key) || GravMissile_HandleKey(key) || Repulsor_HandleKey(key) ||
                     Binds_HandleKey(key);
   UpdatePause();
   return used;
@@ -163,6 +165,7 @@ void Tartarus_LevelStart() {
   MapScan_Reset();
   Gravwell_Reset();
   GravMissile_LevelStart();
+  Repulsor_Reset();
 }
 
 void Tartarus_SaveState(const std::filesystem::path &save_path) {
@@ -174,6 +177,7 @@ void Tartarus_LoadState(const std::filesystem::path &save_path) {
   MapScan_Load(save_path);
   Gravwell_Reset();
   GravMissile_Load(save_path);
+  Repulsor_Reset();
 }
 
 void RenderOverlays() {
@@ -182,6 +186,7 @@ void RenderOverlays() {
   MouseFlight_Render();
   Cloak_Render();
   GravMissile_Render();
+  Repulsor_Render();
   Cheats_Render();
   Deck_Render();
   Console_Render();

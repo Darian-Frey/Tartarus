@@ -167,7 +167,10 @@ bool GravMissile_Give(const std::string &squashed_name) {
   return true;
 }
 
-void GravMissile_Fill() { g_ammo = Max(); }
+void GravMissile_Fill() {
+  if (!IsClassic())
+    g_ammo = Max();
+}
 
 void GravMissile_Render() {
   if (!Usable() || hud_gravmissile->GetInt() == 0 || !Flight_ContextActive() || Missile() == nullptr)

@@ -28,7 +28,8 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 │  display.cpp     resolution by size, session-only -windowed          │
 │  weapons_sidecar.cpp  loads data/tartarus/weapons.txt → Weapons[]    │
 │  cloak.cpp       player cloak on C: state machine, breaks, gauge     │
-│  gravwell.cpp    gravity-missile well, repulsor                      │
+│  gravwell.cpp    gravity-missile well                                │
+│  repulsor.cpp    repulsor pulse: V key, wall-launch, readout         │
 │  gravmissile.cpp gravity missile: G key, ammunition, readout         │
 │  converter.cpp   energy↔shield converter (B / N)                     │
 │  mouse_flight.cpp  virtual-joystick mouse modes (F-067)              │
@@ -85,7 +86,7 @@ Descriptive only; rationale lives in DECISIONS.md. File and symbol names below w
 
 **cloak.cpp.** State machine (`READY → ACTIVE → COOLDOWN → READY`) on a per-player struct kept *alongside* `Players[]` (not inside it, to avoid changing save layout — AV-003). Calls `MakeObjectInvisible()` / clears the invisibility flags on transition. Exposes `Cloak_Break(reason)` for the two hooks. Draws its gauge through a HUD item registered in `hud.cpp`.
 
-**gravwell.cpp.** Registers a new fireball index (`TARTARUS_GRAVWELL_INDEX`) and a `DoGravWellFrame(object*)` dispatched from `fireball.cpp::DoExplosionFrame`. Implements the pull: iterate room/terrain-neighbourhood objects, compute linear-falloff force, scale by mass, skip `GW_IMMUNE`, `phys_apply_force()`. Deliberately does **not** set `PF_DESTINATION_POS` the way the stock field does (that pins objects to the centre and is the main wall-clip risk). Repulsor is the same function with negative force and no spawned object.
+**gravwell.cpp.** Registers a new fireball index (`TARTARUS_GRAVWELL_INDEX`) and a `DoGravWellFrame(object*)` dispatched from `fireball.cpp::DoExplosionFrame`. Implements the pull: iterate room/terrain-neighbourhood objects, compute linear-falloff force, scale by mass, skip `GW_IMMUNE`, `phys_apply_force()`. Deliberately does **not** set `PF_DESTINATION_POS` the way the stock field does (that pins objects to the centre and is the main wall-clip risk). Repulsor is the same function with negative force and no spawned object. *(As built, 2026-11-15/16: wells are a side list run from `Frame()` with one hook in `DoWeaponExploded()`, no fireball index; the repulsor is `repulsor.cpp`, sharing `gravwell_core.cpp`; SPEC §7.)*
 
 **converter.cpp.** Two held keys; per-frame transfer with ratio loss; clamps.
 
@@ -148,6 +149,7 @@ Kept deliberately few and each marked `// TARTARUS:` so upstream merges are grep
 | `Descent3/gamesequence.cpp` (`GAME_TELCOM_AUTOMAP`) | `MapScan_RunMap()` before `TelComShow()` | full-resolution map screen (F-050) |
 | `Descent3/TelComAutoMap.cpp`, `TelComAutoMap.h` | `TCAMRenderView()` split from `TCAMCallback()`; new `TCAMDeckBegin()`, `TCAMDeckFrame()`, `TCAMDeckEnd()`; `MapScan_CameraBack()`, `MapScan_DrawsShip()` | the map without TelCom (F-050) |
 | `Descent3/multisafe.cpp`, `Descent3/GameCheat.cpp` | `MapScan_RevealRoom()` beside `AutomapVisMap[i] = 1` | full-map powerup and cheat fill in the scanner map (F-050) |
+| `Descent3/GameCheat.cpp` | `GravMissile_Fill()` before `AddHUDMessage(TXT_ALLWEAPONS)` | the typed all-weapons cheat fills the gravity missiles too (F-021) |
 | `Descent3/hud.cpp::RenderReticle` | `OrientHud_RenderReticle()` before the stock drawing, with the slot masks | drawn reticle styles (F-047) |
 | `Descent3/hud.cpp::RenderHUDFrame` | `OrientHud_RenderCanopy()` before `RenderCockpit()` in cockpit view | flight HUD behind the cockpit frame (F-046, D-017) |
 | `Descent3/help.cpp::HelpDisplay` | `HelpDeck_Run()` | deck Keys screen (F-069, D-016) |

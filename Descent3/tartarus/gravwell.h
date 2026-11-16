@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "gravwell_core.h"
 #include "vecmat.h"
 
 struct object;
@@ -43,5 +44,12 @@ void Gravwell_Reset();
 
 /// Hook in DoWeaponExploded() (WeaponFire.cpp): a TWF_GRAVWELL weapon leaves a well.
 void Gravwell_WeaponExploded(const object *weapon_obj, const vector *point);
+
+/// The gw_ settings now; the repulsor shares the mass ones (F-022).
+WellSettings Gravwell_Settings();
+
+/// Distance from centre to an object's surface, as the stock gravity field and
+/// concussive force measure it (a polygon model by its wall sphere).
+float Gravwell_SurfaceDistance(const object &o, const vector &centre);
 
 } // namespace tartarus

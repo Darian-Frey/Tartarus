@@ -66,7 +66,9 @@ std::vector<Well> g_wells;
 
 bool Usable() { return !IsClassic() && !(Game_mode & GM_MULTI); }
 
-WellSettings Settings() {
+} // namespace
+
+WellSettings Gravwell_Settings() {
   WellSettings s;
   s.radius = gw_radius->GetFloat();
   s.time = gw_time->GetFloat();
@@ -76,6 +78,8 @@ WellSettings Settings() {
   s.immune_mass = gw_immune_mass->GetFloat();
   return s;
 }
+
+namespace {
 
 // What a well may move: robots (not the Guide-Bot), matter weapons in flight,
 // and the player. Never doors, powerups or buildings.
@@ -91,16 +95,6 @@ bool Pullable(const object &o, int parent_handle) {
     return gw_pull_weapons->GetBool() && (Weapons[o.id].flags & WF_MATTER_WEAPON) && o.handle != parent_handle &&
            WeaponSidecar_ByIndex(o.id) == nullptr; // not another gravity missile
   return false;
-}
-
-// Distance from the well's centre to the object's surface, as the stock field
-// measures it: a polygon model by its wall sphere.
-float SurfaceDistance(const object &o, const vector &centre) {
-  if ((o.flags & OF_POLYGON_OBJECT) && o.type != OBJ_WEAPON) {
-    const vector pos = o.pos + o.wall_sphere_offset;
-    return vm_VectorDistance(&pos, &centre) - Poly_models[o.rtype.pobj_info.model_num].wall_size;
-  }
-  return vm_VectorDistance(&o.pos, &centre) - o.size;
 }
 
 void Strand(const Well &w, const object &o, float dist) {
@@ -123,7 +117,7 @@ void Pull(Well &w, const WellSettings &s) {
     object &o = Objects[i];
     if (!Pullable(o, w.parent_handle))
       continue;
-    const float dist = SurfaceDistance(o, w.pos);
+    const float dist = Gravwell_SurfaceDistance(o, w.pos);
     WellSettings use = s;
     if (o.type == OBJ_PLAYER)
       use.radius = std::min(s.radius, self_radius);
@@ -145,6 +139,14 @@ void Pull(Well &w, const WellSettings &s) {
 }
 
 } // namespace
+
+float Gravwell_SurfaceDistance(const object &o, const vector &centre) {
+  if ((o.flags & OF_POLYGON_OBJECT) && o.type != OBJ_WEAPON) {
+    const vector pos = o.pos + o.wall_sphere_offset;
+    return vm_VectorDistance(&pos, &centre) - Poly_models[o.rtype.pobj_info.model_num].wall_size;
+  }
+  return vm_VectorDistance(&o.pos, &centre) - o.size;
+}
 
 void Gravwell_Init() {
   const uint32_t flags = CVAR_ARCHIVE | CVAR_CLASSIC_LOCKED;
@@ -193,7 +195,7 @@ void Gravwell_Frame() {
   }
   if (Frametime <= 0.0f)
     return;
-  const WellSettings s = Settings();
+  const WellSettings s = Gravwell_Settings();
   for (Well &w : g_wells) {
     Pull(w, s);
     w.life_left -= Frametime;

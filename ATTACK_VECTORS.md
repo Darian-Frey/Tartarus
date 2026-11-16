@@ -58,7 +58,7 @@ Severity: Critical (must hold) | Major (regression on release blocks) | Minor (t
 **Detection.** `tests/gravwell_test` (headless physics step with a wall between robot and well: robot must end on its own side); console `r_showcollide 1` during tuning; force clamp `F ≤ gw_force` asserted in Debug builds; NaN guard on every `phys_apply_force` from Tartarus code.
 **Related decisions.** D-009.
 **Related features.** F-021, F-022.
-**History.** 2026-11-15: wells built (`gravwell.cpp`). The pull is an acceleration, at most `gw_force`, times `Frametime` (so not frame-rate dependent), with NaN and bad input giving nothing, all in `gravwell_core_tests.cpp`; objects move only through `phys_apply_force`, never `PF_DESTINATION_POS`. The headless wall test planned here needs the engine's physics and is not built; the wall-clipping check is a manual one in the tuning session.
+**History.** 2026-11-15: wells built (`gravwell.cpp`). The pull is an acceleration, at most `gw_force`, times `Frametime` (so not frame-rate dependent), with NaN and bad input giving nothing, all in `gravwell_core_tests.cpp`; objects move only through `phys_apply_force`, never `PF_DESTINATION_POS`. The headless wall test planned here needs the engine's physics and is not built; the wall-clipping check is a manual one in the tuning session. 2026-11-16: the repulsor (F-022) uses the same guards (`PulseDeltaV()`, `DeflectDeltaV()`, 2 unit tests), touches only objects in line of sight of the ship and moves everything through `phys_apply_force`.
 
 ### AV-007 Cloak / AI inconsistency
 **Severity:** Major

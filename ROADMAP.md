@@ -82,7 +82,7 @@ Phases are append-only; mark Complete with an ISO date. Feature IDs refer to FEA
 - [x] Sidecar weapon definitions (`data/tartarus/weapons.txt`) loaded via `AllocWeapon()` (D-007): built in, overridable from the writable folder, `weaponinfo`; GravMissile defined — 2026-11-15
 - [x] `cloak.cpp`: state machine, energy accounting, break hooks in `damage.cpp` and `physics/collide.cpp` (firing seen without a hook), HUD gauge (F-020) — 2026-11-15
 - [x] `gravwell.cpp`: wells as a side list (no fireball index, D-009 note), pull loop with falloff and mass scaling, `gw_immune_mass`, visuals; `gravmissile.cpp` launcher on G with per-level ammunition (F-021) — 2026-11-15, tuning with the owner to come
-- [ ] Repulsor as a sign-flipped gravity well
+- [x] Repulsor as a sign-flipped gravity well (F-022): `repulsor.cpp` on V, robots pushed, missiles turned round, wall-launch — 2026-11-16, tuning with the owner to come
 - [x] Converter keys and HUD feedback (F-030): B and N, sound, CONVERT status word, stop messages — 2026-11-15
 - [ ] Tuning session via console cvars; final values written to SPEC.md
 **Acceptance:** The "cloak → fire gravity missile round a corner → enemy dragged into view as cloak drops" sequence works reliably on at least three stock levels, and robot pull never clips a robot through a wall (AV-006 test).

@@ -43,4 +43,16 @@ float WellAcceleration(float surface_dist, float life_left, float mass, const We
 /// or 0 if either is not a finite positive number (AV-006).
 float WellDeltaV(float accel, float dt);
 
+/// The repulsor (F-022): the velocity change, in units/s, given once to an
+/// object whose surface is surface_dist from the player. The well's shape with
+/// no fade: s.force is the peak change at contact, falling off linearly to 0
+/// at s.radius, scaled down for heavy objects, nothing for immune ones or bad
+/// numbers (s.time is not used).
+float PulseDeltaV(float surface_dist, float mass, const WellSettings &s);
+
+/// The repulsor on a missile: the outward velocity change that turns its
+/// radial speed (positive moving away from the player) round, so one closing
+/// at 50 leaves at 50; 0 if it is already moving away or the number is bad.
+float DeflectDeltaV(float radial_speed);
+
 } // namespace tartarus

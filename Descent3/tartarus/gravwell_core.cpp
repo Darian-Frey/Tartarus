@@ -45,4 +45,16 @@ float WellDeltaV(float accel, float dt) {
   return accel * dt;
 }
 
+float PulseDeltaV(float surface_dist, float mass, const WellSettings &s) {
+  WellSettings once = s;
+  once.time = 1.0f;
+  return WellAcceleration(surface_dist, 1.0f, mass, once);
+}
+
+float DeflectDeltaV(float radial_speed) {
+  if (!std::isfinite(radial_speed) || radial_speed >= 0.0f)
+    return 0.0f;
+  return -2.0f * radial_speed;
+}
+
 } // namespace tartarus

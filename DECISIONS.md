@@ -200,7 +200,7 @@ Status vocabulary: Proposed | Accepted | Superseded by D-NNN | Deprecated.
 - Repulsor is the same function with the sign flipped and no spawned object.
 - Wall-clipping risk is lower than the stock field but still needs the AV-006 test.
 
-- Implemented 2026-11-15 (F-021) as option B's behaviour without a new fireball index: wells are a Tartarus side list (`gravwell.cpp`) run each frame, so the fireball table and `fireball.cpp` are untouched; one hook in `DoWeaponExploded()` opens a well. The pull is defined as an acceleration (SPEC §7), so the same at any frame rate, unlike the stock field (BUG-018).
+- Implemented 2026-11-15 (F-021) as option B's behaviour without a new fireball index: wells are a Tartarus side list (`gravwell.cpp`) run each frame, so the fireball table and `fireball.cpp` are untouched; one hook in `DoWeaponExploded()` opens a well. The pull is defined as an acceleration (SPEC §7), so the same at any frame rate, unlike the stock field (BUG-018). The repulsor (F-022, 2026-11-16) is the same shape with no fade, outward and once, in `repulsor.cpp`; it reuses the well's mass settings.
 
 **Reversal conditions.** If the fireball system's object pool or lifetime handling proves limiting (e.g. need for several concurrent wells with different behaviours), move to Option C.
 

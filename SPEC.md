@@ -240,7 +240,32 @@ for each pullable object o (robots but not the Guide-Bot; the player if gw_self,
 
 Visuals: a glow (`SUN_CORONA_INDEX`, a quarter of the radius across) at the centre for the life of the well, sparks when it opens, a `LIGHTNING_BOLT_INDEX` strand from the centre to each object it pulls (as the stock field), and screen shake for the player inside it, stronger nearer the centre. Audio: the base weapon's impact sound only (a well sound is still to come). A log line names each well's room and position, for tuning.
 
-**Repulsor** (`rp_`): no object spawned; one-shot application of the loop above with `dir` negated, centred on the player, radius `rp_radius 35`, impulse `rp_force 600`, cost `rp_cost 20` energy, cooldown `rp_cooldown 4.0`.
+**Repulsor** (`repulsor.cpp`, F-022): `rp_key` (V) sends one pulse centred on the ship, for `rp_cost` energy, at most once per `rp_cooldown`; refused with a HUD message while recharging or short of energy. Nothing is spawned. Only what the ship can see is touched (a ray to it, walls and closed doors block, as the stock concussive force). In one frame:
+
+```
+for each robot o (not the Guide-Bot) whose surface is within rp_radius:
+  dv = PulseDeltaV(d, o.mass)            // the well's shape with no fade: rp_force * (1 − d / rp_radius) * mass scale,
+                                         // using gw_mass_ref, gw_mass_min_scale and gw_immune_mass
+  phys_apply_force(o, away_from_ship * dv * o.mass)
+for each matter weapon in flight within rp_radius, not the player's own (rp_deflect):
+  dv = DeflectDeltaV(radial speed)       // closing at v: given 2v outward, so it leaves at v; already leaving: nothing
+wall-launch (rp_self): rays along the ship's six faces and eight corners out to rp_radius + its size;
+  away = −Σ dir_i * fall_i over walls hit; ship dv = rp_force * rp_self * max fall_i along away
+```
+
+`rp_force` is a speed change in units/s at contact, not the planned impulse of 600, which `phys_apply_force` would have divided by mass. Visuals: sparks at the ship, a faint blue flash, shake, a lightning strand to each object moved; sound `SOUND_FORCEFIELD_BOUNCE`. Firing it breaks the cloak. A log line per pulse gives the count moved and the ship's push, for tuning.
+
+| Cvar | Default | Notes |
+|---|---|---|
+| `rp_key` | `v` | |
+| `rp_radius` | 35 | world units, to an object's surface |
+| `rp_force` | 150 | speed given at contact, units/s (to tune) |
+| `rp_cost` | 20 | energy |
+| `rp_cooldown` | 4.0 | s |
+| `rp_deflect` | 1 | turn missiles closing on the ship round |
+| `rp_self` | 0.4 | share of `rp_force` that launches the ship off a wall; 0 off |
+| `hud_repulsor` | 1 | readout: 0 off, 1 while recharging, 2 always |
+| `hud_repulsor_y` | 0.735 | readout height on the view |
 
 ---
 

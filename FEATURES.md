@@ -133,7 +133,7 @@ Priority is MoSCoW. Status is one of Not started | In progress | Complete | With
 **Acceptance:**
 - Bound key emits a radial shove of radius `rp_radius`, force `rp_force`, cost `rp_cost` energy, cooldown `rp_cooldown`
 - Pushes robots, weapons (missiles deflect) and the player (wall-launch is possible)
-**Status:** Not started (Phase 4)
+**Status:** In progress (Phase 4), 2026-11-16: built, to tune with the owner. `repulsor.cpp` (V, 20 energy, 4 s; robots pushed with the well's falloff and mass scaling, `PulseDeltaV()`; enemy missiles closing on the ship have their closing speed turned round, `DeflectDeltaV()`; rays to the walls around the ship launch it off the nearest, `rp_self`; line of sight needed, as the stock concussive force; readout REPULSOR n). 2 unit tests. A scripted run on level 1: 20 energy charged, the ship launched off the wall behind it (speed 10 at the default reach, 33 with the reach widened to 150), the second press refused with the seconds left. Not yet seen: robots pushed and missiles deflected in play.
 **Notes:** Same force code as F-021 with the sign flipped. See also AV-006, D-009.
 
 ### F-023 Flak / proximity burst missile

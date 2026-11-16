@@ -59,6 +59,15 @@ Effort vocabulary: trivial | small | medium | large.
 **Proposal.** Remove the alpha calls and pick a dimmer colour, or draw the ring with a small alpha-capable helper.
 **Trade-offs.** None of note.
 
+### IMP-012: Refresh the module diagram in ARCHITECTURE.md
+**Status:** suggested
+**Found:** 2026-11-16 (adding `repulsor.cpp` for F-022)
+**Location:** `ARCHITECTURE.md` (module diagram and the per-module notes below it); related to F-043, F-050, F-021
+**Effort:** small
+**Description.** The diagram still lists modules by their planned names, which were never built under them: `autolevel_ext.cpp` (built as `level_assist.cpp`) and `automap_ext.cpp` (built as `scan_core.cpp` and `map_scan.cpp`). The `gravwell.cpp` note further down still describes a new fireball index, which the build did without (D-009 note).
+**Proposal.** Rewrite the diagram from the files in `Descent3/tartarus/`, and the per-module notes as built.
+**Trade-offs.** None beyond the time; docs only.
+
 ### IMP-011: Rebuild the Guide-Bot's route planning between the terrain and the mines
 **Status:** suggested (nice to have, if a rebuild proves possible; the owner's call, 2026-11-14)
 **Found:** 2026-11-14 (F-072, the owner's report on level 2 and the owner's save)

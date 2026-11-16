@@ -23,6 +23,8 @@
 
 #include "../gravwell_core.h"
 
+using tartarus::DeflectDeltaV;
+using tartarus::PulseDeltaV;
 using tartarus::WellAcceleration;
 using tartarus::WellDeltaV;
 using tartarus::WellSettings;
@@ -81,4 +83,24 @@ TEST(GravWell, SamePullOverASecondAtAnyFrameRate) {
   for (int i = 0; i < 144; ++i)
     v144 += WellDeltaV(WellAcceleration(10.0f, 1.5f, 2.0f, kSpec), 1.0f / 144.0f);
   EXPECT_NEAR(v60, v144, 1e-2f);
+}
+
+TEST(Repulsor, OneShoveFallingOffToTheRadius) {
+  WellSettings s = kSpec;
+  s.radius = 35.0f;
+  s.force = 150.0f;
+  s.time = 0.0f; // not used by the pulse
+  EXPECT_FLOAT_EQ(PulseDeltaV(0.0f, 2.0f, s), 150.0f);
+  EXPECT_FLOAT_EQ(PulseDeltaV(17.5f, 2.0f, s), 75.0f);
+  EXPECT_FLOAT_EQ(PulseDeltaV(35.0f, 2.0f, s), 0.0f);
+  EXPECT_FLOAT_EQ(PulseDeltaV(0.0f, 8.0f, s), 75.0f);  // heavy: half
+  EXPECT_FLOAT_EQ(PulseDeltaV(0.0f, 40.0f, s), 0.0f);  // boss: immune
+  EXPECT_FLOAT_EQ(PulseDeltaV(std::numeric_limits<float>::quiet_NaN(), 2.0f, s), 0.0f);
+}
+
+TEST(Repulsor, MissilesClosingAreTurnedRound) {
+  EXPECT_FLOAT_EQ(DeflectDeltaV(-50.0f), 100.0f); // closing at 50, leaves at 50
+  EXPECT_FLOAT_EQ(DeflectDeltaV(20.0f), 0.0f);    // already going away
+  EXPECT_FLOAT_EQ(DeflectDeltaV(std::numeric_limits<float>::infinity()), 0.0f);
+  EXPECT_FLOAT_EQ(DeflectDeltaV(-std::numeric_limits<float>::infinity()), 0.0f);
 }

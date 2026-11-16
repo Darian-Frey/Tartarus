@@ -197,6 +197,7 @@ void GiveAllWeapons() {
   object *objp = &Objects[p.objnum];
   p.weapon_flags = 0xFFFFFFFF;
   FillAmmo(true, true);
+  GravMissile_Fill(); // the Tartarus weapons too (D-019)
   p.energy = MAX_ENERGY;
   objp->shields = MAX_SHIELDS;
   p.afterburn_time_left = AFTERBURN_TIME;
@@ -468,7 +469,6 @@ void RegisterCommands(ConsoleCore &con) {
                     MarkCheater();
                     if (key == "all") {
                       GiveAllWeapons();
-                      GravMissile_Fill();
                       GiveAllKeys();
                     } else if (key == "energy") {
                       p.energy = MAX_ENERGY;
